@@ -19,7 +19,7 @@ export function AddToCartButton({ product, variation }: AddToCartButtonProps) {
 
   if (variation.inventory === 0) {
     return (
-      <Button disabled className="h-9 w-20 rounded-lg border border-primary bg-primary/10 text-primary hover:bg-primary/20">
+      <Button disabled className="w-full h-8 rounded-lg border border-primary bg-primary/10 text-primary hover:bg-primary/20 text-xs">
         Out of Stock
       </Button>
     );
@@ -35,20 +35,20 @@ export function AddToCartButton({ product, variation }: AddToCartButtonProps) {
 
   if (itemInCart) {
     return (
-      <div className="flex items-center justify-center gap-2">
+      <div className="flex items-center justify-between w-full h-8 rounded-lg border border-primary text-primary">
         <Button
-          variant="outline"
+          variant="ghost"
           size="icon"
-          className="h-8 w-8 rounded-full"
+          className="h-full w-8 rounded-none text-primary"
           onClick={() => dispatch({ type: 'DECREMENT_QUANTITY', payload: { variationId: variation.id } })}
         >
           <Minus className="h-4 w-4" />
         </Button>
-        <span className="font-bold text-lg">{itemInCart.quantity}</span>
+        <span className="font-bold text-sm">{itemInCart.quantity}</span>
         <Button
-          variant="outline"
+          variant="ghost"
           size="icon"
-          className="h-8 w-8 rounded-full"
+          className="h-full w-8 rounded-none text-primary"
           onClick={() => dispatch({ type: 'INCREMENT_QUANTITY', payload: { variationId: variation.id } })}
           disabled={itemInCart.quantity >= variation.inventory}
         >
@@ -61,7 +61,7 @@ export function AddToCartButton({ product, variation }: AddToCartButtonProps) {
   return (
     <Button 
         variant="outline" 
-        className="h-9 w-20 rounded-lg border-primary text-primary hover:bg-primary hover:text-primary-foreground" 
+        className="w-full h-8 rounded-lg border-primary text-primary hover:bg-primary hover:text-primary-foreground text-xs" 
         onClick={handleAddToCart}
     >
         ADD

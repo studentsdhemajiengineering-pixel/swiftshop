@@ -37,7 +37,7 @@ export function ProductCard({ product }: ProductCardProps) {
             </div>
           </div>
         )}
-        <div className="p-2 bg-white">
+        <div className="p-1 bg-white">
           <div className="relative aspect-square w-full">
             {image ? (
               <Image
@@ -52,7 +52,7 @@ export function ProductCard({ product }: ProductCardProps) {
             )}
           </div>
         </div>
-        <CardContent className="p-3 pt-2 flex-grow flex flex-col justify-between">
+        <CardContent className="p-2 flex-grow flex flex-col justify-between">
           <div>
             {defaultVariation.deliveryTime && (
               <div className="flex items-center text-xs text-muted-foreground mb-1">
@@ -60,16 +60,16 @@ export function ProductCard({ product }: ProductCardProps) {
                 <span>{defaultVariation.deliveryTime}</span>
               </div>
             )}
-            <h3 className="text-sm font-medium leading-tight line-clamp-2 group-hover:text-primary">
+            <h3 className="text-xs font-medium leading-tight line-clamp-2 group-hover:text-primary">
               {product.name}
             </h3>
-            <p className="text-sm text-muted-foreground mt-1">{defaultVariation.name}</p>
+            <p className="text-xs text-muted-foreground mt-1">{defaultVariation.name}</p>
           </div>
-          <div className="flex justify-between items-end mt-3">
-            <div>
-              <p className="font-bold text-lg">₹{defaultVariation.price.toFixed(2)}</p>
+          <div className="mt-2">
+            <div className="mb-2">
+              <p className="font-bold text-sm">₹{defaultVariation.price.toFixed(2)}</p>
               {defaultVariation.originalPrice && (
-                <p className="text-sm text-muted-foreground line-through">
+                <p className="text-xs text-muted-foreground line-through">
                   ₹{defaultVariation.originalPrice.toFixed(2)}
                 </p>
               )}
