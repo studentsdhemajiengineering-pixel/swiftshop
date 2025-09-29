@@ -4,15 +4,15 @@ import { allProducts, categories } from '@/lib/data';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Header } from '@/components/layout/header';
 import { CategoryGrid } from '@/components/products/category-grid';
-import { ProductGrid } from '@/components/products/product-grid';
+import { ProductCarousel } from '@/components/products/product-carousel';
 import { RecommendationsCarousel } from '@/components/recommendations/recommendations-carousel';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
 export default function Home() {
   const heroImage = PlaceHolderImages.find(p => p.id === 'hero-main');
-  const popularProducts = allProducts.slice(0, 4);
-  const hotDeals = allProducts.filter(p => p.variations.some(v => v.originalPrice)).slice(0, 4);
+  const popularProducts = allProducts.slice(0, 8);
+  const hotDeals = allProducts.filter(p => p.variations.some(v => v.originalPrice)).slice(0, 8);
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/20">
@@ -51,7 +51,7 @@ export default function Home() {
                     <Link href="/categories">See all</Link>
                 </Button>
             </div>
-            <ProductGrid products={hotDeals} />
+            <ProductCarousel products={hotDeals} />
           </section>
 
           <section className="py-6">
@@ -68,7 +68,7 @@ export default function Home() {
                     <Link href="/categories">See all</Link>
                 </Button>
             </div>
-            <ProductGrid products={popularProducts} />
+            <ProductCarousel products={popularProducts} />
           </section>
 
            <section className="py-6">
@@ -78,7 +78,7 @@ export default function Home() {
                     <Link href="/categories">See all</Link>
                 </Button>
             </div>
-            <ProductGrid products={allProducts} />
+            <ProductCarousel products={allProducts} />
           </section>
         </div>
       </main>

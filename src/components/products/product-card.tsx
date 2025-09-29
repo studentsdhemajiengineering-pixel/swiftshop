@@ -37,14 +37,14 @@ export function ProductCard({ product }: ProductCardProps) {
             </div>
           </div>
         )}
-        <div className="p-2 pt-4">
+        <div className="p-2 pt-4 bg-white">
           <div className="relative aspect-square w-full">
             {image ? (
               <Image
                 src={image.imageUrl}
                 alt={product.name}
                 fill
-                className="object-contain"
+                className="object-contain p-2"
                 data-ai-hint={image.imageHint}
               />
             ) : (
