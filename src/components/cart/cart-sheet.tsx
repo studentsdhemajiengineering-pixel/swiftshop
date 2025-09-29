@@ -55,7 +55,7 @@ export function CartSheet({ children }: { children: ReactNode }) {
                       <div className="flex-grow">
                         <h3 className="font-medium">{item.name}</h3>
                         <p className="text-sm text-muted-foreground">
-                          ${item.price.toFixed(2)}
+                          ₹{item.price.toFixed(2)}
                         </p>
                         <div className="mt-2 flex items-center justify-between">
                           <div className="flex items-center gap-2">
@@ -98,7 +98,7 @@ export function CartSheet({ children }: { children: ReactNode }) {
                 <div className="w-full space-y-4">
                     <div className="flex justify-between font-semibold text-lg">
                         <span>Subtotal</span>
-                        <span>${total.toFixed(2)}</span>
+                        <span>₹{total.toFixed(2)}</span>
                     </div>
                      <SheetClose asChild>
                        <Link href="/checkout" className='w-full'>

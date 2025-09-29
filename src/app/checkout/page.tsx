@@ -44,7 +44,7 @@ export default function CheckoutPage() {
   const [date, setDate] = useState<Date | undefined>();
 
   const subtotal = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
-  const deliveryFee = 2.00;
+  const deliveryFee = 50.00;
   const total = subtotal + deliveryFee;
 
   const handlePlaceOrder = () => {
@@ -147,7 +147,7 @@ export default function CheckoutPage() {
                             <h4 className="font-medium text-sm">{item.name}</h4>
                             <p className="text-xs text-muted-foreground">{item.quantity} x {item.unit}</p>
                         </div>
-                        <div className="font-medium text-sm text-right">${(item.price * item.quantity).toFixed(2)}</div>
+                        <div className="font-medium text-sm text-right">₹{(item.price * item.quantity).toFixed(2)}</div>
                     </div>
                   ))}
                 </CardContent>
@@ -174,16 +174,16 @@ export default function CheckoutPage() {
                 <CardContent className="p-4 space-y-2">
                     <div className="flex justify-between text-sm text-muted-foreground">
                         <span>Subtotal</span>
-                        <span>${subtotal.toFixed(2)}</span>
+                        <span>₹{subtotal.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-sm text-muted-foreground">
                         <span>Delivery Fee</span>
-                        <span>${deliveryFee.toFixed(2)}</span>
+                        <span>₹{deliveryFee.toFixed(2)}</span>
                     </div>
                     <Separator />
                     <div className="flex justify-between font-semibold text-base">
                         <span>Total</span>
-                        <span>${total.toFixed(2)}</span>
+                        <span>₹{total.toFixed(2)}</span>
                     </div>
                 </CardContent>
               </Card>

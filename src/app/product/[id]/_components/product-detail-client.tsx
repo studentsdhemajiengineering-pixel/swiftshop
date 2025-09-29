@@ -96,7 +96,7 @@ export function ProductDetailClient({ product }: { product: Product }) {
                     <RadioGroupItem value={variation.id} id={variation.id} className="sr-only" />
                     <Label htmlFor={variation.id} className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">
                       <span className="font-semibold">{variation.name}</span>
-                      <span className="text-sm">${variation.price.toFixed(2)}</span>
+                      <span className="text-sm">₹{variation.price.toFixed(2)}</span>
                     </Label>
                   </div>
                 ))}
@@ -105,7 +105,7 @@ export function ProductDetailClient({ product }: { product: Product }) {
 
             <div className="flex justify-between items-center">
                 <h2 className="text-lg font-semibold">Price</h2>
-                <p className="text-xl font-bold">${selectedVariation.price.toFixed(2)}</p>
+                <p className="text-xl font-bold">₹{selectedVariation.price.toFixed(2)}</p>
             </div>
         </div>
       </main>

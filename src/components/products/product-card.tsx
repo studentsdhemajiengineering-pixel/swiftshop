@@ -38,7 +38,7 @@ export function ProductCard({ product }: ProductCardProps) {
             <h3 className="text-sm font-medium leading-tight mb-2 flex-grow group-hover:text-primary">{product.name}</h3>
             <div className="flex justify-between items-center">
                 <div className="font-semibold text-base">
-                ${defaultVariation.price.toFixed(2)}
+                ₹{defaultVariation.price.toFixed(2)}
                 </div>
                 {/* The AddToCartButton has its own internal logic that stops propagation, 
                     but wrapping it in a div and stopping propagation on the div itself 
