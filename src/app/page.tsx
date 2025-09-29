@@ -6,10 +6,13 @@ import { Header } from '@/components/layout/header';
 import { CategoryGrid } from '@/components/products/category-grid';
 import { ProductGrid } from '@/components/products/product-grid';
 import { RecommendationsCarousel } from '@/components/recommendations/recommendations-carousel';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 
 export default function Home() {
   const heroImage = PlaceHolderImages.find(p => p.id === 'hero-main');
   const popularProducts = allProducts.slice(0, 4);
+  const hotDeals = allProducts.filter(p => p.variations.some(v => v.originalPrice)).slice(0, 4);
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/20">
@@ -32,22 +35,39 @@ export default function Home() {
           </section>
 
           <section className="py-6">
-            <h2 className="text-xl font-bold tracking-tight mb-4">Categories</h2>
-            <CategoryGrid categories={categories} />
+            <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold tracking-tight">Hot Deals</h2>
+                <Button variant="link" asChild>
+                    <Link href="/categories">See all</Link>
+                </Button>
+            </div>
+            <ProductGrid products={hotDeals} />
           </section>
 
           <section className="py-6">
-            <h2 className="text-xl font-bold tracking-tight mb-4">For You</h2>
+             <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold tracking-tight">For You</h2>
+             </div>
             <RecommendationsCarousel allProducts={allProducts} />
           </section>
 
           <section className="py-6">
-            <h2 className="text-xl font-bold tracking-tight mb-4">Popular Products</h2>
+             <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold tracking-tight">Popular Products</h2>
+                 <Button variant="link" asChild>
+                    <Link href="/categories">See all</Link>
+                </Button>
+            </div>
             <ProductGrid products={popularProducts} />
           </section>
 
            <section className="py-6">
-            <h2 className="text-xl font-bold tracking-tight mb-4">All Products</h2>
+             <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold tracking-tight">All Products</h2>
+                 <Button variant="link" asChild>
+                    <Link href="/categories">See all</Link>
+                </Button>
+            </div>
             <ProductGrid products={allProducts} />
           </section>
         </div>

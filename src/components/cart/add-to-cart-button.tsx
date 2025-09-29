@@ -19,7 +19,7 @@ export function AddToCartButton({ product, variation }: AddToCartButtonProps) {
 
   if (variation.inventory === 0) {
     return (
-      <Button disabled size="lg" className="w-full">
+      <Button disabled size="sm" className="w-20">
         Out of Stock
       </Button>
     );
@@ -35,32 +35,32 @@ export function AddToCartButton({ product, variation }: AddToCartButtonProps) {
 
   if (itemInCart) {
     return (
-      <div className="flex items-center justify-between w-full rounded-full bg-primary text-primary-foreground h-12 px-2">
+      <div className="flex items-center justify-between w-20 h-9 rounded-md border border-primary text-primary font-bold">
         <Button
           variant="ghost"
           size="icon"
-          className="h-9 w-9 text-primary-foreground rounded-full hover:bg-primary/80"
+          className="h-full w-1/3 text-primary rounded-r-none hover:bg-primary/10"
           onClick={() => dispatch({ type: 'DECREMENT_QUANTITY', payload: { variationId: variation.id } })}
         >
-          <Minus className="h-5 w-5" />
+          <Minus className="h-4 w-4" />
         </Button>
-        <span className="font-bold text-lg">{itemInCart.quantity}</span>
+        <span className="text-sm">{itemInCart.quantity}</span>
         <Button
           variant="ghost"
           size="icon"
-          className="h-9 w-9 text-primary-foreground rounded-full hover:bg-primary/80"
+          className="h-full w-1/3 text-primary rounded-l-none hover:bg-primary/10"
           onClick={() => dispatch({ type: 'INCREMENT_QUANTITY', payload: { variationId: variation.id } })}
           disabled={itemInCart.quantity >= variation.inventory}
         >
-          <Plus className="h-5 w-5" />
+          <Plus className="h-4 w-4" />
         </Button>
       </div>
     );
   }
 
   return (
-    <Button size="lg" className="w-full" onClick={handleAddToCart}>
-        Add to Cart
+    <Button size="sm" variant="outline" className="w-20 border-primary text-primary font-bold hover:bg-primary/10 hover:text-primary" onClick={handleAddToCart}>
+        ADD
     </Button>
   );
 }

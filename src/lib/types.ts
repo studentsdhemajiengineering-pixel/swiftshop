@@ -2,6 +2,7 @@ export type ProductVariation = {
   id: string;
   name: string;
   price: number;
+  originalPrice?: number;
   inventory: number;
   unit: 'kg' | 'g' | 'piece' | 'liter' | 'ml' | 'dozen';
 };
@@ -13,6 +14,7 @@ export type Product = {
   category: string;
   description: string;
   variations: ProductVariation[];
+  deliveryTime?: string;
 };
 
 export type CartItem = {
