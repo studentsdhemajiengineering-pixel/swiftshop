@@ -1,9 +1,11 @@
+
 import Image from 'next/image';
 import { allProducts, categories } from '@/lib/data';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Header } from '@/components/layout/header';
 import { CategoryGrid } from '@/components/products/category-grid';
 import { ProductGrid } from '@/components/products/product-grid';
+import { RecommendationsCarousel } from '@/components/recommendations/recommendations-carousel';
 
 export default function Home() {
   const heroImage = PlaceHolderImages.find(p => p.id === 'hero-main');
@@ -32,6 +34,11 @@ export default function Home() {
           <section className="py-6">
             <h2 className="text-xl font-bold tracking-tight mb-4">Categories</h2>
             <CategoryGrid categories={categories} />
+          </section>
+
+          <section className="py-6">
+            <h2 className="text-xl font-bold tracking-tight mb-4">For You</h2>
+            <RecommendationsCarousel allProducts={allProducts} />
           </section>
 
           <section className="py-6">
