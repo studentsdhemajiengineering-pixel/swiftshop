@@ -32,11 +32,11 @@ const AccountHeader = () => {
 
 const settingsItems = [
   { icon: Clock, label: 'Order History', href: '/track-order' },
-  { icon: MapPin, label: 'Saved Addresses', href: '#' },
-  { icon: Heart, label: 'Wishlist', href: '#' },
-  { icon: Bell, label: 'Notifications', href: '#' },
-  { icon: CreditCard, label: 'Payment Methods', href: '#' },
-  { icon: HelpCircle, label: 'Help & Support', href: '#' },
+  { icon: MapPin, label: 'Saved Addresses', href: '/account/addresses' },
+  { icon: Heart, label: 'Wishlist', href: '/account/wishlist' },
+  { icon: Bell, label: 'Notifications', href: '/account/notifications' },
+  { icon: CreditCard, label: 'Payment Methods', href: '/account/payments' },
+  { icon: HelpCircle, label: 'Help & Support', href: '/account/support' },
 ];
 
 export default function AccountPage() {
@@ -56,7 +56,7 @@ export default function AccountPage() {
                 </Avatar>
                 <div>
                     <h3 className="font-semibold text-lg">Sophia Carter</h3>
-                    <Link href="#" className="text-sm text-primary">
+                    <Link href="/account/profile" className="text-sm text-primary">
                         Edit profile
                     </Link>
                 </div>

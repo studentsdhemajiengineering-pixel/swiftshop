@@ -1,7 +1,6 @@
+
 import { Header } from '@/components/layout/header';
-import { CategoryGrid } from '@/components/products/category-grid';
 import { categories } from '@/lib/data';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Image from 'next/image';
 import Link from 'next/link';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
@@ -13,32 +12,28 @@ export default function CategoriesPage() {
       <main className="flex-1">
         <div className="container mx-auto px-4 py-6 sm:px-6 lg:px-8">
           <h1 className="text-2xl font-bold tracking-tight mb-6">All Categories</h1>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+          <div className="grid grid-cols-4 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-y-8 gap-x-4">
             {categories.map((category) => {
               const image = PlaceHolderImages.find((p) => p.id === category.imageId);
               return (
-                <Link key={category.id} href={`/category/${category.id}`} className="group">
-                  <Card className="overflow-hidden h-full transition-shadow hover:shadow-lg">
-                    <CardContent className="p-0">
-                      {image && (
-                        <div className="relative w-full aspect-square">
-                          <Image
-                            src={image.imageUrl}
-                            alt={category.name}
-                            fill
-                            className="object-cover"
-                            data-ai-hint={image.imageHint}
-                          />
-                        </div>
-                      )}
-                      <div className="p-3">
-                        <h3 className="text-sm font-medium text-center leading-tight group-hover:text-primary">
-                          {category.name}
-                        </h3>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
+                 <Link key={category.id} href={`/category/${category.id}`}>
+                    <div className="group flex flex-col items-center justify-center text-center">
+                        {image && (
+                            <div className="relative w-20 h-20 rounded-full overflow-hidden mb-2 shadow-sm group-hover:shadow-md transition-shadow">
+                                <Image
+                                    src={image.imageUrl}
+                                    alt={category.name}
+                                    fill
+                                    className="object-cover"
+                                    data-ai-hint={image.imageHint}
+                                />
+                            </div>
+                        )}
+                      <p className="text-xs font-medium text-foreground group-hover:text-primary leading-tight">
+                        {category.name}
+                      </p>
+                    </div>
+                  </Link>
               );
             })}
           </div>
