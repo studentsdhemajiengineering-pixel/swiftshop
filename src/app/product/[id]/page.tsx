@@ -19,7 +19,7 @@ import {
 const ProductDetailHeader = () => {
     const router = useRouter();
     return (
-        <header className="bg-background/80 backdrop-blur-sm fixed top-0 left-0 right-0 z-40">
+        <header className="bg-background/80 backdrop-blur-sm sticky top-0 left-0 right-0 z-40">
             <div className="container flex h-14 items-center gap-4">
                 <Button variant="ghost" size="icon" onClick={() => router.back()} className="h-8 w-8">
                     <ArrowLeft className="h-5 w-5" />
@@ -46,7 +46,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
   return (
     <div className="flex min-h-screen w-full flex-col bg-background">
       <ProductDetailHeader />
-      <main className="flex-1 pt-14 pb-28">
+      <main className="flex-1 pt-4 pb-40">
         <div className="p-4">
           <Carousel className="w-full max-w-xl mx-auto">
             <CarouselContent>
@@ -92,8 +92,8 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
 
         </div>
       </main>
-       <div className="fixed bottom-16 sm:bottom-0 left-0 right-0 bg-background/80 backdrop-blur-sm p-4 border-t">
-         <div className="container mx-auto max-w-2xl px-0">
+       <div className="fixed bottom-20 md:bottom-auto md:relative bg-background/80 backdrop-blur-sm p-4 border-t md:border-none md:p-0 md:bg-transparent">
+         <div className="container mx-auto max-w-2xl px-0 md:px-4">
              <AddToCartButton product={product} />
          </div>
       </div>

@@ -16,11 +16,6 @@ const navItems = [
 export function BottomNav() {
   const pathname = usePathname();
 
-  // The checkout page has its own layout without the bottom nav
-  if (pathname.startsWith('/checkout') || pathname.startsWith('/product/')) {
-    return null;
-  }
-
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-background border-t shadow-top md:hidden z-50">
       <div className="container mx-auto px-2">
