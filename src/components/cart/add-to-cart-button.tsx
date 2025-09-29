@@ -19,7 +19,7 @@ export function AddToCartButton({ product, variation }: AddToCartButtonProps) {
 
   if (variation.inventory === 0) {
     return (
-      <Button disabled className="w-full h-9 rounded-lg border border-muted bg-muted text-muted-foreground text-sm">
+      <Button disabled className="w-full h-8 rounded-lg border border-muted bg-muted text-muted-foreground text-sm">
         Out of Stock
       </Button>
     );
@@ -35,20 +35,20 @@ export function AddToCartButton({ product, variation }: AddToCartButtonProps) {
 
   if (itemInCart) {
     return (
-      <div className="flex items-center justify-between w-full h-9 rounded-lg border border-primary text-primary bg-primary/5">
+      <div className="flex items-center justify-between w-full h-8 rounded-lg border border-primary text-primary bg-primary/5">
         <Button
           variant="ghost"
           size="icon"
-          className="h-full w-8 rounded-none text-primary"
+          className="h-full w-6 rounded-none text-primary"
           onClick={() => dispatch({ type: 'DECREMENT_QUANTITY', payload: { variationId: variation.id } })}
         >
           <Minus className="h-4 w-4" />
         </Button>
-        <span className="font-bold text-sm">{itemInCart.quantity}</span>
+        <span className="font-bold text-xs">{itemInCart.quantity}</span>
         <Button
           variant="ghost"
           size="icon"
-          className="h-full w-8 rounded-none text-primary"
+          className="h-full w-6 rounded-none text-primary"
           onClick={() => dispatch({ type: 'INCREMENT_QUANTITY', payload: { variationId: variation.id } })}
           disabled={itemInCart.quantity >= variation.inventory}
         >
@@ -61,7 +61,7 @@ export function AddToCartButton({ product, variation }: AddToCartButtonProps) {
   return (
     <Button 
         variant="outline" 
-        className="w-full h-9 rounded-lg border-primary text-primary hover:bg-primary hover:text-primary-foreground font-semibold text-sm" 
+        className="w-full h-8 rounded-lg border-primary text-primary hover:bg-primary hover:text-primary-foreground font-semibold text-sm" 
         onClick={handleAddToCart}
     >
         ADD

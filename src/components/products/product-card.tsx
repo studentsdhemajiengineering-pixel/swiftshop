@@ -43,7 +43,7 @@ export function ProductCard({ product }: ProductCardProps) {
                 src={image.imageUrl}
                 alt={product.name}
                 fill
-                className="object-contain p-2"
+                className="object-contain p-1"
                 data-ai-hint={image.imageHint}
               />
             ) : (
@@ -62,7 +62,7 @@ export function ProductCard({ product }: ProductCardProps) {
             <h3 className="text-sm font-medium leading-tight line-clamp-2 group-hover:text-primary">
               {product.name}
             </h3>
-            <p className="text-xs text-muted-foreground mt-1">{defaultVariation.name}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">{defaultVariation.name}</p>
           </div>
           <div className="mt-2 flex justify-between items-end">
             <div>
@@ -73,7 +73,7 @@ export function ProductCard({ product }: ProductCardProps) {
                 </p>
               )}
             </div>
-            <div className="w-20" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+            <div className="w-[70px]" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
               <AddToCartButton product={product} variation={defaultVariation} />
             </div>
           </div>
