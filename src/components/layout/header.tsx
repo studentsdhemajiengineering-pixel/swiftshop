@@ -40,7 +40,7 @@ export function Header() {
                 ) : address ? (
                   address
                 ) : (
-                  'Could not fetch location'
+                  'Location not found'
                 )
               )}
             </p>
