@@ -2,7 +2,7 @@
 'use client';
 
 import type { CartItem, Product } from '@/lib/types';
-import React, { createContext, useContext, useReducer, type ReactNode } from 'react';
+import React, { createContext, useContext, useReducer, type ReactNode, useEffect } from 'react';
 
 type CartState = {
   cart: CartItem[];
@@ -13,15 +13,19 @@ type CartAction =
   | { type: 'REMOVE_ITEM'; payload: { id: string } }
   | { type: 'INCREMENT_QUANTITY'; payload: { id: string } }
   | { type: 'DECREMENT_QUANTITY'; payload: { id: string } }
-  | { type: 'CLEAR_CART' };
+  | { type: 'CLEAR_CART' }
+  | { type: 'SET_STATE'; payload: CartState };
 
 const CartContext = createContext<{
   state: CartState;
   dispatch: React.Dispatch<CartAction>;
 } | null>(null);
 
+
 const cartReducer = (state: CartState, action: CartAction): CartState => {
   switch (action.type) {
+    case 'SET_STATE':
+        return action.payload;
     case 'ADD_ITEM': {
       const existingItem = state.cart.find((item) => item.id === action.payload.id);
       if (existingItem) {
@@ -50,7 +54,7 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
         ...state,
         cart: state.cart.map((item) =>
           item.id === action.payload.id
-            ? { ...item, quantity: item.quantity + 1 }
+            ? { ...item, quantity: Math.min(item.quantity + 1, item.inventory) }
             : item
         ),
       };
@@ -84,8 +88,47 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
   }
 };
 
+const getInitialState = (): CartState => {
+    try {
+      if (typeof window !== 'undefined') {
+        const item = window.localStorage.getItem('cart');
+        return item ? JSON.parse(item) : { cart: [] };
+      }
+    } catch (error) {
+      console.error('Error reading from localStorage', error);
+    }
+    return { cart: [] };
+}
+
+
 export const CartProvider = ({ children }: { children: ReactNode }) => {
-  const [state, dispatch] = useReducer(cartReducer, { cart: [] });
+  const [state, dispatch] = useReducer(cartReducer, getInitialState());
+
+  useEffect(() => {
+    try {
+        window.localStorage.setItem('cart', JSON.stringify(state));
+    } catch (error) {
+        console.error('Error writing to localStorage', error);
+    }
+  }, [state]);
+
+  // This effect listens for storage changes from other tabs.
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+        if (e.key === 'cart' && e.newValue) {
+            try {
+                dispatch({ type: 'SET_STATE', payload: JSON.parse(e.newValue) });
+            } catch (error) {
+                console.error('Error parsing cart from localStorage', error);
+            }
+        }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => {
+        window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
 
   return (
     <CartContext.Provider value={{ state, dispatch }}>
