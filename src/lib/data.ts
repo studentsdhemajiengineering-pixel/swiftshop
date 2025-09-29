@@ -12,13 +12,80 @@ export const categories: Category[] = [
 ];
 
 export const allProducts: Product[] = [
-  { id: '1', name: 'Fresh Vegetables', price: 5.99, imageId: 'product-fresh-vegetables', category: 'vegetables-fruits', inventory: 100, unit: 'kg' },
-  { id: '2', name: 'Organic Atta', price: 8.50, imageId: 'product-organic-atta', category: 'atta-rice-dal', inventory: 150, unit: 'kg' },
-  { id: '3', name: 'Sunflower Oil', price: 12.00, imageId: 'product-sunflower-oil', category: 'oil-ghee-masala', inventory: 50, unit: 'liter' },
-  { id: '4', name: 'Fresh Milk', price: 3.20, imageId: 'product-fresh-milk', category: 'dairy-bread-eggs', inventory: 80, unit: 'liter' },
-  { id: '5', name: 'Organic Eggs', price: 3.0, imageId: 'eggs', category: 'dairy-bread-eggs', inventory: 60, unit: 'dozen' },
-  { id: '6', name: 'Chicken Breast', price: 9.99, imageId: 'chicken', category: 'chicken-meat-fish', inventory: 30, unit: 'kg' },
-  { id: '7', name: 'Artisan Bread', price: 4.5, imageId: 'bread', category: 'bakery-biscuits', inventory: 50, unit: 'piece' },
+  { 
+    id: '1', 
+    name: 'Fresh Vegetables', 
+    imageId: 'product-fresh-vegetables', 
+    category: 'vegetables-fruits', 
+    description: 'A mix of fresh, seasonal vegetables, perfect for a healthy meal. Sourced from local farms to ensure the best quality and taste.',
+    variations: [
+      { id: '1-500g', name: '500g', price: 2.99, inventory: 100, unit: 'g' },
+      { id: '1-1kg', name: '1kg', price: 5.99, inventory: 100, unit: 'kg' },
+    ]
+  },
+  { 
+    id: '2', 
+    name: 'Organic Atta', 
+    imageId: 'product-organic-atta', 
+    category: 'atta-rice-dal',
+    description: 'Whole wheat flour, organically grown and stone-ground to preserve its natural goodness. Ideal for making soft rotis and chapatis.',
+    variations: [
+      { id: '2-1kg', name: '1kg', price: 4.50, inventory: 150, unit: 'kg' },
+      { id: '2-5kg', name: '5kg', price: 20.00, inventory: 50, unit: 'kg' },
+    ]
+  },
+  { 
+    id: '3', 
+    name: 'Sunflower Oil', 
+    imageId: 'product-sunflower-oil', 
+    category: 'oil-ghee-masala',
+    description: 'Light and healthy sunflower oil, perfect for all your cooking needs. Rich in Vitamin E and low in saturated fats.',
+    variations: [
+      { id: '3-1l', name: '1L', price: 12.00, inventory: 50, unit: 'liter' },
+    ]
+  },
+  { 
+    id: '4', 
+    name: 'Fresh Milk', 
+    imageId: 'product-fresh-milk', 
+    category: 'dairy-bread-eggs',
+    description: 'Creamy and delicious full-cream milk, sourced from pasture-raised cows. Perfect for your morning coffee or cereal.',
+    variations: [
+      { id: '4-500ml', name: '500ml', price: 1.80, inventory: 80, unit: 'ml' },
+      { id: '4-1l', name: '1L', price: 3.20, inventory: 80, unit: 'liter' },
+    ]
+  },
+  { 
+    id: '5', 
+    name: 'Organic Eggs', 
+    imageId: 'eggs', 
+    category: 'dairy-bread-eggs',
+    description: 'Farm-fresh organic eggs, laid by free-range hens. A great source of protein to start your day.',
+    variations: [
+      { id: '5-6pc', name: '6 pieces', price: 2.50, inventory: 60, unit: 'piece' },
+      { id: '5-12pc', name: '12 pieces', price: 4.50, inventory: 60, unit: 'dozen' },
+    ]
+  },
+  { 
+    id: '6', 
+    name: 'Chicken Breast', 
+    imageId: 'chicken', 
+    category: 'chicken-meat-fish',
+    description: 'Tender, boneless, and skinless chicken breast. A lean source of protein for a variety of dishes.',
+    variations: [
+      { id: '6-1kg', name: '1kg', price: 9.99, inventory: 30, unit: 'kg' },
+    ]
+  },
+  { 
+    id: '7', 
+    name: 'Artisan Bread', 
+    imageId: 'bread', 
+    category: 'bakery-biscuits',
+    description: 'A crusty loaf of artisan-style bread, baked fresh daily. Perfect for sandwiches or enjoying with soup.',
+    variations: [
+      { id: '7-1pc', name: '1 piece', price: 4.50, inventory: 50, unit: 'piece' },
+    ]
+  },
 ];
 
 export const purchaseHistory = [

@@ -2,21 +2,22 @@
 'use client';
 
 import { useCart } from '@/hooks/use-cart';
-import type { Product } from '@/lib/types';
+import type { Product, ProductVariation } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Minus, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface AddToCartButtonProps {
   product: Product;
+  variation: ProductVariation;
 }
 
-export function AddToCartButton({ product }: AddToCartButtonProps) {
+export function AddToCartButton({ product, variation }: AddToCartButtonProps) {
   const { state, dispatch } = useCart();
   const { toast } = useToast();
-  const itemInCart = state.cart.find((item) => item.id === product.id);
+  const itemInCart = state.cart.find((item) => item.variationId === variation.id);
 
-  if (product.inventory === 0) {
+  if (variation.inventory === 0) {
     return (
       <Button disabled size="lg" className="w-full">
         Out of Stock
@@ -25,10 +26,10 @@ export function AddToCartButton({ product }: AddToCartButtonProps) {
   }
 
   const handleAddToCart = () => {
-    dispatch({ type: 'ADD_ITEM', payload: product });
+    dispatch({ type: 'ADD_ITEM', payload: { product, variation } });
     toast({
       title: 'Added to cart!',
-      description: `${product.name} is now in your cart.`,
+      description: `${product.name} - ${variation.name} is now in your cart.`,
     });
   };
 
@@ -39,7 +40,7 @@ export function AddToCartButton({ product }: AddToCartButtonProps) {
           variant="ghost"
           size="icon"
           className="h-9 w-9 text-primary-foreground rounded-full hover:bg-primary/80"
-          onClick={() => dispatch({ type: 'DECREMENT_QUANTITY', payload: { id: product.id } })}
+          onClick={() => dispatch({ type: 'DECREMENT_QUANTITY', payload: { variationId: variation.id } })}
         >
           <Minus className="h-5 w-5" />
         </Button>
@@ -48,8 +49,8 @@ export function AddToCartButton({ product }: AddToCartButtonProps) {
           variant="ghost"
           size="icon"
           className="h-9 w-9 text-primary-foreground rounded-full hover:bg-primary/80"
-          onClick={() => dispatch({ type: 'INCREMENT_QUANTITY', payload: { id: product.id } })}
-          disabled={itemInCart.quantity >= product.inventory}
+          onClick={() => dispatch({ type: 'INCREMENT_QUANTITY', payload: { variationId: variation.id } })}
+          disabled={itemInCart.quantity >= variation.inventory}
         >
           <Plus className="h-5 w-5" />
         </Button>

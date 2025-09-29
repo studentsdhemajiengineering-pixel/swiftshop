@@ -1,6 +1,7 @@
 
 'use client';
 
+import { useState } from 'react';
 import { allProducts } from '@/lib/data';
 import { notFound, useRouter } from 'next/navigation';
 import Image from 'next/image';
@@ -15,6 +16,9 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from '@/components/ui/carousel';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
+import { ProductVariation } from '@/lib/types';
 
 const ProductDetailHeader = () => {
     const router = useRouter();
@@ -36,8 +40,9 @@ const ProductDetailHeader = () => {
 
 export default function ProductDetailPage({ params }: { params: { id: string } }) {
   const product = allProducts.find((p) => p.id === params.id);
+  const [selectedVariation, setSelectedVariation] = useState<ProductVariation | undefined>(product?.variations[0]);
 
-  if (!product) {
+  if (!product || !selectedVariation) {
     notFound();
   }
 
@@ -76,25 +81,38 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
             <div>
                 <h1 className="text-2xl font-bold tracking-tight">{product.name}</h1>
                 <p className="mt-4 text-muted-foreground">
-                    Fresh, creamy, and packed with nutrients, our organic {product.name.toLowerCase()}s are perfect for salads, smoothies, or simply enjoying on toast. Grown without pesticides, they're a healthy choice for you and the planet.
+                   {product.description}
                 </p>
+            </div>
+            
+            <div>
+              <h2 className="text-lg font-semibold mb-3">Variations</h2>
+              <RadioGroup 
+                defaultValue={selectedVariation.id} 
+                className="grid grid-cols-3 gap-4"
+                onValueChange={(value) => setSelectedVariation(product.variations.find(v => v.id === value))}
+              >
+                {product.variations.map((variation) => (
+                   <div>
+                    <RadioGroupItem value={variation.id} id={variation.id} className="sr-only" />
+                    <Label htmlFor={variation.id} className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">
+                      <span className="font-semibold">{variation.name}</span>
+                      <span className="text-sm">${variation.price.toFixed(2)}</span>
+                    </Label>
+                  </div>
+                ))}
+              </RadioGroup>
             </div>
 
             <div className="flex justify-between items-center">
                 <h2 className="text-lg font-semibold">Price</h2>
-                <p className="text-xl font-bold">${product.price.toFixed(2)}</p>
+                <p className="text-xl font-bold">${selectedVariation.price.toFixed(2)}</p>
             </div>
-            
-            <div className="flex justify-between items-center">
-                 <h2 className="text-lg font-semibold">Unit</h2>
-                <p className="text-lg font-medium text-muted-foreground capitalize">{product.unit}</p>
-            </div>
-
         </div>
       </main>
        <div className="fixed bottom-20 md:bottom-auto md:relative bg-background/80 backdrop-blur-sm p-4 border-t md:border-none md:p-0 md:bg-transparent">
          <div className="container mx-auto max-w-2xl px-0 md:px-4">
-             <AddToCartButton product={product} />
+             <AddToCartButton product={product} variation={selectedVariation} />
          </div>
       </div>
     </div>

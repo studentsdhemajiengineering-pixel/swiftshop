@@ -14,6 +14,7 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
   const image = PlaceHolderImages.find((p) => p.id === product.imageId);
+  const defaultVariation = product.variations[0];
 
   return (
     <Link href={`/product/${product.id}`} className="group">
@@ -37,13 +38,13 @@ export function ProductCard({ product }: ProductCardProps) {
             <h3 className="text-sm font-medium leading-tight mb-2 flex-grow group-hover:text-primary">{product.name}</h3>
             <div className="flex justify-between items-center">
                 <div className="font-semibold text-base">
-                ${product.price.toFixed(2)}
+                ${defaultVariation.price.toFixed(2)}
                 </div>
                 {/* The AddToCartButton has its own internal logic that stops propagation, 
                     but wrapping it in a div and stopping propagation on the div itself 
                     is a more robust way to prevent the Link from firing. */}
                 <div onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
-                    <AddToCartButton product={product} />
+                    <AddToCartButton product={product} variation={defaultVariation} />
                 </div>
             </div>
         </CardContent>

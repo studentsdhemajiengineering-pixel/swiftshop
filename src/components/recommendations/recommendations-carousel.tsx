@@ -24,7 +24,7 @@ export function RecommendationsCarousel({ allProducts }: RecommendationsCarousel
   const [recommendations, setRecommendations] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const cartItemsNames = useMemo(() => state.cart.map((item) => item.name), [state.cart]);
+  const cartItemsProductIds = useMemo(() => state.cart.map((item) => item.productId), [state.cart]);
 
   useEffect(() => {
     const fetchRecommendations = async () => {
@@ -32,14 +32,14 @@ export function RecommendationsCarousel({ allProducts }: RecommendationsCarousel
       try {
         const result = await getPersonalizedRecommendations({
           purchaseHistory,
-          currentCart: cartItemsNames,
+          currentCart: state.cart.map(item => item.name.split(' - ')[0]),
         });
 
         const recommendedProducts = result.recommendations
           .map((name) => allProducts.find((p) => p.name === name))
           .filter((p): p is Product => p !== undefined)
           // Exclude items already in the cart
-          .filter((p) => !cartItemsNames.includes(p.name))
+          .filter((p) => !cartItemsProductIds.includes(p.id))
           .slice(0, 8); // Limit to 8 recommendations
 
         setRecommendations(recommendedProducts);
@@ -52,7 +52,7 @@ export function RecommendationsCarousel({ allProducts }: RecommendationsCarousel
     };
 
     fetchRecommendations();
-  }, [cartItemsNames, allProducts]);
+  }, [cartItemsProductIds, allProducts, state.cart]);
 
   if (loading) {
     return (

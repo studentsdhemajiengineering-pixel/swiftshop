@@ -1,19 +1,27 @@
-export type Product = {
+export type ProductVariation = {
   id: string;
   name: string;
   price: number;
-  imageId: string;
-  category: string;
   inventory: number;
-  unit: 'kg' | 'piece' | 'liter' | 'dozen';
+  unit: 'kg' | 'g' | 'piece' | 'liter' | 'ml' | 'dozen';
 };
 
-export type Category = {
+export type Product = {
   id: string;
   name: string;
   imageId: string;
+  category: string;
+  description: string;
+  variations: ProductVariation[];
 };
 
-export type CartItem = Product & {
+export type CartItem = {
+  productId: string;
+  variationId: string;
+  name: string;
+  price: number;
+  unit: string;
   quantity: number;
+  imageId: string;
+  inventory: number;
 };

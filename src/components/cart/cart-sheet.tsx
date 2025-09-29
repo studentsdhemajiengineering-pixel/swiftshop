@@ -41,7 +41,7 @@ export function CartSheet({ children }: { children: ReactNode }) {
                 {cart.map((item) => {
                   const image = PlaceHolderImages.find((p) => p.id === item.imageId);
                   return (
-                    <div key={item.id} className="flex items-start gap-4">
+                    <div key={item.variationId} className="flex items-start gap-4">
                       <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-md">
                         {image && (
                           <Image
@@ -63,7 +63,7 @@ export function CartSheet({ children }: { children: ReactNode }) {
                               variant="outline"
                               size="icon"
                               className="h-7 w-7"
-                              onClick={() => dispatch({ type: 'DECREMENT_QUANTITY', payload: { id: item.id } })}
+                              onClick={() => dispatch({ type: 'DECREMENT_QUANTITY', payload: { variationId: item.variationId } })}
                             >
                               <Minus className="h-4 w-4" />
                             </Button>
@@ -72,7 +72,7 @@ export function CartSheet({ children }: { children: ReactNode }) {
                               variant="outline"
                               size="icon"
                               className="h-7 w-7"
-                              onClick={() => dispatch({ type: 'INCREMENT_QUANTITY', payload: { id: item.id } })}
+                              onClick={() => dispatch({ type: 'INCREMENT_QUANTITY', payload: { variationId: item.variationId } })}
                               disabled={item.quantity >= item.inventory}
                             >
                               <Plus className="h-4 w-4" />
@@ -82,7 +82,7 @@ export function CartSheet({ children }: { children: ReactNode }) {
                             variant="ghost"
                             size="icon"
                             className="text-muted-foreground hover:text-destructive"
-                            onClick={() => dispatch({ type: 'REMOVE_ITEM', payload: { id: item.id } })}
+                            onClick={() => dispatch({ type: 'REMOVE_ITEM', payload: { variationId: item.variationId } })}
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>

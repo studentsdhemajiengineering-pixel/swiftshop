@@ -142,7 +142,7 @@ export default function CheckoutPage() {
               <Card className="bg-background">
                 <CardContent className="p-4 space-y-4">
                   {cart.map((item) => (
-                    <div key={item.id} className="flex justify-between items-start">
+                    <div key={item.variationId} className="flex justify-between items-start">
                         <div>
                             <h4 className="font-medium text-sm">{item.name}</h4>
                             <p className="text-xs text-muted-foreground">{item.quantity} x {item.unit}</p>
