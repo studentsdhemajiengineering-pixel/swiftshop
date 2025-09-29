@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { AppProviders } from '@/app/providers';
 import { Toaster } from '@/components/ui/toaster';
 import './globals.css';
+import { BottomNav } from '@/components/layout/bottom-nav';
 
 export const metadata: Metadata = {
   title: 'SwiftShop',
@@ -22,7 +23,10 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased">
         <AppProviders>
-          {children}
+          <div className="pb-20">
+           {children}
+          </div>
+          <BottomNav />
         </AppProviders>
         <Toaster />
       </body>

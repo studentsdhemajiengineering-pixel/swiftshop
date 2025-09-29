@@ -1,6 +1,12 @@
 {
   "placeholderImages": [
     {
+      "id": "hero-main",
+      "description": "Hero banner for grocery app",
+      "imageUrl": "https://images.unsplash.com/photo-1590671911659-3ce95e8b91c5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxncm9jZXJ5JTIwcHJvbW90aW9ufGVufDB8fHx8MTc1OTEzOTIyNHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "grocery promotion"
+    },
+    {
       "id": "hero-1",
       "description": "A vibrant display of fresh fruits and vegetables.",
       "imageUrl": "https://images.unsplash.com/photo-1610541756109-33b81610a402?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxmcmVzaCUyMGdyb2Nlcmllc3xlbnwwfHx8fDE3NTkxMzg4MjJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
@@ -55,82 +61,76 @@
       "imageHint": "raw chicken"
     },
     {
-      "id": "spinach",
-      "description": "A bunch of fresh spinach.",
-      "imageUrl": "https://images.unsplash.com/photo-1522924280870-56438a558308?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxmcmVzaCUyMHNwaW5hY2h8ZW58MHx8fHwxNzU5MTM4ODIyfDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "fresh spinach"
+      "id": "product-fresh-vegetables",
+      "description": "Fresh vegetables.",
+      "imageUrl": "https://images.unsplash.com/photo-1599297915019-39c62af59ea1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8ZnJlc2glMjB2ZWdldGFibGVzfGVufDB8fHx8MTc1OTA0MjY5NXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "fresh vegetables"
     },
     {
-      "id": "tomatoes",
-      "description": "Ripe red tomatoes on the vine.",
-      "imageUrl": "https://images.unsplash.com/photo-1663413069503-b5d17654a45d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHx2aW5lJTIwdG9tYXRvZXN8ZW58MHx8fHwxNzU5MDg3MDE5fDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "vine tomatoes"
+      "id": "product-organic-atta",
+      "description": "A bag of organic atta.",
+      "imageUrl": "https://images.unsplash.com/photo-1752158652720-98c23aa65021?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxvcmdhbmljJTIwYXR0YXxlbnwwfHx8fDE3NTkxMzkyMjR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "organic atta"
     },
     {
-      "id": "cheese",
-      "description": "A block of cheddar cheese.",
-      "imageUrl": "https://images.unsplash.com/photo-1607474485810-259c5552ba7d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxjaGVkZGFyJTIwY2hlZXNlfGVufDB8fHx8MTc1OTA1OTg5Mnww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "cheddar cheese"
+      "id": "product-sunflower-oil",
+      "description": "A bottle of sunflower oil.",
+      "imageUrl": "https://images.unsplash.com/photo-1608019527603-faa25edca921?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxzdW5mbG93ZXIlMjBvaWx8ZW58MHx8fHwxNzU5MTI5NjY5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "sunflower oil"
     },
     {
-      "id": "pasta",
-      "description": "A box of spaghetti pasta.",
-      "imageUrl": "https://images.unsplash.com/photo-1677139599935-67eb22b12bb1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxzcGFnaGV0dGklMjBwYXN0YXxlbnwwfHx8fDE3NTkwODgyNjR8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "spaghetti pasta"
+      "id": "product-fresh-milk",
+      "description": "Carton of fresh milk.",
+      "imageUrl": "https://images.unsplash.com/photo-1641800723567-c1af28dd79bd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxmcmVzaCUyMG1pbGt8ZW58MHx8fHwxNzU5MTM5MjI0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "fresh milk"
     },
     {
-      "id": "orange-juice",
-      "description": "A carton of orange juice.",
-      "imageUrl": "https://images.unsplash.com/photo-1650460069032-3c410224fe55?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxvcmFuZ2UlMjBqdWljZXxlbnwwfHx8fDE3NTkxMTIxMDl8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "orange juice"
+      "id": "cat-vegetables-fruits",
+      "description": "Category icon for vegetables and fruits.",
+      "imageUrl": "https://images.unsplash.com/photo-1668080319913-a9d378495096?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHx2ZWdldGFibGVzJTIwZnJ1aXRzfGVufDB8fHx8MTc1OTEzOTIyNHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "vegetables fruits"
     },
     {
-      "id": "potato-chips",
-      "description": "A bag of potato chips.",
-      "imageUrl": "https://images.unsplash.com/photo-1599493356626-9fdbdabfd9bd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8cG90YXRvJTIwY2hpcHN8ZW58MHx8fHwxNzU5MDY0NDUyfDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "potato chips"
+      "id": "cat-atta-rice-dal",
+      "description": "Category icon for atta, rice, and dal.",
+      "imageUrl": "https://images.unsplash.com/photo-1707339088654-117df66bd55c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8cmljZSUyMGRhbHxlbnwwfHx8fDE3NTkxMzkyMjR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "rice dal"
     },
     {
-      "id": "cat-fruits",
-      "description": "Category icon for fruits.",
-      "imageUrl": "https://images.unsplash.com/photo-1482508809494-03688cd42e7e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxmcnVpdCUyMGJvd2x8ZW58MHx8fHwxNzU5MDkzNzYyfDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "fruit bowl"
+      "id": "cat-oil-ghee-masala",
+      "description": "Category icon for oil, ghee, and masala.",
+      "imageUrl": "https://images.unsplash.com/photo-1640900725886-ef063ffcc29e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxvaWwlMjBnaGVlfGVufDB8fHx8MTc1OTEzOTIyNHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "oil ghee"
     },
     {
-      "id": "cat-vegetables",
-      "description": "Category icon for vegetables.",
-      "imageUrl": "https://images.unsplash.com/photo-1631021967261-c57ee4dfa9bb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHx2ZWdldGFibGUlMjBiYXNrZXR8ZW58MHx8fHwxNzU5MDkzOTkyfDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "vegetable basket"
+      "id": "cat-dairy-bread-eggs",
+      "description": "Category icon for dairy, bread, and eggs.",
+      "imageUrl": "https://images.unsplash.com/photo-1710389205434-1ecc531d364d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxkYWlyeSUyMGVnZ3N8ZW58MHx8fHwxNzU5MTM5MjI0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "dairy eggs"
     },
     {
-      "id": "cat-dairy",
-      "description": "Category icon for dairy products.",
-      "imageUrl": "https://images.unsplash.com/photo-1550630997-aea8d3d982ed?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxkYWlyeSUyMHByb2R1Y3RzfGVufDB8fHx8MTc1OTEzNDQ2MXww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "dairy products"
+      "id": "cat-bakery-biscuits",
+      "description": "Category icon for bakery and biscuits.",
+      "imageUrl": "https://images.unsplash.com/photo-1641642400096-8a17cceb41cb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxiYWtlcnklMjBiaXNjdWl0c3xlbnwwfHx8fDE3NTkxMzkyMjR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "bakery biscuits"
     },
     {
-      "id": "cat-bakery",
-      "description": "Category icon for bakery items.",
-      "imageUrl": "https://images.unsplash.com/photo-1626229693339-6f086b9da8d2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxiYWtlcnklMjBzaGVsZnxlbnwwfHx8fDE3NTkxMzg4MjJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "bakery shelf"
+      "id": "cat-dry-fruits-cereals",
+      "description": "Category icon for dry fruits and cereals.",
+      "imageUrl": "https://images.unsplash.com/photo-1598371624473-4d95aca694e3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxkcnklMjBmcnVpdHN8ZW58MHx8fHwxNzU5MTM5MjI0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "dry fruits"
     },
     {
-      "id": "cat-meat",
-      "description": "Category icon for meat and poultry.",
-      "imageUrl": "https://images.unsplash.com/photo-1613454320437-0c228c8b1723?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxyYXclMjBtZWF0fGVufDB8fHx8MTc1OTEyNDMzOXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "id": "cat-chicken-meat-fish",
+      "description": "Category icon for chicken, meat, and fish.",
+      "imageUrl": "https://images.unsplash.com/photo-1690983321750-ad6f6d59a84b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxyYXclMjBtZWF0fGVufDB8fHx8MTc1OTEyNDMzOXww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "raw meat"
     },
     {
-      "id": "cat-pantry",
-      "description": "Category icon for pantry staples.",
-      "imageUrl": "https://images.unsplash.com/photo-1745964276943-5c880fe711bb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxwYW50cnklMjBqYXJzfGVufDB8fHx8MTc1OTEzODgyMnww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "pantry jars"
-    },
-    {
-      "id": "cat-snacks",
-      "description": "Category icon for snacks.",
-      "imageUrl": "https://images.unsplash.com/photo-1668945092075-040614d8d7aa?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxzbmFjayUyMGJvd2x8ZW58MHx8fHwxNzU5MTM4ODIyfDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "snack bowl"
+      "id": "cat-kitchenware",
+      "description": "Category icon for kitchenware.",
+      "imageUrl": "https://images.unsplash.com/photo-1556909211-36987daf7b4d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8a2l0Y2hlbndhcmV8ZW58MHx8fHwxNzU5MDg1Njc4fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "kitchenware"
     }
   ]
 }
