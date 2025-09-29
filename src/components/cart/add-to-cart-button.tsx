@@ -19,7 +19,7 @@ export function AddToCartButton({ product, variation }: AddToCartButtonProps) {
 
   if (variation.inventory === 0) {
     return (
-      <Button disabled className="w-full h-8 rounded-lg border border-primary bg-primary/10 text-primary hover:bg-primary/20 text-xs">
+      <Button disabled className="w-full h-9 rounded-lg border border-muted bg-muted text-muted-foreground text-sm">
         Out of Stock
       </Button>
     );
@@ -35,7 +35,7 @@ export function AddToCartButton({ product, variation }: AddToCartButtonProps) {
 
   if (itemInCart) {
     return (
-      <div className="flex items-center justify-between w-full h-8 rounded-lg border border-primary text-primary">
+      <div className="flex items-center justify-between w-full h-9 rounded-lg border border-primary text-primary bg-primary/5">
         <Button
           variant="ghost"
           size="icon"
@@ -61,7 +61,7 @@ export function AddToCartButton({ product, variation }: AddToCartButtonProps) {
   return (
     <Button 
         variant="outline" 
-        className="w-full h-8 rounded-lg border-primary text-primary hover:bg-primary hover:text-primary-foreground text-xs" 
+        className="w-full h-9 rounded-lg border-primary text-primary hover:bg-primary hover:text-primary-foreground font-semibold text-sm" 
         onClick={handleAddToCart}
     >
         ADD
