@@ -105,7 +105,7 @@
     {
       "id": "cat-dairy-bread-eggs",
       "description": "Category icon for dairy, bread, and eggs.",
-      "imageUrl": "https://images.unsplash.com/photo-1710389205434-1ecc531d364d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxkYWlyeSUyMGVnZ3N8ZW58MHx8fHwxNzU5MTM5MjI0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1710389205434-1ecc531d364d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxkYWlyeSUyMGVnZ3N8ZW58MHx8fHwxNzU5MTM5MjI0fDA&ixlibrb-4.1.0&q=80&w=1080",
       "imageHint": "dairy eggs"
     },
     {
@@ -117,32 +117,50 @@
     {
       "id": "cat-dry-fruits-cereals",
       "description": "Category icon for dry fruits and cereals.",
-      "imageUrl": "https://images.unsplash.com/photo-1598371624473-4d95aca694e3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxkcnklMjBmcnVpdHN8ZW58MHx8fHwxNzU5MTM5MjI0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1598371624473-4d95aca694e3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxkcnklMjBmcnVpdHN8ZW58MHx8fHwxNzU5MTM5MjI0fDA&ixlib-rb-4.1.0&q=80&w=1080",
       "imageHint": "dry fruits"
     },
     {
       "id": "cat-chicken-meat-fish",
       "description": "Category icon for chicken, meat, and fish.",
-      "imageUrl": "https://images.unsplash.com/photo-1690983321750-ad6f6d59a84b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxyYXclMjBtZWF0fGVufDB8fHx8MTc1OTEyNDMzOXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1690983321750-ad6f6d59a84b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxyYXclMjBtZWF0fGVufDB8fHx8MTc1OTEyNDMzOXww&ixlib-rb-4.1.0&q=80&w=1080",
       "imageHint": "raw meat"
     },
     {
       "id": "cat-kitchenware",
       "description": "Category icon for kitchenware.",
-      "imageUrl": "https://images.unsplash.com/photo-1556909211-36987daf7b4d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8a2l0Y2hlbndhcmV8ZW58MHx8fHwxNzU5MDg1Njc4fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1556909211-36987daf7b4d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8a2l0Y2hlbndhcmV8ZW58MHx8fHwxNzU5MDg1Njc4fDA&ixlib-rb-4.1.0&q=80&w=1080",
       "imageHint": "kitchenware"
     },
     {
       "id": "map-route",
       "description": "A map showing a delivery route.",
-      "imageUrl": "https://images.unsplash.com/photo-1579979219853-e3c6a4ead6f3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxtYXAlMjByb3V0ZXxlbnwwfHx8fDE3NjAxNTY2NTd8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1579979219853-e3c6a4ead6f3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxtYXAlMjByb3V0ZXxlbnwwfHx8fDE3NjAxNTY2NTd8MA&ixlib-rb-4.1.0&q=80&w=1080",
       "imageHint": "map route"
     },
     {
       "id": "rider-avatar",
       "description": "Avatar of a delivery rider.",
-      "imageUrl": "https://images.unsplash.com/photo-1617347454431-f49d7ff5c3b1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxkZWxpdmVyeSUyMHJpZGVyfGVufDB8fHx8MTc1OTEzOTMzOXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1617347454431-f49d7ff5c3b1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxkZWxpdmVyeSUyMHJpZGVyfGVufDB8fHx8MTc1OTEzOTMzOXww&ixlib-rb-4.1.0&q=80&w=1080",
       "imageHint": "delivery rider"
+    },
+    {
+      "id": "promo-pets",
+      "description": "A dog and a cat.",
+      "imageUrl": "https://images.unsplash.com/photo-1548681528-6a5c45b66b42?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxjYXQlMjBkb2d8ZW58MHx8fHwxNzYwMTYxNjQwfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "cat dog"
+    },
+    {
+      "id": "promo-party",
+      "description": "Party supplies.",
+      "imageUrl": "https://images.unsplash.com/photo-1510425927949-a2e3b4393439?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxwYXJ0eSUyMHN1cHBsaWVzfGVufDB8fHx8MTc2MDE2MTY0MHww&ixlib-rb-4.1.0&q=80&w=1080",
+      "imageHint": "party supplies"
+    },
+    {
+      "id": "promo-desserts",
+      "description": "Rainbow ice cream.",
+      "imageUrl": "https://images.unsplash.com/photo-1570197788417-0e82375c934d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxzd2lybCUyMGljZSUyMGNyZWFtfGVufDB8fHx8MTc2MDE2MTY0MHww&ixlib-rb-4.1.0&q=80&w=1080",
+      "imageHint": "swirl icecream"
     }
   ]
 }

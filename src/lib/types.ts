@@ -33,3 +33,12 @@ export type Category = {
     name: string;
     imageId: string;
 };
+
+export type Promo = {
+  id: string;
+  name: string;
+  imageId: string;
+  href: string;
+}
+
+    

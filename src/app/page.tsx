@@ -8,6 +8,8 @@ import { ProductCarousel } from '@/components/products/product-carousel';
 import { RecommendationsCarousel } from '@/components/recommendations/recommendations-carousel';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { PromoGrid } from '@/components/products/promo-grid';
+import { promoItems } from '@/lib/promo-data';
 
 export default function Home() {
   const heroImage = PlaceHolderImages.find(p => p.id === 'hero-main');
@@ -32,6 +34,10 @@ export default function Home() {
                 />
               </div>
             )}
+          </section>
+
+          <section className="py-6">
+            <PromoGrid promos={promoItems} />
           </section>
 
           <section className="py-6">
@@ -85,3 +91,5 @@ export default function Home() {
     </div>
   );
 }
+
+    
