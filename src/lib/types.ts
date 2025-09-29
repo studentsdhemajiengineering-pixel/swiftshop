@@ -2,8 +2,10 @@ export type ProductVariation = {
   id: string;
   name: string;
   price: number;
+  originalPrice?: number;
   inventory: number;
   unit: 'kg' | 'g' | 'piece' | 'liter' | 'ml' | 'dozen';
+  deliveryTime?: string;
 };
 
 export type Product = {

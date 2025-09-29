@@ -19,8 +19,8 @@ export const allProducts: Product[] = [
     category: 'vegetables-fruits', 
     description: 'A mix of fresh, seasonal vegetables, perfect for a healthy meal. Sourced from local farms to ensure the best quality and taste.',
     variations: [
-      { id: '1-500g', name: '500g', price: 49, inventory: 100, unit: 'g' },
-      { id: '1-1kg', name: '1kg', price: 89, inventory: 100, unit: 'kg' },
+      { id: '1-500g', name: '500g', price: 49, originalPrice: 65, inventory: 100, unit: 'g', deliveryTime: '8 MINS' },
+      { id: '1-1kg', name: '1kg', price: 89, originalPrice: 110, inventory: 100, unit: 'kg', deliveryTime: '8 MINS' },
     ]
   },
   { 
@@ -30,8 +30,8 @@ export const allProducts: Product[] = [
     category: 'atta-rice-dal',
     description: 'Whole wheat flour, organically grown and stone-ground to preserve its natural goodness. Ideal for making soft rotis and chapatis.',
     variations: [
-      { id: '2-1kg', name: '1kg', price: 110, inventory: 150, unit: 'kg' },
-      { id: '2-5kg', name: '5kg', price: 520, inventory: 50, unit: 'kg' },
+      { id: '2-1kg', name: '1kg', price: 110, inventory: 150, unit: 'kg', deliveryTime: '15 MINS' },
+      { id: '2-5kg', name: '5kg', price: 520, originalPrice: 550, inventory: 50, unit: 'kg', deliveryTime: '15 MINS' },
     ]
   },
   { 
@@ -41,7 +41,7 @@ export const allProducts: Product[] = [
     category: 'oil-ghee-masala',
     description: 'Light and healthy sunflower oil, perfect for all your cooking needs. Rich in Vitamin E and low in saturated fats.',
     variations: [
-      { id: '3-1l', name: '1L', price: 181, inventory: 50, unit: 'liter' },
+      { id: '3-1l', name: '1L', price: 181, originalPrice: 250, inventory: 50, unit: 'liter', deliveryTime: '8 MINS' },
     ]
   },
   { 
@@ -51,8 +51,8 @@ export const allProducts: Product[] = [
     category: 'dairy-bread-eggs',
     description: 'Creamy and delicious full-cream milk, sourced from pasture-raised cows. Perfect for your morning coffee or cereal.',
     variations: [
-      { id: '4-500ml', name: '500ml', price: 30, inventory: 80, unit: 'ml' },
-      { id: '4-1l', name: '1L', price: 57, inventory: 80, unit: 'liter' },
+      { id: '4-500ml', name: '500ml', price: 30, inventory: 80, unit: 'ml', deliveryTime: '5 MINS' },
+      { id: '4-1l', name: '1L', price: 57, originalPrice: 75, inventory: 80, unit: 'liter', deliveryTime: '5 MINS' },
     ]
   },
   { 
@@ -62,8 +62,8 @@ export const allProducts: Product[] = [
     category: 'dairy-bread-eggs',
     description: 'Farm-fresh organic eggs, laid by free-range hens. A great source of protein to start your day.',
     variations: [
-      { id: '5-6pc', name: '6 pieces', price: 70, inventory: 60, unit: 'piece' },
-      { id: '5-12pc', name: '12 pieces', price: 130, inventory: 60, unit: 'dozen' },
+      { id: '5-6pc', name: '6 pieces', price: 70, inventory: 60, unit: 'piece', deliveryTime: '10 MINS' },
+      { id: '5-12pc', name: '12 pieces', price: 130, originalPrice: 150, inventory: 60, unit: 'dozen', deliveryTime: '10 MINS' },
     ]
   },
   { 
@@ -73,7 +73,7 @@ export const allProducts: Product[] = [
     category: 'chicken-meat-fish',
     description: 'Tender, boneless, and skinless chicken breast. A lean source of protein for a variety of dishes.',
     variations: [
-      { id: '6-1kg', name: '1kg', price: 450, inventory: 30, unit: 'kg' },
+      { id: '6-1kg', name: '1kg', price: 450, inventory: 30, unit: 'kg', deliveryTime: '20 MINS' },
     ]
   },
   { 
@@ -83,7 +83,7 @@ export const allProducts: Product[] = [
     category: 'bakery-biscuits',
     description: 'A crusty loaf of artisan-style bread, baked fresh daily. Perfect for sandwiches or enjoying with soup.',
     variations: [
-      { id: '7-1pc', name: '1 piece', price: 90, inventory: 50, unit: 'piece' },
+      { id: '7-1pc', name: '1 piece', price: 90, inventory: 50, unit: 'piece', deliveryTime: '30 MINS' },
     ]
   },
 ];
