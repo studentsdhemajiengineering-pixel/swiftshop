@@ -36,6 +36,16 @@ export default function Home() {
 
           <section className="py-6">
             <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold tracking-tight">Categories</h2>
+              <Button variant="link" asChild>
+                <Link href="/categories">See all</Link>
+              </Button>
+            </div>
+            <CategoryGrid categories={categories.slice(0, 8)} />
+          </section>
+
+          <section className="py-6">
+            <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-bold tracking-tight">Hot Deals</h2>
                 <Button variant="link" asChild>
                     <Link href="/categories">See all</Link>
