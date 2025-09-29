@@ -193,7 +193,7 @@ export default function CheckoutPage() {
         </div>
       </main>
       <div className="fixed bottom-0 left-0 right-0 bg-background/80 backdrop-blur-sm p-4 border-t">
-         <Button className="w-full" size="lg" style={{ backgroundColor: '#ef4444', color: 'white' }} onClick={handlePlaceOrder}>
+         <Button className="w-full" size="lg" onClick={handlePlaceOrder}>
             Place Order
         </Button>
       </div>

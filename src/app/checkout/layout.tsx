@@ -1,15 +1,14 @@
 import type { Metadata } from 'next';
 import { AppProviders } from '@/app/providers';
 import { Toaster } from '@/components/ui/toaster';
-import './globals.css';
-import { BottomNav } from '@/components/layout/bottom-nav';
+import '../globals.css';
 
 export const metadata: Metadata = {
-  title: 'SwiftShop',
-  description: 'Your groceries, delivered in a flash.',
+  title: 'Checkout - SwiftShop',
+  description: 'Complete your purchase.',
 };
 
-export default function RootLayout({
+export default function CheckoutLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -23,10 +22,7 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased">
         <AppProviders>
-          <div className="pb-16 md:pb-0">
-           {children}
-          </div>
-          <BottomNav />
+          {children}
         </AppProviders>
         <Toaster />
       </body>
