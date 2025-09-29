@@ -37,13 +37,13 @@ export function ProductCard({ product }: ProductCardProps) {
           </div>
         )}
         <div className="p-1 bg-white">
-          <div className="relative aspect-square w-full rounded-md overflow-hidden border">
+          <div className="relative aspect-[4/3] w-full rounded-md overflow-hidden border">
             {image ? (
               <Image
                 src={image.imageUrl}
                 alt={product.name}
                 fill
-                className="object-contain p-1"
+                className="object-cover"
                 data-ai-hint={image.imageHint}
               />
             ) : (
