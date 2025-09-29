@@ -3,7 +3,7 @@ import { Header } from '@/components/layout/header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Home, Package, ClipboardList, Truck } from 'lucide-react';
+import { Home, Package, ClipboardList, Truck, Map } from 'lucide-react';
 
 const TrackingStep = ({ icon: Icon, title, description, isCompleted, isLast = false }: { icon: React.ElementType, title: string, description: string, isCompleted: boolean, isLast?: boolean }) => (
   <div className="flex gap-6">
@@ -34,8 +34,18 @@ export default function TrackOrderPage() {
 
           <Card className="max-w-2xl mx-auto shadow-lg">
             <CardHeader>
-                <CardTitle>Estimated Delivery: Today, 6:30 PM</CardTitle>
-                <CardDescription>Your order is on its way!</CardDescription>
+                <div className="flex justify-between items-center">
+                    <div>
+                        <CardTitle>Estimated Delivery: Today, 6:30 PM</CardTitle>
+                        <CardDescription>Your order is on its way!</CardDescription>
+                    </div>
+                     <Button asChild variant="outline">
+                        <Link href="/track-order/map">
+                            <Map className="mr-2 h-4 w-4" />
+                            View Live Map
+                        </Link>
+                    </Button>
+                </div>
             </CardHeader>
             <CardContent className="p-6">
                 <div className="space-y-0">

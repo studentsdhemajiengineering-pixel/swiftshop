@@ -131,6 +131,18 @@
       "description": "Category icon for kitchenware.",
       "imageUrl": "https://images.unsplash.com/photo-1556909211-36987daf7b4d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8a2l0Y2hlbndhcmV8ZW58MHx8fHwxNzU5MDg1Njc4fDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "kitchenware"
+    },
+    {
+      "id": "map-route",
+      "description": "A map showing a delivery route.",
+      "imageUrl": "https://images.unsplash.com/photo-1579979219853-e3c6a4ead6f3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxtYXAlMjByb3V0ZXxlbnwwfHx8fDE3NjAxNTY2NTd8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "map route"
+    },
+    {
+      "id": "rider-avatar",
+      "description": "Avatar of a delivery rider.",
+      "imageUrl": "https://images.unsplash.com/photo-1617347454431-f49d7ff5c3b1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxkZWxpdmVyeSUyMHJpZGVyfGVufDB8fHx8MTc1OTEzOTMzOXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "delivery rider"
     }
   ]
 }
