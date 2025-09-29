@@ -1,6 +1,8 @@
+
 'use client';
 
-import { ChevronDown, MapPin, ShoppingCart } from 'lucide-react';
+import Link from 'next/link';
+import { ChevronDown, MapPin, ShoppingCart, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CartSheet } from '@/components/cart/cart-sheet';
 import { useCart } from '@/hooks/use-cart';
@@ -25,7 +27,13 @@ export function Header() {
           </div>
         </div>
 
-        <div className="flex items-center justify-end">
+        <div className="flex items-center justify-end gap-2">
+           <Link href="/account" className="hidden md:inline-flex">
+              <Button variant="ghost">
+                <User className="h-5 w-5 mr-2" />
+                Account
+              </Button>
+            </Link>
           <CartSheet>
             <Button variant="ghost" size="icon" className="relative">
               <ShoppingCart className="h-6 w-6" />
