@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Separator } from '@/components/ui/separator';
+import React from 'react';
 
 export function MobileNav() {
   const [open, setOpen] = React.useState(false);
@@ -50,5 +51,3 @@ export function MobileNav() {
     </Sheet>
   );
 }
-
-import * as React from 'react'
