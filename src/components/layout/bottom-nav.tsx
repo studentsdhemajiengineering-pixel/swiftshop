@@ -23,16 +23,16 @@ export function BottomNav() {
           {navItems.map((item) => {
             const isActive = pathname === item.href;
             return (
-              <Link href={item.href} key={item.label} legacyBehavior>
-                <a
-                  className={cn(
-                    'flex flex-col items-center justify-center gap-1 text-muted-foreground w-full h-full pt-2 relative',
-                    isActive && 'text-primary'
-                  )}
-                >
-                  <item.icon className="h-6 w-6" />
-                  <span className="text-xs font-medium">{item.label}</span>
-                </a>
+              <Link
+                href={item.href}
+                key={item.label}
+                className={cn(
+                  'flex flex-col items-center justify-center gap-1 text-muted-foreground w-full h-full pt-2 relative',
+                  isActive && 'text-primary'
+                )}
+              >
+                <item.icon className="h-6 w-6" />
+                <span className="text-xs font-medium">{item.label}</span>
               </Link>
             );
           })}
