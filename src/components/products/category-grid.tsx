@@ -16,7 +16,7 @@ export function CategoryGrid({ categories }: CategoryGridProps) {
           <Link key={category.id} href={`/category/${category.id}`}>
             <div className="group flex flex-col items-center justify-center text-center">
                 {image && (
-                    <div className="relative w-full aspect-square rounded-full overflow-hidden mb-2 shadow-sm group-hover:shadow-md transition-shadow">
+                    <div className="relative w-16 h-16 rounded-full overflow-hidden mb-2 shadow-sm group-hover:shadow-md transition-shadow">
                         <Image
                             src={image.imageUrl}
                             alt={category.name}
