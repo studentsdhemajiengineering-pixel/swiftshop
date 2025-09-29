@@ -77,7 +77,7 @@ export default function CheckoutPage() {
   return (
     <div className="flex min-h-screen w-full flex-col bg-secondary/10">
       <CheckoutHeader />
-      <main className="flex-1 pb-40">
+      <main className="flex-1">
         <div className="container mx-auto px-4 py-6 sm:px-6 lg:px-8 max-w-2xl">
           <div className="space-y-6">
             
@@ -189,16 +189,15 @@ export default function CheckoutPage() {
               </Card>
             </div>
 
+            <div className="pt-4">
+                <Button className="w-full" size="lg" onClick={handlePlaceOrder}>
+                    Place Order
+                </Button>
+            </div>
+
           </div>
         </div>
       </main>
-      <div className="fixed bottom-20 md:bottom-auto md:relative bg-background/80 backdrop-blur-sm p-4 border-t md:border-none md:p-0 md:bg-transparent">
-         <div className='container max-w-2xl mx-auto px-0 md:px-4'>
-            <Button className="w-full" size="lg" onClick={handlePlaceOrder}>
-                Place Order
-            </Button>
-         </div>
-      </div>
     </div>
   );
 }
