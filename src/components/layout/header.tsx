@@ -7,11 +7,18 @@ import { Button } from '@/components/ui/button';
 import { CartSheet } from '@/components/cart/cart-sheet';
 import { useCart } from '@/hooks/use-cart';
 import { useGeolocation } from '@/hooks/use-geolocation';
+import { useState, useEffect } from 'react';
 
 export function Header() {
   const { state } = useCart();
   const cartItemCount = state.cart.reduce((acc, item) => acc + item.quantity, 0);
   const { address, loading } = useGeolocation();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
 
   return (
     <header className="bg-background sticky top-0 z-40 border-b">
@@ -24,15 +31,17 @@ export function Header() {
               <ChevronDown className="h-5 w-5" />
             </div>
             <p className="text-sm text-muted-foreground h-5">
-              {loading ? (
-                <span className="flex items-center">
-                  <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-                  Fetching location...
-                </span>
-              ) : address ? (
-                address
-              ) : (
-                'Could not fetch location'
+              {isClient && (
+                loading ? (
+                  <span className="flex items-center">
+                    <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                    Fetching location...
+                  </span>
+                ) : address ? (
+                  address
+                ) : (
+                  'Could not fetch location'
+                )
               )}
             </p>
           </div>
@@ -48,7 +57,7 @@ export function Header() {
           <CartSheet>
             <Button variant="ghost" size="icon" className="relative">
               <ShoppingCart className="h-6 w-6" />
-              {cartItemCount > 0 && (
+              {isClient && cartItemCount > 0 && (
                 <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
                   {cartItemCount}
                 </span>

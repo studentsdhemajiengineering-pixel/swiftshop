@@ -10,7 +10,7 @@ export function useGeolocation() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!navigator.geolocation) {
+    if (typeof window === 'undefined' || !navigator.geolocation) {
       setError('Geolocation is not supported by your browser');
       setLoading(false);
       return;
@@ -34,7 +34,7 @@ export function useGeolocation() {
       const fetchAddress = async () => {
         try {
           const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-          if (!apiKey || apiKey === 'YOUR_GOOGLE_MAPS_API_KEY_HERE') {
+          if (!apiKey || apiKey === 'YOUR_GOOGLE_MAPS_API_KEY_HERE' || apiKey === 'DUMMY_API_KEY_FOR_TESTING') {
             console.warn('Google Maps API key is not configured. Please add it to your .env file.');
             setAddress('Please configure API Key');
             setLoading(false);

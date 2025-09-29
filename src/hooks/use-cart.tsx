@@ -2,10 +2,11 @@
 'use client';
 
 import type { CartItem, Product, ProductVariation } from '@/lib/types';
-import React, { createContext, useContext, useReducer, type ReactNode, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, type ReactNode, useEffect, useState } from 'react';
 
 type CartState = {
   cart: CartItem[];
+  hydrated: boolean;
 };
 
 type CartAction =
@@ -14,7 +15,8 @@ type CartAction =
   | { type: 'INCREMENT_QUANTITY'; payload: { variationId: string } }
   | { type: 'DECREMENT_QUANTITY'; payload: { variationId: string } }
   | { type: 'CLEAR_CART' }
-  | { type: 'SET_STATE'; payload: CartState };
+  | { type: 'SET_STATE'; payload: CartState }
+  | { type: 'HYDRATE_CART'; payload: CartState };
 
 const CartContext = createContext<{
   state: CartState;
@@ -24,6 +26,8 @@ const CartContext = createContext<{
 
 const cartReducer = (state: CartState, action: CartAction): CartState => {
   switch (action.type) {
+    case 'HYDRATE_CART':
+      return { ...action.payload, hydrated: true };
     case 'SET_STATE':
         return action.payload;
     case 'ADD_ITEM': {
@@ -99,27 +103,36 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
   }
 };
 
-const getInitialState = (): CartState => {
-    try {
-      if (typeof window !== 'undefined') {
-        const item = window.localStorage.getItem('cart');
-        return item ? JSON.parse(item) : { cart: [] };
-      }
-    } catch (error) {
-      console.error('Error reading from localStorage', error);
-    }
-    return { cart: [] };
-}
+const initialState: CartState = { cart: [], hydrated: false };
 
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
-  const [state, dispatch] = useReducer(cartReducer, getInitialState());
+  const [state, dispatch] = useReducer(cartReducer, initialState);
 
   useEffect(() => {
     try {
-        window.localStorage.setItem('cart', JSON.stringify(state));
+      if (typeof window !== 'undefined') {
+        const item = window.localStorage.getItem('cart');
+        if (item) {
+            dispatch({ type: 'HYDRATE_CART', payload: JSON.parse(item) });
+        } else {
+            dispatch({ type: 'HYDRATE_CART', payload: { cart: [] } });
+        }
+      }
     } catch (error) {
-        console.error('Error writing to localStorage', error);
+      console.error('Error reading from localStorage', error);
+      dispatch({ type: 'HYDRATE_CART', payload: { cart: [] } });
+    }
+  }, []);
+
+  useEffect(() => {
+    if (state.hydrated) {
+        try {
+            const stateToPersist = { cart: state.cart };
+            window.localStorage.setItem('cart', JSON.stringify(stateToPersist));
+        } catch (error) {
+            console.error('Error writing to localStorage', error);
+        }
     }
   }, [state]);
 
