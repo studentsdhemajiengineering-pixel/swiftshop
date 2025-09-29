@@ -5,9 +5,9 @@ import Image from 'next/image';
 import type { Product } from '@/lib/types';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { AddToCartButton } from '@/components/cart/add-to-cart-button';
+import { Card, CardContent } from '@/components/ui/card';
 import Link from 'next/link';
-import { Badge } from '@/components/ui/badge';
-import { Clock } from 'lucide-react';
+import { Button } from '../ui/button';
 
 interface ProductCardProps {
   product: Product;
@@ -17,55 +17,38 @@ export function ProductCard({ product }: ProductCardProps) {
   const image = PlaceHolderImages.find((p) => p.id === product.imageId);
   const defaultVariation = product.variations[0];
 
-  const discount = defaultVariation.originalPrice
-    ? Math.round(((defaultVariation.originalPrice - defaultVariation.price) / defaultVariation.originalPrice) * 100)
-    : 0;
-
   return (
-    <div className="group relative border rounded-lg overflow-hidden transition-shadow hover:shadow-md h-full flex flex-col">
-       <Link href={`/product/${product.id}`} className="block flex-grow">
-          <div className="relative w-full aspect-[4/3] p-4">
+    <Link href={`/product/${product.id}`} className="group">
+      <Card className="flex flex-col overflow-hidden h-full transition-shadow hover:shadow-lg">
+        <div className="p-2">
+          <div className="relative aspect-square w-full">
             {image ? (
-                <Image
+              <Image
                 src={image.imageUrl}
                 alt={product.name}
                 fill
-                className="object-contain"
+                className="object-cover rounded-md"
                 data-ai-hint={image.imageHint}
-                />
+              />
             ) : (
-                <div className="w-full h-full bg-secondary" />
-            )}
-            {discount > 0 && (
-                <Badge variant="destructive" className="absolute top-2 left-2 z-10">{discount}% OFF</Badge>
+              <div className="w-full h-full bg-secondary" />
             )}
           </div>
-          <div className="p-3 pt-0">
-            {product.deliveryTime && (
-                 <div className="flex items-center text-xs text-muted-foreground mb-1">
-                    <Clock className="w-3 h-3 mr-1"/>
-                    <span>{product.deliveryTime}</span>
-                </div>
-            )}
-            <h3 className="text-sm font-normal leading-tight mb-1 h-10 overflow-hidden">{product.name}</h3>
-            <p className="text-sm text-muted-foreground mb-2">{defaultVariation.name}</p>
-          </div>
-       </Link>
-       <div className="p-3 pt-0 mt-auto flex justify-between items-center">
-            <div>
-                <p className="font-semibold text-base">
-                ₹{defaultVariation.price.toFixed(2)}
-                </p>
-                {defaultVariation.originalPrice && (
-                    <p className="text-sm text-muted-foreground line-through">
-                        ₹{defaultVariation.originalPrice.toFixed(2)}
-                    </p>
-                )}
+        </div>
+        <CardContent className="p-3 pt-0 flex-grow flex flex-col">
+          <h3 className="text-sm font-medium leading-tight mb-2 flex-grow group-hover:text-primary">
+            {product.name}
+          </h3>
+          <div className="flex justify-between items-center">
+            <div className="font-semibold text-base">
+              ₹{defaultVariation.price.toFixed(2)}
             </div>
             <div onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
-                <AddToCartButton product={product} variation={defaultVariation} />
+              <AddToCartButton product={product} variation={defaultVariation} />
             </div>
-        </div>
-    </div>
+          </div>
+        </CardContent>
+      </Card>
+    </Link>
   );
 }

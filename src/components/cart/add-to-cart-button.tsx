@@ -19,7 +19,7 @@ export function AddToCartButton({ product, variation }: AddToCartButtonProps) {
 
   if (variation.inventory === 0) {
     return (
-      <Button disabled size="sm" className="w-20">
+      <Button disabled size="sm" className="w-full">
         Out of Stock
       </Button>
     );
@@ -35,20 +35,20 @@ export function AddToCartButton({ product, variation }: AddToCartButtonProps) {
 
   if (itemInCart) {
     return (
-      <div className="flex items-center justify-between w-20 h-9 rounded-md border border-primary text-primary font-bold">
+      <div className="flex items-center justify-center gap-2">
         <Button
-          variant="ghost"
+          variant="outline"
           size="icon"
-          className="h-full w-1/3 text-primary rounded-r-none hover:bg-primary/10"
+          className="h-8 w-8"
           onClick={() => dispatch({ type: 'DECREMENT_QUANTITY', payload: { variationId: variation.id } })}
         >
           <Minus className="h-4 w-4" />
         </Button>
-        <span className="text-sm">{itemInCart.quantity}</span>
+        <span className="font-bold text-lg">{itemInCart.quantity}</span>
         <Button
-          variant="ghost"
+          variant="outline"
           size="icon"
-          className="h-full w-1/3 text-primary rounded-l-none hover:bg-primary/10"
+          className="h-8 w-8"
           onClick={() => dispatch({ type: 'INCREMENT_QUANTITY', payload: { variationId: variation.id } })}
           disabled={itemInCart.quantity >= variation.inventory}
         >
@@ -59,8 +59,8 @@ export function AddToCartButton({ product, variation }: AddToCartButtonProps) {
   }
 
   return (
-    <Button size="sm" variant="outline" className="w-20 border-primary text-primary font-bold hover:bg-primary/10 hover:text-primary" onClick={handleAddToCart}>
-        ADD
+    <Button className="w-full" onClick={handleAddToCart}>
+        Add to Cart
     </Button>
   );
 }
