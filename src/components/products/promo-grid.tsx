@@ -36,5 +36,3 @@ export function PromoGrid({ promos }: PromoGridProps) {
     </div>
   );
 }
-
-    

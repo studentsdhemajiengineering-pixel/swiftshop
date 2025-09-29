@@ -5,7 +5,6 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Header } from '@/components/layout/header';
 import { CategoryGrid } from '@/components/products/category-grid';
 import { ProductCarousel } from '@/components/products/product-carousel';
-import { RecommendationsCarousel } from '@/components/recommendations/recommendations-carousel';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { PromoGrid } from '@/components/products/promo-grid';
@@ -37,10 +36,6 @@ export default function Home() {
           </section>
 
           <section className="py-6">
-            <PromoGrid promos={promoItems} />
-          </section>
-
-          <section className="py-6">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold tracking-tight">Categories</h2>
               <Button variant="link" asChild>
@@ -61,10 +56,7 @@ export default function Home() {
           </section>
 
           <section className="py-6">
-             <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold tracking-tight">For You</h2>
-             </div>
-            <RecommendationsCarousel allProducts={allProducts} />
+            <PromoGrid promos={promoItems} />
           </section>
 
           <section className="py-6">
@@ -91,5 +83,3 @@ export default function Home() {
     </div>
   );
 }
-
-    
