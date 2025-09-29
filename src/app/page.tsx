@@ -22,7 +22,7 @@ export default function Home() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <section className="py-4">
              {heroImage && (
-              <div className="relative w-full h-48 rounded-xl overflow-hidden shadow-lg">
+              <div className="relative w-full h-40 rounded-xl overflow-hidden shadow-lg">
                 <Image
                   src={heroImage.imageUrl}
                   alt={heroImage.description}
