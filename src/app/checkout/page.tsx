@@ -1,12 +1,10 @@
 
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
 import { useCart } from '@/hooks/use-cart';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -42,19 +40,23 @@ export default function CheckoutPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [date, setDate] = useState<Date | undefined>();
+  const [paymentMethod, setPaymentMethod] = useState('cod');
 
   const subtotal = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
   const deliveryFee = 50.00;
   const total = subtotal + deliveryFee;
 
   const handlePlaceOrder = () => {
-    // In a real app, you would process the payment here.
-    toast({
-        title: "Order Placed!",
-        description: "Thank you for your purchase. Your groceries are on the way."
-    });
-    dispatch({ type: 'CLEAR_CART' });
-    router.push('/track-order');
+    if (paymentMethod === 'phonepe') {
+        router.push('/checkout/phonepe-payment');
+    } else {
+        toast({
+            title: "Order Placed!",
+            description: "Thank you for your purchase. Your groceries are on the way."
+        });
+        dispatch({ type: 'CLEAR_CART' });
+        router.push('/');
+    }
   }
 
   if (cart.length === 0) {
@@ -84,7 +86,7 @@ export default function CheckoutPage() {
             <div>
               <h2 className="text-lg font-semibold mb-3">Delivery Address</h2>
               <div className="space-y-3">
-                <Textarea placeholder="Street Address" className="min-h-[80px] bg-background" />
+                <Textarea placeholder="Street Address" className="min-h-[80px] bg-background" defaultValue="123, Green Avenue, Springfield, 12345" />
                 <Input placeholder="City" className="bg-background" />
                 <Input placeholder="State" className="bg-background" />
                 <Input placeholder="Postal Code" className="bg-background" />
@@ -156,7 +158,7 @@ export default function CheckoutPage() {
 
              <div>
               <h2 className="text-lg font-semibold mb-3">Payment Method</h2>
-              <RadioGroup defaultValue="cod" className="space-y-2">
+              <RadioGroup defaultValue="cod" onValueChange={setPaymentMethod} className="space-y-2">
                 <Label htmlFor="cod" className="flex items-center justify-between p-4 rounded-lg border bg-background has-[:checked]:border-primary">
                   <span>Cash on Delivery</span>
                   <RadioGroupItem value="cod" id="cod" />
