@@ -64,7 +64,7 @@ export function ProductCard({ product }: ProductCardProps) {
             </h3>
             <p className="text-xs text-muted-foreground mt-0.5">{defaultVariation.name}</p>
           </div>
-          <div className="mt-2 flex justify-between items-end">
+          <div className="mt-1 flex justify-between items-end">
             <div>
               <p className="font-bold text-base">₹{defaultVariation.price.toFixed(2)}</p>
               {defaultVariation.originalPrice && (
