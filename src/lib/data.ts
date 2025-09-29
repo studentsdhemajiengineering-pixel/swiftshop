@@ -1,4 +1,5 @@
-import type { Category, Product } from '@/lib/types';
+
+import type { Category, Product, Order } from '@/lib/types';
 
 export const categories: Category[] = [
   { id: 'vegetables-fruits', name: 'Vegetables & Fruits', imageId: 'cat-vegetables-fruits' },
@@ -93,4 +94,38 @@ export const purchaseHistory = [
   'Fresh Milk',
   'Artisan Bread',
   'Organic Eggs',
+];
+
+export const currentOrders: Order[] = [
+    {
+      id: 'SW12345',
+      date: '2024-07-29T16:30:00Z',
+      status: 'Out for Delivery',
+      total: 549.50,
+      items: allProducts.slice(0, 3).map(p => p.name)
+    },
+    {
+      id: 'SW12344',
+      date: '2024-07-29T15:10:00Z',
+      status: 'Preparing',
+      total: 210.00,
+      items: allProducts.slice(3, 5).map(p => p.name)
+    }
+];
+
+export const deliveredOrders: Order[] = [
+    {
+      id: 'SW12341',
+      date: '2024-07-28T18:05:00Z',
+      status: 'Delivered',
+      total: 1190.00,
+      items: allProducts.slice(1, 4).map(p => p.name)
+    },
+     {
+      id: 'SW12339',
+      date: '2024-07-27T12:45:00Z',
+      status: 'Delivered',
+      total: 78.00,
+      items: allProducts.slice(5, 6).map(p => p.name)
+    }
 ];

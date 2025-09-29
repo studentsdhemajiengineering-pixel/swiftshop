@@ -1,3 +1,4 @@
+
 export type ProductVariation = {
   id: string;
   name: string;
@@ -41,4 +42,10 @@ export type Promo = {
   href: string;
 }
 
-    
+export type Order = {
+    id: string;
+    date: string;
+    status: 'Preparing' | 'Out for Delivery' | 'Delivered';
+    total: number;
+    items: string[];
+}
