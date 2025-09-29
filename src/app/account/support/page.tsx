@@ -29,7 +29,7 @@ const faqItems = [
 ]
 
 const contactOptions = [
-    { icon: MessageSquare, label: "Chat with us", description: "Get instant help from our support team.", href: "#" },
+    { icon: MessageSquare, label: "Chat with us", description: "Get instant help from our support team.", href: "https://wa.me/919876543210?text=I%20need%20help" },
     { icon: Phone, label: "Call us", description: "+1 800 123 4567", href: "tel:+18001234567" }
 ]
 
@@ -58,7 +58,7 @@ export default function SupportPage() {
                     <h2 className="text-xl font-bold mb-4">Contact Us</h2>
                     <div className="space-y-4">
                         {contactOptions.map(option => (
-                             <Link href={option.href} key={option.label}>
+                             <Link href={option.href} key={option.label} target="_blank">
                                 <div className="flex items-center p-4 rounded-lg border hover:bg-secondary/50 transition-colors">
                                     <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-secondary/60 mr-4">
                                         <option.icon className="h-6 w-6 text-secondary-foreground" />
