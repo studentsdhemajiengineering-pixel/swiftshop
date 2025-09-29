@@ -2,14 +2,16 @@
 'use client';
 
 import Link from 'next/link';
-import { ChevronDown, MapPin, ShoppingCart, User } from 'lucide-react';
+import { ChevronDown, MapPin, ShoppingCart, User, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CartSheet } from '@/components/cart/cart-sheet';
 import { useCart } from '@/hooks/use-cart';
+import { useGeolocation } from '@/hooks/use-geolocation';
 
 export function Header() {
   const { state } = useCart();
   const cartItemCount = state.cart.reduce((acc, item) => acc + item.quantity, 0);
+  const { address, loading } = useGeolocation();
 
   return (
     <header className="bg-background sticky top-0 z-40 border-b">
@@ -21,8 +23,17 @@ export function Header() {
               <h3 className="font-bold text-lg">Home</h3>
               <ChevronDown className="h-5 w-5" />
             </div>
-            <p className="text-sm text-muted-foreground">
-              123, Green Avenue, New York
+            <p className="text-sm text-muted-foreground h-5">
+              {loading ? (
+                <span className="flex items-center">
+                  <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                  Fetching location...
+                </span>
+              ) : address ? (
+                address
+              ) : (
+                'Could not fetch location'
+              )}
             </p>
           </div>
         </div>
