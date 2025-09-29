@@ -41,10 +41,12 @@ const OrderCard = ({ order }: { order: Order }) => {
                         ₹{order.total.toFixed(2)}
                     </div>
                      {order.status === 'Delivered' ? (
-                        <Button variant="outline" size="sm">View Details</Button>
+                        <Button asChild variant="outline" size="sm">
+                           <Link href={`/order/${order.id}`}>View Details</Link>
+                        </Button>
                     ) : (
                         <Button asChild size="sm">
-                            <Link href="/track-order/map">Track Order</Link>
+                            <Link href={`/order/${order.id}`}>Track Order</Link>
                         </Button>
                     )}
                 </div>
