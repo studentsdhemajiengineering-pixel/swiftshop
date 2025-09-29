@@ -1,9 +1,10 @@
+
 'use client';
 
 import { useCart } from '@/hooks/use-cart';
 import type { Product } from '@/lib/types';
 import { Button } from '@/components/ui/button';
-import { Minus, Plus, ShoppingCart } from 'lucide-react';
+import { Minus, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface AddToCartButtonProps {
@@ -17,8 +18,8 @@ export function AddToCartButton({ product }: AddToCartButtonProps) {
 
   if (product.inventory === 0) {
     return (
-      <Button disabled variant="outline" size="icon" className="h-8 w-8 bg-muted">
-        <ShoppingCart className="h-4 w-4" />
+      <Button disabled size="lg" className="w-full">
+        Out of Stock
       </Button>
     );
   }
@@ -33,32 +34,32 @@ export function AddToCartButton({ product }: AddToCartButtonProps) {
 
   if (itemInCart) {
     return (
-      <div className="flex items-center gap-1 rounded-full bg-primary/10">
+      <div className="flex items-center justify-between w-full rounded-full bg-primary text-primary-foreground h-12 px-2">
         <Button
           variant="ghost"
           size="icon"
-          className="h-7 w-7 text-primary rounded-full"
+          className="h-9 w-9 text-primary-foreground rounded-full hover:bg-primary/80"
           onClick={() => dispatch({ type: 'DECREMENT_QUANTITY', payload: { id: product.id } })}
         >
-          <Minus className="h-4 w-4" />
+          <Minus className="h-5 w-5" />
         </Button>
-        <span className="font-bold w-4 text-center text-primary text-sm">{itemInCart.quantity}</span>
+        <span className="font-bold text-lg">{itemInCart.quantity}</span>
         <Button
           variant="ghost"
           size="icon"
-          className="h-7 w-7 text-primary rounded-full"
+          className="h-9 w-9 text-primary-foreground rounded-full hover:bg-primary/80"
           onClick={() => dispatch({ type: 'INCREMENT_QUANTITY', payload: { id: product.id } })}
           disabled={itemInCart.quantity >= product.inventory}
         >
-          <Plus className="h-4 w-4" />
+          <Plus className="h-5 w-5" />
         </Button>
       </div>
     );
   }
 
   return (
-    <Button variant="outline" size="icon" className="h-8 w-8 bg-primary/10 border-primary/20 text-primary" onClick={handleAddToCart}>
-        <ShoppingCart className="h-4 w-4" />
+    <Button size="lg" className="w-full" onClick={handleAddToCart}>
+        Add to Cart
     </Button>
   );
 }

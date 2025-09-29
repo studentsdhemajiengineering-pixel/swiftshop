@@ -24,7 +24,7 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased">
         <AppProviders>
-          <div className="pb-16 md:pb-0">
+          <div className="pb-20 md:pb-0">
            {children}
           </div>
           <BottomNav />
