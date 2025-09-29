@@ -5,25 +5,47 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useCart } from '@/hooks/use-cart';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { Header } from '@/components/layout/header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { CreditCard, DollarSign } from 'lucide-react';
+import { ArrowLeft, Calendar as CalendarIcon, Clock } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
+import { Textarea } from '@/components/ui/textarea';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useState } from 'react';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
+
+const CheckoutHeader = () => {
+    const router = useRouter();
+    return (
+        <header className="bg-background sticky top-0 z-40 border-b">
+            <div className="container flex h-14 items-center">
+                <Button variant="ghost" size="icon" onClick={() => router.back()} className="mr-2">
+                    <ArrowLeft className="h-5 w-5" />
+                </Button>
+                <h1 className="text-lg font-semibold">Checkout</h1>
+            </div>
+        </header>
+    );
+};
 
 export default function CheckoutPage() {
   const { state, dispatch } = useCart();
   const { cart } = state;
   const router = useRouter();
   const { toast } = useToast();
+  const [date, setDate] = useState<Date | undefined>();
 
   const subtotal = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
-  const shipping = 5.00;
-  const total = subtotal + shipping;
+  const deliveryFee = 2.00;
+  const total = subtotal + deliveryFee;
 
   const handlePlaceOrder = () => {
     // In a real app, you would process the payment here.
@@ -38,10 +60,10 @@ export default function CheckoutPage() {
   if (cart.length === 0) {
     return (
         <div className="flex min-h-screen w-full flex-col">
-            <Header />
-            <main className="flex-1 flex items-center justify-center bg-secondary/30">
-                <div className="text-center">
-                    <h1 className="text-3xl font-bold tracking-tight mb-4">Your Cart is Empty</h1>
+            <CheckoutHeader />
+            <main className="flex-1 flex items-center justify-center bg-secondary/10">
+                <div className="text-center p-4">
+                    <h1 className="text-2xl font-bold tracking-tight mb-4">Your Cart is Empty</h1>
                     <p className="text-muted-foreground mb-6">You can't checkout without any items.</p>
                     <Button asChild>
                         <Link href="/">Start Shopping</Link>
@@ -53,117 +75,128 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="flex min-h-screen w-full flex-col">
-      <Header />
-      <main className="flex-1 bg-secondary/30">
-        <div className="container mx-auto px-4 py-12 sm:px-6 lg:px-8">
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold tracking-tight font-headline">Checkout</h1>
-          </div>
+    <div className="flex min-h-screen w-full flex-col bg-secondary/10">
+      <CheckoutHeader />
+      <main className="flex-1 pb-28">
+        <div className="container mx-auto px-4 py-6 sm:px-6 lg:px-8 max-w-2xl">
+          <div className="space-y-6">
+            
+            <div>
+              <h2 className="text-lg font-semibold mb-3">Delivery Address</h2>
+              <div className="space-y-3">
+                <Textarea placeholder="Street Address" className="min-h-[80px] bg-background" />
+                <Input placeholder="City" className="bg-background" />
+                <Input placeholder="State" className="bg-background" />
+                <Input placeholder="Postal Code" className="bg-background" />
+              </div>
+            </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2">
-              <Card className="shadow-lg">
-                <CardHeader>
-                  <CardTitle>Shipping & Payment</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                    <div className="space-y-4">
-                        <h3 className="font-semibold text-lg">Shipping Address</h3>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="name">Full Name</Label>
-                                <Input id="name" placeholder="John Doe" />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="address">Address</Label>
-                                <Input id="address" placeholder="123 Greenfield Lane" />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="city">City</Label>
-                                <Input id="city" placeholder="Fresh Meadows" />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="zip">ZIP Code</Label>
-                                <Input id="zip" placeholder="12345" />
-                            </div>
+            <div>
+              <h2 className="text-lg font-semibold mb-3">Delivery Date & Time</h2>
+              <div className="space-y-3">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant={"outline"}
+                      className={cn(
+                        "w-full justify-start text-left font-normal bg-background",
+                        !date && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {date ? format(date, "PPP") : <span>Select Date</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={date}
+                      onSelect={setDate}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+
+                <Select>
+                    <SelectTrigger className="w-full bg-background">
+                        <SelectValue placeholder={
+                          <div className="flex items-center">
+                            <Clock className="mr-2 h-4 w-4 text-muted-foreground" />
+                            <span>Select Time Slot</span>
+                          </div>
+                        } />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="9-11">9:00 AM - 11:00 AM</SelectItem>
+                        <SelectItem value="11-13">11:00 AM - 1:00 PM</SelectItem>
+                        <SelectItem value="13-15">1:00 PM - 3:00 PM</SelectItem>
+                        <SelectItem value="15-17">3:00 PM - 5:00 PM</SelectItem>
+                        <SelectItem value="17-19">5:00 PM - 7:00 PM</SelectItem>
+                    </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div>
+              <h2 className="text-lg font-semibold mb-3">Order Summary</h2>
+              <Card className="bg-background">
+                <CardContent className="p-4 space-y-4">
+                  {cart.map((item) => (
+                    <div key={item.id} className="flex justify-between items-start">
+                        <div>
+                            <h4 className="font-medium text-sm">{item.name}</h4>
+                            <p className="text-xs text-muted-foreground">{item.quantity} x {item.unit}</p>
                         </div>
+                        <div className="font-medium text-sm text-right">${(item.price * item.quantity).toFixed(2)}</div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            </div>
+
+             <div>
+              <h2 className="text-lg font-semibold mb-3">Payment Method</h2>
+              <RadioGroup defaultValue="cod" className="space-y-2">
+                <Label htmlFor="cod" className="flex items-center justify-between p-4 rounded-lg border bg-background has-[:checked]:border-primary">
+                  <span>Cash on Delivery</span>
+                  <RadioGroupItem value="cod" id="cod" />
+                </Label>
+                <Label htmlFor="phonepe" className="flex items-center justify-between p-4 rounded-lg border bg-background has-[:checked]:border-primary">
+                  <span>PhonePe</span>
+                  <RadioGroupItem value="phonepe" id="phonepe" />
+                </Label>
+              </RadioGroup>
+            </div>
+
+            <div>
+              <h2 className="text-lg font-semibold mb-3">Total</h2>
+              <Card className="bg-background">
+                <CardContent className="p-4 space-y-2">
+                    <div className="flex justify-between text-sm text-muted-foreground">
+                        <span>Subtotal</span>
+                        <span>${subtotal.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm text-muted-foreground">
+                        <span>Delivery Fee</span>
+                        <span>${deliveryFee.toFixed(2)}</span>
                     </div>
                     <Separator />
-                    <div className="space-y-4">
-                        <h3 className="font-semibold text-lg">Payment Details</h3>
-                        <div className="space-y-2">
-                            <Label htmlFor="card-number">Card Number</Label>
-                            <div className="relative">
-                                <Input id="card-number" placeholder="**** **** **** ****" className="pl-10" />
-                                <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                            </div>
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="expiry">Expiry Date</Label>
-                                <Input id="expiry" placeholder="MM / YY" />
-                            </div>
-                             <div className="space-y-2">
-                                <Label htmlFor="cvc">CVC</Label>
-                                <Input id="cvc" placeholder="123" />
-                            </div>
-                        </div>
+                    <div className="flex justify-between font-semibold text-base">
+                        <span>Total</span>
+                        <span>${total.toFixed(2)}</span>
                     </div>
                 </CardContent>
               </Card>
             </div>
-            <div className="lg:col-span-1">
-                <Card className="shadow-lg sticky top-24">
-                    <CardHeader>
-                        <CardTitle>Order Summary</CardTitle>
-                        <CardDescription>Review your items before placing the order.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="max-h-64 overflow-y-auto space-y-4 pr-2">
-                             {cart.map((item) => {
-                                const image = PlaceHolderImages.find((p) => p.id === item.imageId);
-                                return (
-                                    <div key={item.id} className="flex items-center gap-4">
-                                        <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-md">
-                                            {image && <Image src={image.imageUrl} alt={item.name} fill className="object-cover" />}
-                                        </div>
-                                        <div className="flex-grow">
-                                            <h4 className="font-medium text-sm">{item.name}</h4>
-                                            <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
-                                        </div>
-                                        <div className="font-medium text-sm">${(item.price * item.quantity).toFixed(2)}</div>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                       <Separator />
-                       <div className="space-y-2">
-                            <div className="flex justify-between text-sm">
-                                <span>Subtotal</span>
-                                <span>${subtotal.toFixed(2)}</span>
-                            </div>
-                             <div className="flex justify-between text-sm">
-                                <span>Shipping</span>
-                                <span>${shipping.toFixed(2)}</span>
-                            </div>
-                       </div>
-                       <Separator />
-                        <div className="flex justify-between font-bold text-lg">
-                            <span>Total</span>
-                            <span>${total.toFixed(2)}</span>
-                        </div>
 
-                        <Button className="w-full" size="lg" onClick={handlePlaceOrder}>
-                            <DollarSign className="mr-2 h-5 w-5" />
-                            Place Order
-                        </Button>
-                    </CardContent>
-                </Card>
-            </div>
           </div>
         </div>
       </main>
+      <div className="fixed bottom-0 left-0 right-0 bg-background/80 backdrop-blur-sm p-4 border-t">
+         <Button className="w-full" size="lg" style={{ backgroundColor: '#ef4444', color: 'white' }} onClick={handlePlaceOrder}>
+            Place Order
+        </Button>
+      </div>
     </div>
   );
 }
