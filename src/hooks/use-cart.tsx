@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { CartItem, Product } from '@/lib/types';
@@ -11,7 +12,8 @@ type CartAction =
   | { type: 'ADD_ITEM'; payload: Product }
   | { type: 'REMOVE_ITEM'; payload: { id: string } }
   | { type: 'INCREMENT_QUANTITY'; payload: { id: string } }
-  | { type: 'DECREMENT_QUANTITY'; payload: { id: string } };
+  | { type: 'DECREMENT_QUANTITY'; payload: { id: string } }
+  | { type: 'CLEAR_CART' };
 
 const CartContext = createContext<{
   state: CartState;
@@ -70,6 +72,12 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
         ...state,
         cart: state.cart.filter((item) => item.id !== action.payload.id),
       };
+    }
+    case 'CLEAR_CART': {
+        return {
+            ...state,
+            cart: []
+        };
     }
     default:
       return state;

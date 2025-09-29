@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -100,9 +101,11 @@ export function CartSheet({ children }: { children: ReactNode }) {
                         <span>${total.toFixed(2)}</span>
                     </div>
                      <SheetClose asChild>
-                        <Button className="w-full" size="lg">
+                       <Link href="/checkout" className='w-full'>
+                         <Button className="w-full" size="lg">
                             Proceed to Checkout
                         </Button>
+                       </Link>
                     </SheetClose>
                 </div>
             </SheetFooter>
