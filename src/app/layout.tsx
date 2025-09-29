@@ -1,3 +1,4 @@
+
 import type { Metadata } from 'next';
 import { AppProviders } from '@/app/providers';
 import { Toaster } from '@/components/ui/toaster';
