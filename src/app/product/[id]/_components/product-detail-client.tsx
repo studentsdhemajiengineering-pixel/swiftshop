@@ -50,7 +50,7 @@ export function ProductDetailClient({ product }: { product: Product }) {
   return (
     <div className="flex min-h-screen w-full flex-col bg-background">
       <ProductDetailHeader />
-      <main className="flex-1 pt-4 pb-40">
+      <main className="flex-1 pt-4 pb-20">
         <div className="p-4">
           <Carousel className="w-full max-w-xl mx-auto">
             <CarouselContent>
@@ -107,13 +107,10 @@ export function ProductDetailClient({ product }: { product: Product }) {
                 <h2 className="text-lg font-semibold">Price</h2>
                 <p className="text-xl font-bold">₹{selectedVariation.price.toFixed(2)}</p>
             </div>
+
+            <AddToCartButton product={product} variation={selectedVariation} />
         </div>
       </main>
-       <div className="fixed bottom-20 md:bottom-auto md:relative bg-background/80 backdrop-blur-sm p-4 border-t md:border-none md:p-0 md:bg-transparent">
-         <div className="container mx-auto max-w-2xl px-0 md:px-4">
-             <AddToCartButton product={product} variation={selectedVariation} />
-         </div>
-      </div>
     </div>
   );
 }
