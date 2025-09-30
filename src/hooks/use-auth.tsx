@@ -2,67 +2,95 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-}
+import { auth } from '@/lib/firebase';
+import { 
+  RecaptchaVerifier, 
+  signInWithPhoneNumber, 
+  onAuthStateChanged,
+  type ConfirmationResult, 
+  type User as FirebaseUser 
+} from 'firebase/auth';
 
 interface AuthContextType {
-  user: User | null;
+  user: FirebaseUser | null;
   isAuthenticated: boolean;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string) => Promise<void>;
+  confirmationResult: ConfirmationResult | null;
+  signInWithPhoneNumber: (phoneNumber: string) => Promise<void>;
+  verifyOtp: (otp: string) => Promise<void>;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
+// It's important to have a window.recaptchaVerifier instance for Firebase Phone Auth.
+// We declare it here to be accessible within the component.
+declare global {
+  interface Window {
+    recaptchaVerifier: RecaptchaVerifier;
+    confirmationResult?: ConfirmationResult;
+  }
+}
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<FirebaseUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
 
   useEffect(() => {
-    // Mock fetching user from session/local storage
-    try {
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
-        }
-    } catch (e) {
-        console.error("Could not parse user from localStorage", e);
-    } finally {
-        setLoading(false);
-    }
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
   }, []);
 
-  const login = async (email: string, password: string): Promise<void> => {
-    // Mock login
-    if (email && password) {
-      const mockUser: User = { id: '1', name: 'Sophia Carter', email };
-      setUser(mockUser);
-      localStorage.setItem('user', JSON.stringify(mockUser));
-    } else {
-      throw new Error('Invalid credentials');
+  const setupRecaptcha = () => {
+    if (!window.recaptchaVerifier) {
+      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+        'size': 'invisible',
+        'callback': (response: any) => {
+          // reCAPTCHA solved, allow signInWithPhoneNumber.
+          console.log("reCAPTCHA solved");
+        },
+        'expired-callback': () => {
+            // Response expired. Ask user to solve reCAPTCHA again.
+            console.log("reCAPTCHA expired");
+        }
+      });
     }
   };
 
-  const register = async (name: string, email: string, password: string): Promise<void> => {
-    // Mock register
-    if (name && email && password) {
-      const mockUser: User = { id: '1', name, email };
-      setUser(mockUser);
-      localStorage.setItem('user', JSON.stringify(mockUser));
-    } else {
-        throw new Error('Registration failed');
+  const signIn = async (phoneNumber: string): Promise<void> => {
+    setupRecaptcha();
+    const appVerifier = window.recaptchaVerifier;
+    try {
+      const result = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
+      setConfirmationResult(result);
+      window.confirmationResult = result; // Store it on window if needed
+    } catch (error) {
+      console.error("Error during signInWithPhoneNumber", error);
+      // Reset reCAPTCHA on error
+      window.recaptchaVerifier.render().then((widgetId) => {
+        // @ts-ignore
+        grecaptcha.reset(widgetId);
+      });
+      throw error;
     }
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('user');
+  const verifyOtp = async (otp: string): Promise<void> => {
+    if (!confirmationResult) {
+      throw new Error("No confirmation result available. Please send OTP first.");
+    }
+    await confirmationResult.confirm(otp);
+    // User is now signed in. The onAuthStateChanged listener will update the user state.
+    setConfirmationResult(null); // Clear confirmation result
+  };
+
+  const logout = async () => {
+    await auth.signOut();
   };
 
   return (
@@ -71,8 +99,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         user,
         isAuthenticated: !!user,
         loading,
-        login,
-        register,
+        confirmationResult,
+        signInWithPhoneNumber: signIn,
+        verifyOtp,
         logout,
       }}
     >

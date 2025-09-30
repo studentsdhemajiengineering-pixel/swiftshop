@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
   ChevronRight,
@@ -13,6 +13,7 @@ import {
   MapPin,
   ArrowLeft,
   LogOut,
+  User,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -46,8 +47,8 @@ function AccountPageContent() {
     const { user, logout } = useAuth();
     const router = useRouter();
 
-    const handleLogout = () => {
-        logout();
+    const handleLogout = async () => {
+        await logout();
         router.push('/');
     };
 
@@ -62,11 +63,10 @@ function AccountPageContent() {
             <h2 className="text-xl font-bold mb-4">Profile</h2>
             <div className="flex items-center gap-4">
                 <Avatar className="h-16 w-16">
-                    <AvatarImage src="https://picsum.photos/seed/sophia/200" alt={user?.name} />
-                    <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
+                    <AvatarFallback><User /></AvatarFallback>
                 </Avatar>
                 <div>
-                    <h3 className="font-semibold text-lg">{user?.name}</h3>
+                    <h3 className="font-semibold text-lg">{user?.phoneNumber}</h3>
                     <Link href="/account/profile" className="text-sm text-primary">
                         Edit profile
                     </Link>
