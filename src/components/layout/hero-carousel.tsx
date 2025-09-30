@@ -31,7 +31,7 @@ export function HeroCarousel({ images }: HeroCarouselProps) {
       <CarouselContent>
         {images.map((image, index) => (
           <CarouselItem key={index}>
-            <div className="relative w-full h-44 md:h-64 rounded-xl overflow-hidden shadow-lg">
+            <div className="relative w-full h-44 md:h-56 rounded-xl overflow-hidden shadow-lg">
                 <Image
                   src={image.imageUrl}
                   alt={image.description}
