@@ -1,30 +1,19 @@
 
-import { initializeApp, getApps, cert } from 'firebase-admin/app';
+import { initializeApp, getApps, cert, ServiceAccount } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import productsData from '../data/products.json';
 import categoriesData from '../data/categories.json';
-
-// IMPORTANT: Replace with your service account credentials
-// 1. Go to your Firebase Project Settings -> Service accounts.
-// 2. Click "Generate new private key".
-// 3. Save the downloaded JSON file in your project root (but DO NOT commit it to git).
-// 4. Create a .env.local file and add:
-//    GOOGLE_APPLICATION_CREDENTIALS="path/to/your/service-account-file.json"
-// You can also paste the object directly here, but using environment variables is safer.
+import * as serviceAccount from './service-account.json';
 
 try {
-    if (!process.env.GOOGLE_APPLICATION_CREDENTIALS && !process.env.FIREBASE_CONFIG) {
-        throw new Error("GOOGLE_APPLICATION_CREDENTIALS or FIREBASE_CONFIG environment variable must be set.");
-    }
-    
     if (getApps().length === 0) {
         initializeApp({
-            credential: process.env.GOOGLE_APPLICATION_CREDENTIALS ? cert(process.env.GOOGLE_APPLICATION_CREDENTIALS) : undefined,
+            credential: cert(serviceAccount as ServiceAccount),
             projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
         });
     }
 } catch (e) {
-    console.error("Firebase initialization failed. Make sure your service account credentials are set up correctly.");
+    console.error("Firebase initialization failed. Make sure your service account credentials are set up correctly in src/lib/firebase/service-account.json");
     console.error(e);
     process.exit(1);
 }
