@@ -6,7 +6,8 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { PlusCircle, MoreHorizontal } from "lucide-react";
-import { getProducts, addProduct, updateProduct } from "@/lib/firebase/service";
+// import { getProducts, addProduct, updateProduct } from "@/lib/firebase/service";
+import { allProducts } from "@/lib/data";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
@@ -98,7 +99,7 @@ export default function AdminProductsPage() {
 
      const fetchProducts = async () => {
         setLoading(true);
-        const allProducts = await getProducts();
+        // Using static data for now
         setProducts(allProducts);
         setLoading(false);
     }
@@ -126,11 +127,13 @@ export default function AdminProductsPage() {
     const handleSave = async (productData: Partial<Product>) => {
         try {
             if (editingProduct && 'id' in editingProduct && editingProduct.id) {
-                await updateProduct(editingProduct.id, productData);
-                toast({ title: "Product updated successfully!" });
+                // await updateProduct(editingProduct.id, productData);
+                console.log("Updating product (local):", editingProduct.id, productData)
+                toast({ title: "Product updated successfully! (Local)" });
             } else {
-                 await addProduct(productData as Omit<Product, 'id'>);
-                 toast({ title: "Product added successfully!" });
+                //  await addProduct(productData as Omit<Product, 'id'>);
+                 console.log("Adding product (local):", productData);
+                 toast({ title: "Product added successfully! (Local)" });
             }
             setIsDialogOpen(false);
             setEditingProduct(null);
@@ -243,4 +246,3 @@ export default function AdminProductsPage() {
      </Dialog>
   );
 }
-
