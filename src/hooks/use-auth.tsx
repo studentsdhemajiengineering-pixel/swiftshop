@@ -59,8 +59,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             // Response expired. Ask user to solve reCAPTCHA again.
             console.log("reCAPTCHA expired");
             if (window.recaptchaVerifier) {
-              // @ts-ignore
-              window.recaptchaVerifier.render().then((widgetId) => grecaptcha.reset(widgetId));
+              window.recaptchaVerifier.clear();
             }
         }
       });
@@ -78,8 +77,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.error("Error during signInWithPhoneNumber", error);
       // Reset reCAPTCHA on error
       if (window.recaptchaVerifier) {
-        // @ts-ignore
-        window.recaptchaVerifier.render().then((widgetId) => grecaptcha.reset(widgetId));
+        window.recaptchaVerifier.clear();
       }
       throw error;
     }
