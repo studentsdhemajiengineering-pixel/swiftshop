@@ -30,6 +30,11 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  experimental: {
+    serverActions: {
+      allowedOrigins: [process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || ""],
+    }
+  }
 };
 
 export default nextConfig;

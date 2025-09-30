@@ -1,14 +1,18 @@
 
+'use server';
+
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { PlusCircle } from "lucide-react";
-import { allProducts } from "@/lib/data";
+import { getProducts } from "@/lib/firebase/service";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 
-export default function AdminProductsPage() {
+export default async function AdminProductsPage() {
+    const allProducts = await getProducts();
+    
   return (
     <Card>
         <CardHeader>
