@@ -1,0 +1,35 @@
+
+{
+    "currentOrders": [
+        {
+        "id": "SW12345",
+        "date": "2024-07-29T16:30:00Z",
+        "status": "Out for Delivery",
+        "total": 549.50,
+        "items": ["Fresh Vegetables", "Organic Atta", "Sunflower Oil"]
+        },
+        {
+        "id": "SW12344",
+        "date": "2024-07-29T15:10:00Z",
+        "status": "Preparing",
+        "total": 210.00,
+        "items": ["Fresh Milk", "Organic Eggs"]
+        }
+    ],
+    "deliveredOrders": [
+        {
+        "id": "SW12341",
+        "date": "2024-07-28T18:05:00Z",
+        "status": "Delivered",
+        "total": 1190.00,
+        "items": ["Organic Atta", "Sunflower Oil", "Fresh Milk"]
+        },
+        {
+        "id": "SW12339",
+        "date": "2024-07-27T12:45:00Z",
+        "status": "Delivered",
+        "total": 78.00,
+        "items": ["Chicken Breast"]
+        }
+    ]
+}

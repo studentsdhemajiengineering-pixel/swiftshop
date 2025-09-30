@@ -1,0 +1,11 @@
+
+[
+  { "id": "vegetables-fruits", "name": "Vegetables & Fruits", "imageId": "cat-vegetables-fruits" },
+  { "id": "atta-rice-dal", "name": "Atta, Rice & Dal", "imageId": "cat-atta-rice-dal" },
+  { "id": "oil-ghee-masala", "name": "Oil, Ghee & Masala", "imageId": "cat-oil-ghee-masala" },
+  { "id": "dairy-bread-eggs", "name": "Dairy, Bread & Eggs", "imageId": "cat-dairy-bread-eggs" },
+  { "id": "bakery-biscuits", "name": "Bakery & Biscuits", "imageId": "cat-bakery-biscuits" },
+  { "id": "dry-fruits-cereals", "name": "Dry Fruits & Cereals", "imageId": "cat-dry-fruits-cereals" },
+  { "id": "chicken-meat-fish", "name": "Chicken, Meat & Fish", "imageId": "cat-chicken-meat-fish" },
+  { "id": "kitchenware", "name": "Kitchenware", "imageId": "cat-kitchenware" }
+]
