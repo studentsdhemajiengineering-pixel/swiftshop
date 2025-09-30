@@ -47,6 +47,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const setupRecaptcha = () => {
+    // Check if the verifier is already initialized to avoid re-rendering.
     if (!window.recaptchaVerifier) {
       window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
         'size': 'invisible',
@@ -57,6 +58,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         'expired-callback': () => {
             // Response expired. Ask user to solve reCAPTCHA again.
             console.log("reCAPTCHA expired");
+            if (window.recaptchaVerifier) {
+              // @ts-ignore
+              window.recaptchaVerifier.render().then((widgetId) => grecaptcha.reset(widgetId));
+            }
         }
       });
     }
@@ -72,10 +77,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } catch (error) {
       console.error("Error during signInWithPhoneNumber", error);
       // Reset reCAPTCHA on error
-      window.recaptchaVerifier.render().then((widgetId) => {
+      if (window.recaptchaVerifier) {
         // @ts-ignore
-        grecaptcha.reset(widgetId);
-      });
+        window.recaptchaVerifier.render().then((widgetId) => grecaptcha.reset(widgetId));
+      }
       throw error;
     }
   };
