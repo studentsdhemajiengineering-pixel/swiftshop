@@ -1,3 +1,4 @@
+
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Promo } from '@/lib/types';
@@ -18,7 +19,7 @@ export function PromoGrid({ promos }: PromoGridProps) {
             <Card className="overflow-hidden h-full transition-shadow hover:shadow-lg">
                 <CardContent className='p-0'>
                     {image && (
-                        <div className="relative w-full aspect-square">
+                        <div className="relative w-full aspect-[2/1]">
                             <Image
                                 src={image.imageUrl}
                                 alt={promo.name}
