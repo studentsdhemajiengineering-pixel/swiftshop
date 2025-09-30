@@ -18,6 +18,8 @@ import {
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import type { Product, ProductVariation } from '@/lib/types';
+import Link from 'next/link';
+import { useCart } from '@/hooks/use-cart';
 
 const ProductDetailHeader = () => {
     const router = useRouter();
@@ -38,6 +40,7 @@ const ProductDetailHeader = () => {
 
 export function ProductDetailClient({ product }: { product: Product }) {
   const [selectedVariation, setSelectedVariation] = useState<ProductVariation | undefined>(product?.variations[0]);
+  const { state: cartState } = useCart();
 
   if (!selectedVariation) {
     // This should ideally not happen if a product always has variations.
@@ -108,7 +111,14 @@ export function ProductDetailClient({ product }: { product: Product }) {
                 <p className="text-xl font-bold">₹{selectedVariation.price.toFixed(2)}</p>
             </div>
 
-            <AddToCartButton product={product} variation={selectedVariation} />
+            <div className="space-y-4">
+              <AddToCartButton product={product} variation={selectedVariation} />
+              {cartState.cart.length > 0 && (
+                <Button asChild className="w-full" size="lg">
+                  <Link href="/checkout">Proceed to Checkout</Link>
+                </Button>
+              )}
+            </div>
         </div>
       </main>
     </div>
