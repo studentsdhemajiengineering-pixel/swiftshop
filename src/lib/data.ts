@@ -24,6 +24,16 @@ export const allProducts: Product[] = [
       { id: '1-1kg', name: '1kg', price: 89, originalPrice: 110, inventory: 100, unit: 'kg', deliveryTime: '8 MINS' },
     ]
   },
+   {
+    id: '8',
+    name: 'Fresh Fruits',
+    imageId: 'product-fresh-fruits',
+    category: 'vegetables-fruits',
+    description: 'A selection of juicy and ripe seasonal fruits, handpicked for the best quality.',
+    variations: [
+      { id: '8-1kg', name: '1kg', price: 120, inventory: 80, unit: 'kg', deliveryTime: '10 MINS' },
+    ],
+  },
   { 
     id: '2', 
     name: 'Organic Atta', 
@@ -35,6 +45,16 @@ export const allProducts: Product[] = [
       { id: '2-5kg', name: '5kg', price: 520, originalPrice: 550, inventory: 50, unit: 'kg', deliveryTime: '15 MINS' },
     ]
   },
+   {
+    id: '9',
+    name: 'Basmati Rice',
+    imageId: 'product-basmati-rice',
+    category: 'atta-rice-dal',
+    description: 'Long-grain aromatic basmati rice, perfect for biryani, pulao, and other festive dishes.',
+    variations: [
+      { id: '9-1kg', name: '1kg', price: 150, inventory: 100, unit: 'kg', deliveryTime: '12 MINS' },
+    ],
+  },
   { 
     id: '3', 
     name: 'Sunflower Oil', 
@@ -44,6 +64,16 @@ export const allProducts: Product[] = [
     variations: [
       { id: '3-1l', name: '1L', price: 181, originalPrice: 250, inventory: 50, unit: 'liter', deliveryTime: '8 MINS' },
     ]
+  },
+  {
+    id: '10',
+    name: 'Garam Masala',
+    imageId: 'product-garam-masala',
+    category: 'oil-ghee-masala',
+    description: 'A blend of aromatic Indian spices to add flavor and warmth to your dishes.',
+    variations: [
+      { id: '10-100g', name: '100g', price: 60, inventory: 200, unit: 'g', deliveryTime: '5 MINS' },
+    ],
   },
   { 
     id: '4', 
@@ -67,15 +97,15 @@ export const allProducts: Product[] = [
       { id: '5-12pc', name: '12 pieces', price: 130, originalPrice: 150, inventory: 60, unit: 'dozen', deliveryTime: '10 MINS' },
     ]
   },
-  { 
-    id: '6', 
-    name: 'Chicken Breast', 
-    imageId: 'chicken', 
-    category: 'chicken-meat-fish',
-    description: 'Tender, boneless, and skinless chicken breast. A lean source of protein for a variety of dishes.',
+  {
+    id: '11',
+    name: 'Chocolate Chip Cookies',
+    imageId: 'product-cookies',
+    category: 'bakery-biscuits',
+    description: 'Classic chocolate chip cookies, baked to perfection with a soft and chewy center.',
     variations: [
-      { id: '6-1kg', name: '1kg', price: 450, inventory: 30, unit: 'kg', deliveryTime: '20 MINS' },
-    ]
+      { id: '11-200g', name: '200g', price: 120, inventory: 70, unit: 'g', deliveryTime: '15 MINS' },
+    ],
   },
   { 
     id: '7', 
@@ -86,6 +116,66 @@ export const allProducts: Product[] = [
     variations: [
       { id: '7-1pc', name: '1 piece', price: 90, inventory: 50, unit: 'piece', deliveryTime: '30 MINS' },
     ]
+  },
+   {
+    id: '12',
+    name: 'California Almonds',
+    imageId: 'product-almonds',
+    category: 'dry-fruits-cereals',
+    description: 'Premium quality California almonds, a healthy and delicious snack.',
+    variations: [
+      { id: '12-250g', name: '250g', price: 250, originalPrice: 300, inventory: 100, unit: 'g', deliveryTime: '25 MINS' },
+    ],
+  },
+  {
+    id: '13',
+    name: 'Corn Flakes',
+    imageId: 'product-corn-flakes',
+    category: 'dry-fruits-cereals',
+    description: 'Crispy golden corn flakes, a classic breakfast cereal to start your day.',
+    variations: [
+      { id: '13-500g', name: '500g', price: 180, inventory: 90, unit: 'g', deliveryTime: '10 MINS' },
+    ],
+  },
+  { 
+    id: '6', 
+    name: 'Chicken Breast', 
+    imageId: 'chicken', 
+    category: 'chicken-meat-fish',
+    description: 'Tender, boneless, and skinless chicken breast. A lean source of protein for a variety of dishes.',
+    variations: [
+      { id: '6-1kg', name: '1kg', price: 450, inventory: 30, unit: 'kg', deliveryTime: '20 MINS' },
+    ]
+  },
+  {
+    id: '14',
+    name: 'Fresh Salmon',
+    imageId: 'product-salmon',
+    category: 'chicken-meat-fish',
+    description: 'High-quality salmon fillet, rich in omega-3 fatty acids. Perfect for grilling or baking.',
+    variations: [
+      { id: '14-500g', name: '500g', price: 800, inventory: 20, unit: 'g', deliveryTime: '35 MINS' },
+    ],
+  },
+   {
+    id: '15',
+    name: 'Non-stick Frying Pan',
+    imageId: 'product-frying-pan',
+    category: 'kitchenware',
+    description: 'Durable non-stick frying pan for healthy, oil-free cooking.',
+    variations: [
+      { id: '15-1pc', name: '1 piece', price: 799, originalPrice: 999, inventory: 40, unit: 'piece', deliveryTime: '45 MINS' },
+    ],
+  },
+  {
+    id: '16',
+    name: 'Knife Set',
+    imageId: 'product-knife-set',
+    category: 'kitchenware',
+    description: 'A set of sharp, stainless steel kitchen knives for all your chopping needs.',
+    variations: [
+      { id: '16-1set', name: 'Set of 3', price: 999, inventory: 30, unit: 'piece', deliveryTime: '45 MINS' },
+    ],
   },
 ];
 

@@ -33,7 +33,7 @@
     {
       "id": "banana",
       "description": "A bunch of ripe bananas.",
-      "imageUrl": "https://images.unsplash.com/photo-1757332050958-b797a022c910?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxyaXBlJTIwYmFuYW5hfGVufDB8fHx8MTc1OTEzODgyMnww&ixlib-rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1757332050958-b797a022c910?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxyaXBlJTIwYmFuYW5hfGVufDB8fHx8MTc1OTEzODgyMnww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "ripe banana"
     },
     {
@@ -161,6 +161,60 @@
       "description": "Rainbow ice cream.",
       "imageUrl": "https://images.unsplash.com/photo-1570197788417-0e82375c934d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxzd2lybCUyMGljZSUyMGNyZWFtfGVufDB8fHx8MTc2MDE2MTY0MHww&ixlib-rb-4.1.0&q=80&w=1080",
       "imageHint": "swirl icecream"
+    },
+    {
+      "id": "product-fresh-fruits",
+      "description": "Fresh fruits.",
+      "imageUrl": "https://images.unsplash.com/photo-1519996529931-28324d5a630e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxmcnVpdHMlMjBib3dsfGVufDB8fHx8MTc2MDM5MzcwNnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "fruits bowl"
+    },
+    {
+      "id": "product-basmati-rice",
+      "description": "Basmati rice.",
+      "imageUrl": "https://images.unsplash.com/photo-1586201375822-52c676f3e7b3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxiYXNtYXRpJTIwcmljZXxlbnwwfHx8fDE3NjAzOTM4NDV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "basmati rice"
+    },
+    {
+      "id": "product-garam-masala",
+      "description": "Garam masala.",
+      "imageUrl": "https://images.unsplash.com/photo-1599557633213-92f768b57b77?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxnYXJhbSUyMG1hc2FsYXxlbnwwfHx8fDE3NjAzOTM5MDB8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "garam masala"
+    },
+    {
+      "id": "product-cookies",
+      "description": "Chocolate chip cookies.",
+      "imageUrl": "https://images.unsplash.com/photo-1598184289945-80a187a55280?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxjaG9jb2xhdGUlMjBjaGlwJTIwY29va2llc3xlbnwwfHx8fDE3NjAzOTQwMTd8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "chocolate cookies"
+    },
+    {
+      "id": "product-almonds",
+      "description": "California almonds.",
+      "imageUrl": "https://images.unsplash.com/photo-1600892015352-823a88b60e34?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxhbG1vbmRzJTIwYm93bHxlbnwwfHx8fDE3NjAzOTQwNzB8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "almonds bowl"
+    },
+    {
+      "id": "product-corn-flakes",
+      "description": "Corn flakes.",
+      "imageUrl": "https://images.unsplash.com/photo-1596704018253-83a3f5bce136?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxyb3JuJTIwZmxha2VzJTIwYm93bHxlbnwwfHx8fDE3NjAzOTQxMTl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "corn flakes"
+    },
+    {
+      "id": "product-salmon",
+      "description": "Fresh salmon.",
+      "imageUrl": "https://images.unsplash.com/photo-1599043513900-ed6fe01d3833?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxyYXclMjBzYWxtb258ZW58MHx8fHwxNzYwMzk0MTY2fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "raw salmon"
+    },
+    {
+      "id": "product-frying-pan",
+      "description": "Non-stick frying pan.",
+      "imageUrl": "https://images.unsplash.com/photo-1592158826487-1481b67f707f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxub24lMjBzdGljayUyMHBhbnxlbnwwfHx8fDE3NjAzOTQyMjJ8MA&ixlib-rb-4.1.0&q=80&w=1080",
+      "imageHint": "frying pan"
+    },
+    {
+      "id": "product-knife-set",
+      "description": "Kitchen knife set.",
+      "imageUrl": "https://images.unsplash.com/photo-1618684234563-149374088b22?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxraXRjaGVuJTIwa25pdmVzfGVufDB8fHx8MTc2AzOTQyNjJ8MA&ixlib-rb-4.1.0&q=80&w=1080",
+      "imageHint": "kitchen knives"
     }
   ]
 }
