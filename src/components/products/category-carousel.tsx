@@ -12,19 +12,29 @@ import {
 import Link from 'next/link';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
+import Autoplay from "embla-carousel-autoplay"
+import React from 'react';
 
 interface CategoryCarouselProps {
   categories: Category[];
 }
 
 export function CategoryCarousel({ categories }: CategoryCarouselProps) {
+  const plugin = React.useRef(
+    Autoplay({ delay: 2000, stopOnInteraction: true })
+  )
+
   if (categories.length === 0) {
     return <p>No categories found.</p>;
   }
   return (
     <Carousel
+      plugins={[plugin.current]}
+      onMouseEnter={plugin.current.stop}
+      onMouseLeave={plugin.current.reset}
       opts={{
         align: 'start',
+        loop: true,
       }}
       className="w-full"
     >
