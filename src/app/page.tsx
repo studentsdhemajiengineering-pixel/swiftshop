@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { PromoGrid } from '@/components/products/promo-grid';
 import { promoItems } from '@/lib/promo-data';
+import { CategoryCarousel } from '@/components/products/category-carousel';
 
 export default function Home() {
   const heroImage = PlaceHolderImages.find(p => p.id === 'hero-main');
@@ -20,9 +21,9 @@ export default function Home() {
       <Header />
       <main className="flex-1">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <section className="py-4">
+          <section className="py-4 md:py-6">
              {heroImage && (
-              <div className="relative w-full h-44 rounded-xl overflow-hidden shadow-lg">
+              <div className="relative w-full h-44 md:h-64 rounded-xl overflow-hidden shadow-lg">
                 <Image
                   src={heroImage.imageUrl}
                   alt={heroImage.description}
@@ -42,7 +43,12 @@ export default function Home() {
                 <Link href="/categories">See all</Link>
               </Button>
             </div>
-            <CategoryGrid categories={categories.slice(0, 8)} />
+            <div className="md:hidden">
+              <CategoryGrid categories={categories.slice(0, 8)} />
+            </div>
+             <div className="hidden md:block">
+              <CategoryCarousel categories={categories} />
+            </div>
           </section>
 
           <section className="py-6">

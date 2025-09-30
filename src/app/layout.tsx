@@ -4,6 +4,7 @@ import { AppProviders } from '@/app/providers';
 import { Toaster } from '@/components/ui/toaster';
 import './globals.css';
 import { BottomNav } from '@/components/layout/bottom-nav';
+import { Footer } from '@/components/layout/footer';
 
 export const metadata: Metadata = {
   title: 'SwiftShop',
@@ -28,6 +29,7 @@ export default function RootLayout({
            {children}
           </div>
           <BottomNav />
+          <Footer />
         </AppProviders>
         <Toaster />
       </body>

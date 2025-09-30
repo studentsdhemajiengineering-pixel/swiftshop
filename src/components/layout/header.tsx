@@ -2,12 +2,13 @@
 'use client';
 
 import Link from 'next/link';
-import { ChevronDown, MapPin, ShoppingCart, User, Loader2 } from 'lucide-react';
+import { ChevronDown, MapPin, ShoppingCart, User, Loader2, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CartSheet } from '@/components/cart/cart-sheet';
 import { useCart } from '@/hooks/use-cart';
 import { useGeolocation } from '@/hooks/use-geolocation';
 import { useState, useEffect } from 'react';
+import { Logo } from '../shared/logo';
 
 export function Header() {
   const { state } = useCart();
@@ -23,7 +24,8 @@ export function Header() {
   return (
     <header className="bg-background sticky top-0 z-40 border-b">
       <div className="container flex h-16 items-center">
-        <div className="flex items-start gap-2 flex-1">
+        {/* Mobile and Tablet view */}
+        <div className="flex items-start gap-2 flex-1 md:hidden">
           <MapPin className="h-6 w-6 text-primary mt-1 flex-shrink-0" />
           <div>
             <div className="flex items-center gap-2">
@@ -35,10 +37,10 @@ export function Header() {
                 loading ? (
                   <span className="flex items-center">
                     <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-                    Fetching location...
+                    Fetching...
                   </span>
                 ) : address ? (
-                  address
+                  address.split(',').slice(0, 2).join(',')
                 ) : (
                   'Location not found'
                 )
@@ -46,6 +48,18 @@ export function Header() {
             </p>
           </div>
         </div>
+
+        {/* Desktop view */}
+        <div className="hidden md:flex items-center gap-6 flex-1">
+          <Logo />
+           <Button variant="ghost" asChild>
+              <Link href="/">
+                <Home className="h-5 w-5 mr-2" />
+                Home
+              </Link>
+            </Button>
+        </div>
+
 
         <div className="flex items-center justify-end gap-2">
            <Link href="/account" className="hidden md:inline-flex">
