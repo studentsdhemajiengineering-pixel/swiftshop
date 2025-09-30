@@ -10,8 +10,16 @@ import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+const countries = [
+    { code: '+91', name: 'India', flag: '🇮🇳' },
+    { code: '+1', name: 'USA', flag: '🇺🇸' },
+    { code: '+44', name: 'UK', flag: '🇬🇧' },
+]
 
 export default function LoginPage() {
+  const [countryCode, setCountryCode] = useState(countries[0].code);
   const [phoneNumber, setPhoneNumber] = useState('');
   const [otp, setOtp] = useState('');
   const [step, setStep] = useState<'phone' | 'otp'>('phone');
@@ -23,19 +31,20 @@ export default function LoginPage() {
 
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!/^\+[1-9]\d{1,14}$/.test(phoneNumber)) {
+    const fullPhoneNumber = `${countryCode}${phoneNumber}`;
+    if (!/^\+\d{10,14}$/.test(fullPhoneNumber)) {
         toast({
             title: 'Invalid Phone Number',
-            description: 'Please enter a valid phone number with country code (e.g., +14155552671).',
+            description: 'Please enter a valid phone number.',
             variant: 'destructive',
         });
         return;
     }
     setLoading(true);
     try {
-      await signInWithPhoneNumber(phoneNumber);
+      await signInWithPhoneNumber(fullPhoneNumber);
       setStep('otp');
-      toast({ title: 'OTP Sent!', description: `An OTP has been sent to ${phoneNumber}.` });
+      toast({ title: 'OTP Sent!', description: `An OTP has been sent to ${fullPhoneNumber}.` });
     } catch (error) {
       console.error(error);
       toast({
@@ -70,6 +79,8 @@ export default function LoginPage() {
     }
   };
 
+  const fullPhoneNumber = `${countryCode}${phoneNumber}`;
+
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-muted/20">
       <Card className="w-full max-w-sm">
@@ -82,19 +93,31 @@ export default function LoginPage() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="phone">Phone Number</Label>
-                <Input
-                  id="phone"
-                  type="tel"
-                  placeholder="+1 415 555 2671"
-                  required
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                  disabled={loading}
-                />
+                <div className="flex gap-2">
+                    <Select value={countryCode} onValueChange={setCountryCode}>
+                        <SelectTrigger className="w-[80px]">
+                            <SelectValue placeholder="Select" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {countries.map(c => (
+                                <SelectItem key={c.code} value={c.code}>{c.flag} {c.code}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      placeholder="9876543210"
+                      required
+                      value={phoneNumber}
+                      onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ''))}
+                      disabled={loading}
+                    />
+                </div>
               </div>
             </CardContent>
             <CardFooter>
-              <Button type="submit" className="w-full" disabled={loading}>
+              <Button type="submit" className="w-full" disabled={loading || !phoneNumber}>
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Send OTP
               </Button>
@@ -104,7 +127,7 @@ export default function LoginPage() {
           <form onSubmit={handleVerifyOtp}>
             <CardHeader className="text-center">
               <CardTitle className="text-2xl font-bold">Verify OTP</CardTitle>
-              <CardDescription>Enter the 6-digit OTP sent to {phoneNumber}.</CardDescription>
+              <CardDescription>Enter the 6-digit OTP sent to {fullPhoneNumber}.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
@@ -112,6 +135,8 @@ export default function LoginPage() {
                 <Input
                   id="otp"
                   type="text"
+                  inputMode='numeric'
+                  pattern="[0-9]*"
                   maxLength={6}
                   required
                   value={otp}
