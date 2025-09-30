@@ -12,7 +12,7 @@ import {
 } from 'firebase/auth';
 
 interface AuthContextType {
-  user: FirebaseUser | null;
+  user: (FirebaseUser | { isDemo: boolean, phoneNumber: string, displayName: string, uid: string }) | null;
   isAuthenticated: boolean;
   loading: boolean;
   confirmationResult: ConfirmationResult | null;
@@ -32,8 +32,13 @@ declare global {
   }
 }
 
+const DEMO_PHONE_NUMBER = '+919876543210';
+const DEMO_OTP = '123456';
+let isDemoMode = false;
+
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<FirebaseUser | null>(null);
+  const [user, setUser] = useState<AuthContextType['user'] | null>(null);
   const [loading, setLoading] = useState(true);
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
 
@@ -67,6 +72,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signIn = async (phoneNumber: string): Promise<void> => {
+     if (phoneNumber === DEMO_PHONE_NUMBER) {
+        isDemoMode = true;
+        return; // Bypass Firebase for demo user
+    }
+    isDemoMode = false;
     setupRecaptcha();
     const appVerifier = window.recaptchaVerifier;
     try {
@@ -84,6 +94,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const verifyOtp = async (otp: string): Promise<void> => {
+    if (isDemoMode) {
+        if (otp === DEMO_OTP) {
+             setUser({
+                isDemo: true,
+                phoneNumber: DEMO_PHONE_NUMBER,
+                displayName: 'Demo User',
+                uid: 'demo-user-uid',
+            });
+            return;
+        }
+        throw new Error('Invalid demo OTP');
+    }
+
     if (!confirmationResult) {
       throw new Error("No confirmation result available. Please send OTP first.");
     }
@@ -93,6 +116,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logout = async () => {
+    if (isDemoMode) {
+        setUser(null);
+        isDemoMode = false;
+        return;
+    }
     await auth.signOut();
   };
 
