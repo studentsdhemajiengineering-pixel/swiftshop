@@ -19,6 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useState } from 'react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { PrivateRoute } from '@/components/auth/private-route';
 
 const CheckoutHeader = () => {
     const router = useRouter();
@@ -34,7 +35,7 @@ const CheckoutHeader = () => {
     );
 };
 
-export default function CheckoutPage() {
+function CheckoutPageContent() {
   const { state, dispatch } = useCart();
   const { cart } = state;
   const router = useRouter();
@@ -202,4 +203,12 @@ export default function CheckoutPage() {
       </main>
     </div>
   );
+}
+
+export default function CheckoutPage() {
+    return (
+        <PrivateRoute>
+            <CheckoutPageContent />
+        </PrivateRoute>
+    )
 }

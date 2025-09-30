@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/use-auth';
 
 const ProfileHeader = () => {
     const router = useRouter();
@@ -25,6 +26,7 @@ const ProfileHeader = () => {
 
 export default function ProfilePage() {
     const { toast } = useToast();
+    const { user } = useAuth();
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -42,18 +44,18 @@ export default function ProfilePage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="flex flex-col items-center space-y-4">
                 <Avatar className="h-24 w-24">
-                    <AvatarFallback>SC</AvatarFallback>
+                    <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
                 </Avatar>
             </div>
             
             <div className="space-y-2">
                 <Label htmlFor="name">Full Name</Label>
-                <Input id="name" defaultValue="Sophia Carter" />
+                <Input id="name" defaultValue={user?.name} />
             </div>
 
             <div className="space-y-2">
                 <Label htmlFor="email">Email Address</Label>
-                <Input id="email" type="email" defaultValue="sophia.carter@example.com" />
+                <Input id="email" type="email" defaultValue={user?.email} />
             </div>
 
             <div className="space-y-2">

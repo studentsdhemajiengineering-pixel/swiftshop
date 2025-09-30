@@ -11,10 +11,13 @@ import {
   HelpCircle,
   Bell,
   MapPin,
-  ArrowLeft
+  ArrowLeft,
+  LogOut,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/hooks/use-auth';
+import { PrivateRoute } from '@/components/auth/private-route';
 
 const AccountHeader = () => {
     const router = useRouter();
@@ -39,7 +42,15 @@ const settingsItems = [
   { icon: HelpCircle, label: 'Help & Support', href: '/account/support' },
 ];
 
-export default function AccountPage() {
+function AccountPageContent() {
+    const { user, logout } = useAuth();
+    const router = useRouter();
+
+    const handleLogout = () => {
+        logout();
+        router.push('/');
+    };
+
   return (
     <div className="flex min-h-screen w-full flex-col bg-background">
       <AccountHeader />
@@ -51,11 +62,11 @@ export default function AccountPage() {
             <h2 className="text-xl font-bold mb-4">Profile</h2>
             <div className="flex items-center gap-4">
                 <Avatar className="h-16 w-16">
-                    <AvatarImage src="https://picsum.photos/seed/sophia/200" alt="Sophia Carter" />
-                    <AvatarFallback>SC</AvatarFallback>
+                    <AvatarImage src="https://picsum.photos/seed/sophia/200" alt={user?.name} />
+                    <AvatarFallback>{user?.name?.charAt(0)}</AvatarFallback>
                 </Avatar>
                 <div>
-                    <h3 className="font-semibold text-lg">Sophia Carter</h3>
+                    <h3 className="font-semibold text-lg">{user?.name}</h3>
                     <Link href="/account/profile" className="text-sm text-primary">
                         Edit profile
                     </Link>
@@ -78,10 +89,26 @@ export default function AccountPage() {
                         </div>
                     </Link>
                 ))}
+                <div onClick={handleLogout} className="flex items-center p-3 rounded-lg hover:bg-secondary/50 transition-colors cursor-pointer">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary/60 mr-4">
+                        <LogOut className="h-5 w-5 text-destructive" />
+                    </div>
+                    <span className="flex-grow font-medium text-destructive">Logout</span>
+                    <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                </div>
              </div>
           </div>
         </div>
       </main>
     </div>
   );
+}
+
+
+export default function AccountPage() {
+    return (
+        <PrivateRoute>
+            <AccountPageContent />
+        </PrivateRoute>
+    )
 }
