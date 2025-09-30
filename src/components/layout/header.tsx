@@ -20,6 +20,23 @@ export function Header() {
     setIsClient(true);
   }, []);
 
+  const LocationDisplay = () => {
+    if (!isClient) return <div className="h-5 w-24" />
+    return (
+      <p className="text-sm text-muted-foreground h-5 max-w-[200px] truncate">
+        {loading ? (
+          <span className="flex items-center">
+            <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+            Fetching...
+          </span>
+        ) : address ? (
+          address.split(',').slice(0, 2).join(',')
+        ) : (
+          'Location not found'
+        )}
+      </p>
+    );
+  }
 
   return (
     <header className="bg-background sticky top-0 z-40 border-b">
@@ -32,32 +49,17 @@ export function Header() {
               <h3 className="font-bold text-lg">Home</h3>
               <ChevronDown className="h-5 w-5" />
             </div>
-            <p className="text-sm text-muted-foreground h-5">
-              {isClient && (
-                loading ? (
-                  <span className="flex items-center">
-                    <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-                    Fetching...
-                  </span>
-                ) : address ? (
-                  address.split(',').slice(0, 2).join(',')
-                ) : (
-                  'Location not found'
-                )
-              )}
-            </p>
+            <LocationDisplay />
           </div>
         </div>
 
         {/* Desktop view */}
-        <div className="hidden md:flex items-center gap-6 flex-1">
+        <div className="hidden md:flex items-center gap-8 flex-1">
           <Logo />
-           <Button variant="ghost" asChild>
-              <Link href="/">
-                <Home className="h-5 w-5 mr-2" />
-                Home
-              </Link>
-            </Button>
+          <div className="flex items-center gap-2">
+            <MapPin className="h-5 w-5 text-primary" />
+            <LocationDisplay />
+          </div>
         </div>
 
 

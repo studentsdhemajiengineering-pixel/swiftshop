@@ -10,9 +10,10 @@ import { Button } from '@/components/ui/button';
 import { PromoGrid } from '@/components/products/promo-grid';
 import { promoItems } from '@/lib/promo-data';
 import { CategoryCarousel } from '@/components/products/category-carousel';
+import { HeroCarousel } from '@/components/layout/hero-carousel';
 
 export default function Home() {
-  const heroImage = PlaceHolderImages.find(p => p.id === 'hero-main');
+  const heroImages = PlaceHolderImages.filter(p => p.id.startsWith('hero-'));
   const popularProducts = allProducts.slice(0, 8);
   const hotDeals = allProducts.filter(p => p.variations.some(v => v.originalPrice)).slice(0, 8);
 
@@ -22,18 +23,7 @@ export default function Home() {
       <main className="flex-1">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <section className="py-4 md:py-6">
-             {heroImage && (
-              <div className="relative w-full h-44 md:h-64 rounded-xl overflow-hidden shadow-lg">
-                <Image
-                  src={heroImage.imageUrl}
-                  alt={heroImage.description}
-                  fill
-                  className="object-cover"
-                  data-ai-hint={heroImage.imageHint}
-                  priority
-                />
-              </div>
-            )}
+            <HeroCarousel images={heroImages} />
           </section>
 
           <section className="py-6">

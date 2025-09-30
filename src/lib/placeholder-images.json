@@ -33,73 +33,73 @@
     {
       "id": "banana",
       "description": "A bunch of ripe bananas.",
-      "imageUrl": "https://images.unsplash.com/photo-1757332050958-b797a022c910?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxyaXBlJTIwYmFuYW5hfGVufDB8fHx8MTc1OTEzODgyMnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1757332050958-b797a022c910?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxyaXBlJTIwYmFuYW5hfGVufDB8fHx8MTc1OTEzODgyMnww&ixlib-rb-4.1.0&q=80&w=1080",
       "imageHint": "ripe banana"
     },
     {
       "id": "bread",
       "description": "A loaf of freshly baked bread.",
-      "imageUrl": "https://images.unsplash.com/photo-1639407503696-9b33830f929e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxhcnRpc2FuJTIwYnJlYWR8ZW58MHx8fHwxNzU5MDQ3MzM3fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1639407503696-9b33830f929e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxhcnRpc2FuJTIwYnJlYWR8ZW58MHx8fHwxNzU5MDQ3MzM3fDA&ixlib-rb-4.1.0&q=80&w=1080",
       "imageHint": "artisan bread"
     },
     {
       "id": "milk",
       "description": "A carton of fresh milk.",
-      "imageUrl": "https://images.unsplash.com/photo-1641320785764-17cd1ab58a42?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxtaWxrJTIwY2FydG9ufGVufDB8fHx8MTc1OTAyNjkyNnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1641320785764-17cd1ab58a42?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxtaWxrJTIwY2FydG9ufGVufDB8fHx8MTc1OTAyNjkyNnww&ixlib-rb-4.1.0&q=80&w=1080",
       "imageHint": "milk carton"
     },
     {
       "id": "eggs",
       "description": "A carton of brown eggs.",
-      "imageUrl": "https://images.unsplash.com/photo-1586554102388-c03845e22442?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxjYXJ0b24lMjBlZ2dzfGVufDB8fHx8MTc1OTA2NTQyN3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1586554102388-c03845e22442?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxjYXJ0b24lMjBlZ2dzfGVufDB8fHx8MTc1OTA2NTQyN3ww&ixlib-rb-4.1.0&q=80&w=1080",
       "imageHint": "carton eggs"
     },
     {
       "id": "chicken",
       "description": "Raw chicken breast.",
-      "imageUrl": "https://images.unsplash.com/photo-1642102903996-cdad15f5dcdd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxyYXclMjBjaGlja2VufGVufDB8fHx8MTc1OTEyODM4MHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1642102903996-cdad15f5dcdd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxyYXclMjBjaGlja2VufGVufDB8fHx8MTc1OTEyODM4MHww&ixlib-rb-4.1.0&q=80&w=1080",
       "imageHint": "raw chicken"
     },
     {
       "id": "product-fresh-vegetables",
       "description": "Fresh vegetables.",
-      "imageUrl": "https://images.unsplash.com/photo-1599297915019-39c62af59ea1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8ZnJlc2glMjB2ZWdldGFibGVzfGVufDB8fHx8MTc1OTA0MjY5NXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1599297915019-39c62af59ea1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8ZnJlc2glMjB2ZWdldGFibGVzfGVufDB8fHx8MTc1OTA0MjY5NXww&ixlib-rb-4.1.0&q=80&w=1080",
       "imageHint": "fresh vegetables"
     },
     {
       "id": "product-organic-atta",
       "description": "A bag of organic atta.",
-      "imageUrl": "https://images.unsplash.com/photo-1752158652720-98c23aa65021?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxvcmdhbmljJTIwYXR0YXxlbnwwfHx8fDE3NTkxMzkyMjR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1752158652720-98c23aa65021?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxvcmdhbmljJTIwYXR0YXxlbnwwfHx8fDE3NTkxMzkyMjR8MA&ixlib-rb-4.1.0&q=80&w=1080",
       "imageHint": "organic atta"
     },
     {
       "id": "product-sunflower-oil",
       "description": "A bottle of sunflower oil.",
-      "imageUrl": "https://images.unsplash.com/photo-1608019527603-faa25edca921?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxzdW5mbG93ZXIlMjBvaWx8ZW58MHx8fHwxNzU5MTI5NjY5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1608019527603-faa25edca921?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxzdW5mbG93ZXIlMjBvaWx8ZW58MHx8fHwxNzU5MTI5NjY5fDA&ixlib-rb-4.1.0&q=80&w=1080",
       "imageHint": "sunflower oil"
     },
     {
       "id": "product-fresh-milk",
       "description": "Carton of fresh milk.",
-      "imageUrl": "https://images.unsplash.com/photo-1641800723567-c1af28dd79bd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxmcmVzaCUyMG1pbGt8ZW58MHx8fHwxNzU5MTM5MjI0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1641800723567-c1af28dd79bd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxmcmVzaCUyMG1pbGt8ZW58MHx8fHwxNzU5MTM5MjI0fDA&ixlib-rb-4.1.0&q=80&w=1080",
       "imageHint": "fresh milk"
     },
     {
       "id": "cat-vegetables-fruits",
       "description": "Category icon for vegetables and fruits.",
-      "imageUrl": "https://images.unsplash.com/photo-1668080319913-a9d378495096?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHx2ZWdldGFibGVzJTIwZnJ1aXRzfGVufDB8fHx8MTc1OTEzOTIyNHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1668080319913-a9d378495096?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHx2ZWdldGFibGVzJTIwZnJ1aXRzfGVufDB8fHx8MTc1OTEzOTIyNHww&ixlib-rb-4.1.0&q=80&w=1080",
       "imageHint": "vegetables fruits"
     },
     {
       "id": "cat-atta-rice-dal",
       "description": "Category icon for atta, rice, and dal.",
-      "imageUrl": "https://images.unsplash.com/photo-1707339088654-117df66bd55c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8cmljZSUyMGRhbHxlbnwwfHx8fDE3NTkxMzkyMjR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1707339088654-117df66bd55c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8cmljZSUyMGRhbHxlbnwwfHx8fDE3NTkxMzkyMjR8MA&ixlib-rb-4.1.0&q=80&w=1080",
       "imageHint": "rice dal"
     },
     {
       "id": "cat-oil-ghee-masala",
       "description": "Category icon for oil, ghee, and masala.",
-      "imageUrl": "https://images.unsplash.com/photo-1640900725886-ef063ffcc29e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxvaWwlMjBnaGVlfGVufDB8fHx8MTc1OTEzOTIyNHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1640900725886-ef063ffcc29e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxvaWwlMjBnaGVlfGVufDB8fHx8MTc1OTEzOTIyNHww&ixlib-rb-4.1.0&q=80&w=1080",
       "imageHint": "oil ghee"
     },
     {
@@ -111,7 +111,7 @@
     {
       "id": "cat-bakery-biscuits",
       "description": "Category icon for bakery and biscuits.",
-      "imageUrl": "https://images.unsplash.com/photo-1641642400096-8a17cceb41cb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxiYWtlcnklMjBiaXNjdWl0c3xlbnwwfHx8fDE3NTkxMzkyMjR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1641642400096-8a17cceb41cb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxiYWtlcnklMjBiaXNjdWl0c3xlbnwwfHx8fDE3NTkxMzkyMjR8MA&ixlib-rb-4.1.0&q=80&w=1080",
       "imageHint": "bakery biscuits"
     },
     {
@@ -147,7 +147,7 @@
     {
       "id": "promo-pets",
       "description": "A dog and a cat.",
-      "imageUrl": "https://images.unsplash.com/photo-1548681528-6a5c45b66b42?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxjYXQlMjBkb2d8ZW58MHx8fHwxNzYwMTYxNjQwfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1548681528-6a5c45b66b42?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxjYXQlMjBkb2d8ZW58MHx8fHwxNzYwMTYxNjQwfDA&ixlib-rb-4.1.0&q=80&w=1080",
       "imageHint": "cat dog"
     },
     {
