@@ -34,8 +34,33 @@ declare global {
 
 const DEMO_PHONE_NUMBER = '+919876543210';
 const DEMO_OTP = '123456';
+const DEMO_USER_STORAGE_KEY = 'swiftshop-demo-user';
 let isDemoMode = false;
 
+const setDemoUser = (user: AuthContextType['user']) => {
+    if (typeof window !== 'undefined') {
+        if (user) {
+            window.localStorage.setItem(DEMO_USER_STORAGE_KEY, JSON.stringify(user));
+        } else {
+            window.localStorage.removeItem(DEMO_USER_STORAGE_KEY);
+        }
+    }
+}
+
+const getDemoUser = (): AuthContextType['user'] | null => {
+     if (typeof window !== 'undefined') {
+        const storedUser = window.localStorage.getItem(DEMO_USER_STORAGE_KEY);
+        if (storedUser) {
+            try {
+                return JSON.parse(storedUser);
+            } catch (e) {
+                console.error("Failed to parse demo user from localStorage", e);
+                return null;
+            }
+        }
+    }
+    return null;
+}
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<AuthContextType['user'] | null>(null);
@@ -43,12 +68,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
+    const demoUser = getDemoUser();
+    if (demoUser) {
+        setUser(demoUser);
+        isDemoMode = true;
+        setLoading(false);
+    } else {
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+          setUser(user);
+          setLoading(false);
+        });
+        return () => unsubscribe();
+    }
   }, []);
 
   const setupRecaptcha = () => {
@@ -96,12 +127,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const verifyOtp = async (otp: string): Promise<void> => {
     if (isDemoMode) {
         if (otp === DEMO_OTP) {
-             setUser({
+            const demoUser = {
                 isDemo: true,
                 phoneNumber: DEMO_PHONE_NUMBER,
                 displayName: 'Demo User',
                 uid: 'demo-user-uid',
-            });
+            };
+             setUser(demoUser);
+             setDemoUser(demoUser);
             return;
         }
         throw new Error('Invalid demo OTP');
@@ -118,6 +151,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = async () => {
     if (isDemoMode) {
         setUser(null);
+        setDemoUser(null);
         isDemoMode = false;
         return;
     }
