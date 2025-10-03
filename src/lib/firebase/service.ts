@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { collection, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc, onSnapshot } from 'firebase/firestore';
@@ -13,11 +14,14 @@ const { firestore, storage } = initializeFirebase();
 const auth = getAuth(initializeFirebase().firebaseApp);
 
 
-export async function uploadImage(file: File, folder: string = 'images'): Promise<string> {
-    const storageRef = ref(storage, `${folder}/${Date.now()}_${file.name}`);
-    await uploadBytes(storageRef, file);
-    const downloadURL = await getDownloadURL(storageRef);
-    return downloadURL;
+export async function uploadImage(file: File): Promise<string> {
+    // Convert file to Base64 Data URL.
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = error => reject(error);
+    });
 }
 
 export async function getBrandingSettings(): Promise<{logoUrl?: string, heroImageUrls?: string[]} | null> {

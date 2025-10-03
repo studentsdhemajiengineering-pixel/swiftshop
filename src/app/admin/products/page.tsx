@@ -135,7 +135,7 @@ const ProductForm = ({
                     <div className="space-y-2">
                         <Label htmlFor="image">Image</Label>
                         <Input id="image" name="image" type="file" onChange={handleImageChange} accept="image/*" />
-                         <p className="text-xs text-muted-foreground">If no image is uploaded, a default placeholder will be used. Image uploads require upgrading your Firebase project to the Blaze plan.</p>
+                         <p className="text-xs text-muted-foreground">If no image is uploaded, a default placeholder will be used. Images should be under 1MB.</p>
                         {formData.imageUrl && !imageFile && (
                             <Image src={formData.imageUrl} alt={formData.name || 'product image'} width={80} height={80} className="mt-2 rounded-md object-cover" />
                         )}
@@ -252,7 +252,11 @@ export default function AdminProductsPage() {
             let finalProductData = { ...productData };
 
             if (imageFile) {
-                const imageUrl = await uploadImage(imageFile, 'products');
+                 if (imageFile.size > 1024 * 1024) { // 1MB limit
+                    toast({ title: "Image size exceeds 1MB limit", description: "Please choose a smaller file.", variant: "destructive" });
+                    return;
+                }
+                const imageUrl = await uploadImage(imageFile);
                 finalProductData.imageUrl = imageUrl;
             } else if (!editingProduct?.id) {
                 const placeholder = PlaceHolderImages.find(p => p.id === 'product-fresh-vegetables');
@@ -273,9 +277,12 @@ export default function AdminProductsPage() {
             setIsDialogOpen(false);
             setEditingProduct(null);
             fetchPageData();
-        } catch(e) {
+        } catch(e: any) {
             console.error("Error saving product:", e);
-            toast({ title: "Error saving product", description: (e as Error).message, variant: "destructive" });
+            const description = e.code === 'resource-exhausted' 
+                ? "The image is too large. Please use an image under 1MB."
+                : e.message;
+            toast({ title: "Error saving product", description, variant: "destructive" });
         }
     };
     
