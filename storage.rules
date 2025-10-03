@@ -2,33 +2,11 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-    
-    // Helper function to check if the user is an authenticated admin
-    function isAdmin() {
-      // In a real app, you might check a custom claim `request.auth.token.admin == true`
-      // For this demo, we'll check against a specific admin UID if possible, or allow any authenticated user for simplicity.
-      // For now, we allow any authenticated user to write to these paths.
-      return request.auth != null;
-    }
-
-    // Allow admins to upload to settings folder (logo, hero banners)
-    match /settings/{allPaths=**} {
-      allow read, write: if isAdmin();
-    }
-
-    // Allow admins to upload product images
-    match /products/{allPaths=**} {
-      allow read, write: if isAdmin();
-    }
-    
-    // Allow admins to upload category images
-    match /categories/{allPaths=**} {
-      allow read, write: if isAdmin();
-    }
-
-    // Public read access for all files to display them in the app
-    match /{allPaths=**} {
-        allow read: if true;
+    // Allow admin to upload to settings, categories, and products folders
+    match /{folder}/{allPaths=**} {
+      allow read;
+      allow write: if request.auth != null && request.auth.token.email == 'admin@swiftshop.com'
+                   && (folder == 'settings' || folder == 'categories' || folder == 'products');
     }
   }
 }
