@@ -5,6 +5,7 @@ import { Toaster } from '@/components/ui/toaster';
 import './globals.css';
 import { BottomNav } from '@/components/layout/bottom-nav';
 import { Footer } from '@/components/layout/footer';
+import { FirebaseClientProvider } from '@/firebase';
 
 export const metadata: Metadata = {
   title: 'SwiftShop',
@@ -24,13 +25,15 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased">
-        <AppProviders>
-          <div className="pb-20 md:pb-0">
-           {children}
-          </div>
-          <BottomNav />
-          <Footer />
-        </AppProviders>
+        <FirebaseClientProvider>
+          <AppProviders>
+            <div className="pb-20 md:pb-0">
+            {children}
+            </div>
+            <BottomNav />
+            <Footer />
+          </AppProviders>
+        </FirebaseClientProvider>
         <Toaster />
       </body>
     </html>

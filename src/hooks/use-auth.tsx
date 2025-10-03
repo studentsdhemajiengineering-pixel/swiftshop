@@ -2,7 +2,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-import { auth } from '@/lib/firebase';
+import { initializeFirebase } from '@/firebase';
 import { 
   RecaptchaVerifier, 
   signInWithPhoneNumber,
@@ -11,6 +11,8 @@ import {
   type ConfirmationResult, 
   type User as FirebaseUser 
 } from 'firebase/auth';
+
+const { auth } = initializeFirebase();
 
 interface AuthContextType {
   user: (FirebaseUser & { isAdmin?: boolean }) | null;

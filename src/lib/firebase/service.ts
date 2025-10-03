@@ -3,11 +3,12 @@
 
 import { collection, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc, onSnapshot } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { db, storage } from '@/lib/firebase';
+import { initializeFirebase } from '@/firebase';
 import type { Product, Category } from '@/lib/types';
 import { errorEmitter } from '@/components/firebase/error-emitter';
 import { FirestorePermissionError } from '@/components/firebase/errors';
 
+const { firestore, storage } = initializeFirebase();
 
 export async function uploadImage(file: File, folder: string = 'products'): Promise<string> {
     const storageRef = ref(storage, `${folder}/${Date.now()}_${file.name}`);
@@ -18,7 +19,7 @@ export async function uploadImage(file: File, folder: string = 'products'): Prom
 
 export async function getProducts(): Promise<Product[]> {
     return new Promise((resolve, reject) => {
-        const productsCol = collection(db, 'products');
+        const productsCol = collection(firestore, 'products');
         onSnapshot(productsCol, 
             (snapshot) => {
                 const productList = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as Product));
@@ -38,7 +39,7 @@ export async function getProducts(): Promise<Product[]> {
 
 export async function getProduct(id: string): Promise<Product | null> {
     return new Promise((resolve, reject) => {
-        const productDoc = doc(db, 'products', id);
+        const productDoc = doc(firestore, 'products', id);
         onSnapshot(productDoc,
             (snapshot) => {
                 if (snapshot.exists()) {
@@ -60,7 +61,7 @@ export async function getProduct(id: string): Promise<Product | null> {
 }
 
 export function addProduct(product: Omit<Product, 'id'>) {
-    const productsCol = collection(db, 'products');
+    const productsCol = collection(firestore, 'products');
     addDoc(productsCol, product).catch(async (serverError) => {
         const permissionError = new FirestorePermissionError({
             path: productsCol.path,
@@ -72,7 +73,7 @@ export function addProduct(product: Omit<Product, 'id'>) {
 }
 
 export function updateProduct(id: string, product: Partial<Product>) {
-    const productDoc = doc(db, 'products', id);
+    const productDoc = doc(firestore, 'products', id);
     updateDoc(productDoc, product).catch(async (serverError) => {
         const permissionError = new FirestorePermissionError({
             path: productDoc.path,
@@ -84,7 +85,7 @@ export function updateProduct(id: string, product: Partial<Product>) {
 }
 
 export function deleteProduct(id: string) {
-    const productDoc = doc(db, 'products', id);
+    const productDoc = doc(firestore, 'products', id);
     deleteDoc(productDoc).catch(async (serverError) => {
         const permissionError = new FirestorePermissionError({
             path: productDoc.path,
@@ -97,7 +98,7 @@ export function deleteProduct(id: string) {
 
 export async function getCategories(): Promise<Category[]> {
      return new Promise((resolve, reject) => {
-        const categoriesCol = collection(db, 'categories');
+        const categoriesCol = collection(firestore, 'categories');
         onSnapshot(categoriesCol,
             (snapshot) => {
                 const categoryList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Category));
@@ -116,7 +117,7 @@ export async function getCategories(): Promise<Category[]> {
 }
 
 export function addCategory(category: Omit<Category, 'id'>) {
-    const categoriesCol = collection(db, 'categories');
+    const categoriesCol = collection(firestore, 'categories');
     addDoc(categoriesCol, category)
     .catch(async (serverError) => {
         const permissionError = new FirestorePermissionError({
@@ -129,7 +130,7 @@ export function addCategory(category: Omit<Category, 'id'>) {
 }
 
 export function updateCategory(id: string, category: Partial<Category>) {
-    const categoryDoc = doc(db, 'categories', id);
+    const categoryDoc = doc(firestore, 'categories', id);
     updateDoc(categoryDoc, category).catch(async (serverError) => {
         const permissionError = new FirestorePermissionError({
             path: categoryDoc.path,
@@ -141,7 +142,7 @@ export function updateCategory(id: string, category: Partial<Category>) {
 }
 
 export function deleteCategory(id: string) {
-    const categoryDoc = doc(db, 'categories', id);
+    const categoryDoc = doc(firestore, 'categories', id);
     deleteDoc(categoryDoc).catch(async (serverError) => {
         const permissionError = new FirestorePermissionError({
             path: categoryDoc.path,
