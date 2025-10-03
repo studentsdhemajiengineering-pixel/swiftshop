@@ -37,9 +37,10 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
 
   useEffect(() => {
     const fetchOrder = async () => {
-        if (!params.id) return;
+        const { id } = params;
+        if (!id) return;
         setLoading(true);
-        const fetchedOrder = await getOrder(params.id);
+        const fetchedOrder = await getOrder(id);
         if (fetchedOrder) {
             setOrder(fetchedOrder);
         } else {
@@ -48,7 +49,7 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
         setLoading(false);
     }
     fetchOrder();
-  }, [params.id]);
+  }, [params]);
 
 
   if (loading) {
