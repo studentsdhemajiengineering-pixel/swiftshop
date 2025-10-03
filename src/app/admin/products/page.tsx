@@ -1,10 +1,11 @@
+
 'use client';
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { PlusCircle, MoreHorizontal, Trash2 } from "lucide-react";
-import { getProducts, addProduct, updateProduct, deleteProduct, getCategories, uploadImage } from "@/lib/firebase/service";
+import { getProducts, addProduct, updateProduct, deleteProduct, getCategories } from "@/lib/firebase/service";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
@@ -38,8 +39,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { PlaceHolderImages } from "@/lib/placeholder-images";
-
 
 const ProductForm = ({ 
     product, 
@@ -49,11 +48,10 @@ const ProductForm = ({
 }: { 
     product: Partial<Product> | null, 
     categories: Category[],
-    onSave: (product: Partial<Product>, imageFile: File | null) => void, 
+    onSave: (product: Partial<Product>) => void, 
     onCancel: () => void 
 }) => {
     const [formData, setFormData] = useState<Partial<Product>>(product || {});
-    const [imageFile, setImageFile] = useState<File | null>(null);
 
     useEffect(() => {
         setFormData(product || {});
@@ -67,12 +65,6 @@ const ProductForm = ({
     const handleSelectChange = (name: string, value: string) => {
         setFormData(prev => ({...prev, [name]: value}));
     }
-
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            setImageFile(e.target.files[0]);
-        }
-    };
 
     const handleVariationChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
         const { name, value } = e.target;
@@ -104,7 +96,7 @@ const ProductForm = ({
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        onSave(formData, imageFile);
+        onSave(formData);
     }
 
     return (
@@ -133,10 +125,10 @@ const ProductForm = ({
                         </Select>
                     </div>
                     <div className="space-y-2">
-                        <Label htmlFor="image">Image</Label>
-                        <Input id="image" name="image" type="file" onChange={handleImageChange} accept="image/*" />
-                         <p className="text-xs text-muted-foreground">If no image is uploaded, a default placeholder will be used. Images should be under 1MB.</p>
-                        {formData.imageUrl && !imageFile && (
+                        <Label htmlFor="imageUrl">Image URL</Label>
+                        <Input id="imageUrl" name="imageUrl" type="text" placeholder="https://example.com/image.jpg" value={formData.imageUrl || ''} onChange={handleChange} />
+                         <p className="text-xs text-muted-foreground">Paste an external URL for the product image.</p>
+                        {formData.imageUrl && (
                             <Image src={formData.imageUrl} alt={formData.name || 'product image'} width={80} height={80} className="mt-2 rounded-md object-cover" />
                         )}
                     </div>
@@ -242,36 +234,18 @@ export default function AdminProductsPage() {
         }
     };
 
-    const handleSave = async (productData: Partial<Product>, imageFile: File | null) => {
-        if (!productData.name || !productData.category || !productData.variations || productData.variations.length === 0) {
-            toast({ title: "Please fill all required fields", variant: "destructive" });
+    const handleSave = async (productData: Partial<Product>) => {
+        if (!productData.name || !productData.category || !productData.variations || productData.variations.length === 0 || !productData.imageUrl) {
+            toast({ title: "Please fill all required fields, including the Image URL", variant: "destructive" });
             return;
         }
 
         try {
-            let finalProductData = { ...productData };
-
-            if (imageFile) {
-                 if (imageFile.size > 1024 * 1024) { // 1MB limit
-                    toast({ title: "Image size exceeds 1MB limit", description: "Please choose a smaller file.", variant: "destructive" });
-                    return;
-                }
-                const imageUrl = await uploadImage(imageFile);
-                finalProductData.imageUrl = imageUrl;
-            } else if (!editingProduct?.id) {
-                const placeholder = PlaceHolderImages.find(p => p.id === 'product-fresh-vegetables');
-                finalProductData.imageUrl = placeholder?.imageUrl || 'https://placehold.co/600x400';
-            }
-
             if (editingProduct && 'id' in editingProduct && editingProduct.id) {
-                await updateProduct(editingProduct.id, finalProductData);
+                await updateProduct(editingProduct.id, productData);
                 toast({ title: "Product updated successfully!" });
             } else {
-                if (!finalProductData.imageUrl) {
-                    toast({ title: "Image is required for new products", variant: "destructive" });
-                    return;
-                }
-                await addProduct(finalProductData as Omit<Product, 'id'>);
+                await addProduct(productData as Omit<Product, 'id'>);
                 toast({ title: "Product added successfully!" });
             }
             setIsDialogOpen(false);
@@ -279,10 +253,7 @@ export default function AdminProductsPage() {
             fetchPageData();
         } catch(e: any) {
             console.error("Error saving product:", e);
-            const description = e.code === 'resource-exhausted' 
-                ? "The image is too large. Please use an image under 1MB."
-                : e.message;
-            toast({ title: "Error saving product", description, variant: "destructive" });
+            toast({ title: "Error saving product", description: e.message, variant: "destructive" });
         }
     };
     
@@ -410,3 +381,5 @@ export default function AdminProductsPage() {
     </>
   );
 }
+
+    

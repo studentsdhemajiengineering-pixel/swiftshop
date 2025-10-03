@@ -1,10 +1,11 @@
+
 'use client';
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { PlusCircle, MoreHorizontal, Trash2 } from "lucide-react";
-import { getCategories, addCategory, updateCategory, deleteCategory, uploadImage } from "@/lib/firebase/service";
+import { getCategories, addCategory, updateCategory, deleteCategory } from "@/lib/firebase/service";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import Image from "next/image";
 import type { Category } from "@/lib/types";
@@ -35,8 +36,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { PlaceHolderImages } from "@/lib/placeholder-images";
-
 
 const CategoryForm = ({ 
     category, 
@@ -44,11 +43,10 @@ const CategoryForm = ({
     onCancel 
 }: { 
     category: Partial<Category> | null, 
-    onSave: (category: Partial<Category>, imageFile: File | null) => void, 
+    onSave: (category: Partial<Category>) => void, 
     onCancel: () => void 
 }) => {
     const [formData, setFormData] = useState<Partial<Category>>(category || {});
-    const [imageFile, setImageFile] = useState<File | null>(null);
 
     useEffect(() => {
         setFormData(category || {});
@@ -59,15 +57,9 @@ const CategoryForm = ({
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            setImageFile(e.target.files[0]);
-        }
-    };
-
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        onSave(formData, imageFile);
+        onSave(formData);
     }
 
     return (
@@ -78,10 +70,10 @@ const CategoryForm = ({
                     <Input id="name" name="name" value={formData.name || ''} onChange={handleChange} required />
                 </div>
                 <div className="space-y-2">
-                    <Label htmlFor="image">Image</Label>
-                    <Input id="image" name="image" type="file" onChange={handleImageChange} accept="image/*" />
-                    <p className="text-xs text-muted-foreground">If no image is uploaded, a default placeholder will be used. Images should be under 1MB.</p>
-                    {formData.imageUrl && !imageFile && (
+                    <Label htmlFor="imageUrl">Image URL</Label>
+                    <Input id="imageUrl" name="imageUrl" type="text" placeholder="https://example.com/image.jpg" value={formData.imageUrl || ''} onChange={handleChange} required />
+                    <p className="text-xs text-muted-foreground">Paste an external URL for the category image.</p>
+                    {formData.imageUrl && (
                         <Image src={formData.imageUrl} alt={formData.name || 'category image'} width={80} height={80} className="mt-2 rounded-md object-cover" />
                     )}
                 </div>
@@ -139,36 +131,18 @@ export default function AdminCategoriesPage() {
         }
     };
 
-    const handleSave = async (categoryData: Partial<Category>, imageFile: File | null) => {
-         if (!categoryData.name) {
+    const handleSave = async (categoryData: Partial<Category>) => {
+         if (!categoryData.name || !categoryData.imageUrl) {
             toast({ title: "Please fill all required fields", variant: "destructive" });
             return;
         }
 
         try {
-            let finalCategoryData = { ...categoryData };
-
-            if (imageFile) {
-                if (imageFile.size > 1024 * 1024) { // 1MB limit
-                    toast({ title: "Image size exceeds 1MB limit", description: "Please choose a smaller file.", variant: "destructive" });
-                    return;
-                }
-                const imageUrl = await uploadImage(imageFile);
-                finalCategoryData.imageUrl = imageUrl;
-            } else if (!editingCategory) {
-                const placeholder = PlaceHolderImages.find(p => p.id === 'cat-kitchenware');
-                finalCategoryData.imageUrl = placeholder?.imageUrl || 'https://placehold.co/600x400';
-            }
-            
             if (editingCategory?.id) {
-                await updateCategory(editingCategory.id, finalCategoryData);
+                await updateCategory(editingCategory.id, categoryData);
                 toast({ title: "Category updated successfully!" });
             } else {
-                 if (!finalCategoryData.imageUrl) {
-                    toast({ title: "Image is required to create a new category.", variant: "destructive" });
-                    return;
-                }
-                 await addCategory({ name: finalCategoryData.name!, imageUrl: finalCategoryData.imageUrl! });
+                 await addCategory({ name: categoryData.name!, imageUrl: categoryData.imageUrl! });
                  toast({ title: "Category added successfully!" });
             }
             setIsDialogOpen(false);
@@ -176,10 +150,7 @@ export default function AdminCategoriesPage() {
             fetchPageData();
         } catch(e: any) {
             console.error("Error saving category:", e);
-            const description = e.code === 'resource-exhausted' 
-                ? "The image is too large. Please use an image under 1MB."
-                : e.message;
-            toast({ title: "Error saving category", description, variant: "destructive" });
+            toast({ title: "Error saving category", description: e.message, variant: "destructive" });
         }
     };
     
@@ -292,3 +263,5 @@ export default function AdminCategoriesPage() {
     </>
   );
 }
+
+    
