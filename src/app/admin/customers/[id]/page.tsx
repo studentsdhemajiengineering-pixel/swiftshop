@@ -1,20 +1,25 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
-import { notFound, useRouter } from 'next/navigation';
+import { useRouter, notFound } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, User as UserIcon, Mail, Phone, ShoppingBag } from 'lucide-react';
+import { ArrowLeft, Mail, Phone } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Separator } from '@/components/ui/separator';
-import { getUser } from '@/lib/firebase/service';
 import type { User } from '@/lib/types';
-import { currentOrders } from '@/lib/data'; // Using mock data for now
+import { currentOrders } from '@/lib/data'; 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { format } from 'date-fns';
 import Link from 'next/link';
+
+const dummyUsers: User[] = [
+    { id: 'usr_1', firstName: 'Liam', lastName: 'Johnson', email: 'liam@example.com', phone: '+1-202-555-0141' },
+    { id: 'usr_2', firstName: 'Olivia', lastName: 'Smith', email: 'olivia@example.com', phone: '+1-202-555-0192' },
+    { id: 'usr_3', firstName: 'Noah', lastName: 'Williams', email: 'noah@example.com', phone: '+1-202-555-0128' },
+    { id: 'usr_4', firstName: 'Emma', lastName: 'Brown', email: 'emma@example.com', phone: '+1-202-555-0115' },
+    { id: 'usr_5', firstName: 'Oliver', lastName: 'Jones', email: 'oliver@example.com', phone: '+1-202-555-0177' },
+];
+
 
 const CustomerDetailHeader = () => {
     const router = useRouter();
@@ -31,42 +36,7 @@ const CustomerDetailHeader = () => {
 };
 
 export default function CustomerDetailPage({ params }: { params: { id: string } }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchUser = async () => {
-        setLoading(true);
-        try {
-            const fetchedUser = await getUser(params.id);
-            if (fetchedUser) {
-                setUser(fetchedUser);
-            } else {
-                notFound();
-            }
-        } catch (error) {
-            console.error("Error fetching user:", error);
-            // notFound() could be called here as well if the error is a permission error
-        } finally {
-            setLoading(false);
-        }
-    };
-    fetchUser();
-  }, [params.id]);
-
-
-  if (loading) {
-    return (
-        <div className="flex min-h-screen w-full flex-col bg-muted/20">
-             <CustomerDetailHeader />
-             <main className="flex-1">
-                <div className="container mx-auto max-w-4xl px-4 py-6 sm:px-6 lg:px-8">
-                    <p>Loading...</p>
-                </div>
-             </main>
-        </div>
-    )
-  }
+  const user = dummyUsers.find(u => u.id === params.id);
 
   if (!user) {
     notFound();
@@ -154,3 +124,5 @@ export default function CustomerDetailPage({ params }: { params: { id: string } 
     </div>
   );
 }
+
+    
