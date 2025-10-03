@@ -1,7 +1,15 @@
 
 import { collection, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { db, storage } from '@/lib/firebase';
 import type { Product, Category } from '@/lib/types';
+
+export async function uploadImage(file: File): Promise<string> {
+    const storageRef = ref(storage, `products/${Date.now()}_${file.name}`);
+    await uploadBytes(storageRef, file);
+    const downloadURL = await getDownloadURL(storageRef);
+    return downloadURL;
+}
 
 export async function getProducts(): Promise<Product[]> {
     const productsCol = collection(db, 'products');

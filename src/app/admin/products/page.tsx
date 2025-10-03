@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { PlusCircle, MoreHorizontal, Trash2 } from "lucide-react";
-import { getProducts, addProduct, updateProduct, deleteProduct, getCategories } from "@/lib/firebase/service";
+import { getProducts, addProduct, updateProduct, deleteProduct, getCategories, uploadImage } from "@/lib/firebase/service";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
@@ -49,10 +49,11 @@ const ProductForm = ({
 }: { 
     product: Partial<Product> | null, 
     categories: Category[],
-    onSave: (product: Partial<Product>) => void, 
+    onSave: (product: Partial<Product>, imageFile: File | null) => void, 
     onCancel: () => void 
 }) => {
     const [formData, setFormData] = useState<Partial<Product>>(product || {});
+    const [imageFile, setImageFile] = useState<File | null>(null);
 
     useEffect(() => {
         setFormData(product || {});
@@ -66,6 +67,12 @@ const ProductForm = ({
     const handleSelectChange = (name: string, value: string) => {
         setFormData(prev => ({...prev, [name]: value}));
     }
+
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            setImageFile(e.target.files[0]);
+        }
+    };
 
     const handleVariationChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
         const { name, value } = e.target;
@@ -97,7 +104,7 @@ const ProductForm = ({
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        onSave(formData);
+        onSave(formData, imageFile);
     }
 
     return (
@@ -126,8 +133,11 @@ const ProductForm = ({
                         </Select>
                     </div>
                     <div className="space-y-2">
-                        <Label htmlFor="imageUrl">Image URL</Label>
-                        <Input id="imageUrl" name="imageUrl" value={formData.imageUrl || ''} onChange={handleChange} required placeholder="https://..." />
+                        <Label htmlFor="image">Image</Label>
+                        <Input id="image" name="image" type="file" onChange={handleImageChange} accept="image/*" />
+                        {formData.imageUrl && !imageFile && (
+                            <Image src={formData.imageUrl} alt={formData.name || 'product image'} width={80} height={80} className="mt-2 rounded-md object-cover" />
+                        )}
                     </div>
                 </div>
 
@@ -232,18 +242,28 @@ export default function AdminProductsPage() {
         }
     };
 
-    const handleSave = async (productData: Partial<Product>) => {
-        if (!productData.name || !productData.category || !productData.variations || productData.variations.length === 0 || !productData.imageUrl) {
+    const handleSave = async (productData: Partial<Product>, imageFile: File | null) => {
+        if (!productData.name || !productData.category || !productData.variations || productData.variations.length === 0) {
             toast({ title: "Please fill all required fields", variant: "destructive" });
             return;
         }
 
         try {
+            let finalProductData = { ...productData };
+
+            if (imageFile) {
+                const imageUrl = await uploadImage(imageFile);
+                finalProductData.imageUrl = imageUrl;
+            } else if (!finalProductData.imageUrl) {
+                toast({ title: "Please upload an image", variant: "destructive" });
+                return;
+            }
+
             if (editingProduct && 'id' in editingProduct && editingProduct.id) {
-                await updateProduct(editingProduct.id, productData);
+                await updateProduct(editingProduct.id, finalProductData);
                 toast({ title: "Product updated successfully!" });
             } else {
-                 await addProduct(productData as Omit<Product, 'id'>);
+                 await addProduct(finalProductData as Omit<Product, 'id'>);
                  toast({ title: "Product added successfully!" });
             }
             setIsDialogOpen(false);
