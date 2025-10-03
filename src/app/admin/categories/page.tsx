@@ -108,7 +108,7 @@ export default function AdminCategoriesPage() {
             setCategories(fetchedCategories);
         } catch (error) {
             console.error("Error fetching categories:", error);
-            toast({ title: "Error fetching data", variant: "destructive" });
+            // The service will emit a permission error, so we don't need a toast here
         } finally {
             setLoading(false);
         }
@@ -133,12 +133,12 @@ export default function AdminCategoriesPage() {
 
     const handleDelete = async (categoryId: string) => {
         try {
-            await deleteCategory(categoryId);
+            deleteCategory(categoryId);
             toast({ title: "Category deleted successfully!" });
             fetchPageData();
         } catch (error) {
             console.error("Error deleting category:", error);
-            toast({ title: "Error deleting category", variant: "destructive" });
+            // Error is handled by the service
         }
     };
 
@@ -160,10 +160,10 @@ export default function AdminCategoriesPage() {
             }
             
             if (editingCategory && 'id' in editingCategory && editingCategory.id) {
-                await updateCategory(editingCategory.id, finalCategoryData);
+                updateCategory(editingCategory.id, finalCategoryData);
                 toast({ title: "Category updated successfully!" });
             } else {
-                 await addCategory(finalCategoryData as Omit<Category, 'id'>);
+                 addCategory(finalCategoryData as Omit<Category, 'id'>);
                  toast({ title: "Category added successfully!" });
             }
             setIsDialogOpen(false);
@@ -171,7 +171,7 @@ export default function AdminCategoriesPage() {
             fetchPageData();
         } catch(e) {
             console.error("Error saving category:", e);
-            toast({ title: "Error saving category", variant: "destructive" });
+            // Error is handled by the service
         }
     };
     

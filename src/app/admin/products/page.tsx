@@ -205,7 +205,7 @@ export default function AdminProductsPage() {
             setCategories(fetchedCategories);
         } catch (error) {
             console.error("Error fetching page data:", error);
-            toast({ title: "Error fetching data", variant: "destructive" });
+            // The service will emit a permission error, so we don't need a toast here
         } finally {
             setLoading(false);
         }
@@ -231,14 +231,14 @@ export default function AdminProductsPage() {
         setIsDialogOpen(true);
     };
 
-    const handleDelete = async (productId: string) => {
+    const handleDelete = (productId: string) => {
         try {
-            await deleteProduct(productId);
+            deleteProduct(productId);
             toast({ title: "Product deleted successfully!" });
             fetchPageData();
         } catch (error) {
             console.error("Error deleting product:", error);
-            toast({ title: "Error deleting product", variant: "destructive" });
+            // Error is handled by the service
         }
     };
 
@@ -260,10 +260,10 @@ export default function AdminProductsPage() {
             }
 
             if (editingProduct && 'id' in editingProduct && editingProduct.id) {
-                await updateProduct(editingProduct.id, finalProductData);
+                updateProduct(editingProduct.id, finalProductData);
                 toast({ title: "Product updated successfully!" });
             } else {
-                 await addProduct(finalProductData as Omit<Product, 'id'>);
+                 addProduct(finalProductData as Omit<Product, 'id'>);
                  toast({ title: "Product added successfully!" });
             }
             setIsDialogOpen(false);
@@ -271,7 +271,7 @@ export default function AdminProductsPage() {
             fetchPageData();
         } catch(e) {
             console.error("Error saving product:", e);
-            toast({ title: "Error saving product", variant: "destructive" });
+            // Error is handled by the service
         }
     };
     
