@@ -86,7 +86,7 @@ export default function AdminSettingsPage() {
             </CardHeader>
             <CardContent className="space-y-4">
                 <p className="text-sm text-muted-foreground">
-                    Click the button below to populate your Firestore database with the initial set of products and categories. This is a one-time action.
+                    Click the button below to populate your Firestore database with the initial set of products and categories. This can only be done once and may take a moment.
                 </p>
                 <Button onClick={handleSeed} disabled={isSeeding}>
                     {isSeeding && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

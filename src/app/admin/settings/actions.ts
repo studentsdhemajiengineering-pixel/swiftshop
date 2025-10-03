@@ -14,7 +14,16 @@ interface SeedResult {
     error?: string;
 }
 
+// A simple check to see if the service account is populated
+// The default service-account.json is an empty object
+const isServiceAccountPopulated = Object.keys(serviceAccount).length > 0;
+
+
 export async function seedDatabase(): Promise<SeedResult> {
+    if (!isServiceAccountPopulated) {
+        return { success: false, error: "Firebase service account credentials are not configured in src/lib/firebase/service-account.json." };
+    }
+
     try {
         if (getApps().length === 0) {
             initializeApp({
