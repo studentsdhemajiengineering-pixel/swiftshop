@@ -163,12 +163,8 @@ export default function AdminCategoriesPage() {
                 updateCategory(editingCategory.id, finalCategoryData);
                 toast({ title: "Category updated successfully!" });
             } else {
-                 if(finalCategoryData.name && finalCategoryData.imageUrl) {
-                    addCategory({ name: finalCategoryData.name, imageUrl: finalCategoryData.imageUrl });
-                    toast({ title: "Category added successfully!" });
-                 } else {
-                    toast({ title: "Category name and image are required.", variant: "destructive" });
-                 }
+                 addCategory({ name: finalCategoryData.name!, imageUrl: finalCategoryData.imageUrl! });
+                 toast({ title: "Category added successfully!" });
             }
             setIsDialogOpen(false);
             setEditingCategory(null);
