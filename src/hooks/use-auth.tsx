@@ -71,24 +71,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
 
-  useEffect(() => {
-    const demoUser = getDemoUser();
-    if (demoUser) {
-        setUser(demoUser);
-        isDemoMode = true;
-        setLoading(false);
-    } else {
-        const unsubscribe = onAuthStateChanged(auth, (fbUser) => {
-            if (fbUser) {
-              const augmentedUser: AuthContextType['user'] = { ...fbUser, isAdmin: fbUser.email === ADMIN_EMAIL };
-              setUser(augmentedUser);
+   useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (fbUser) => {
+        if (fbUser) {
+            const augmentedUser: AuthContextType['user'] = { ...fbUser, isAdmin: fbUser.email === ADMIN_EMAIL };
+            setUser(augmentedUser);
+        } else {
+            // Check for demo user if no firebase user
+            const demoUser = getDemoUser();
+            if (demoUser) {
+                setUser(demoUser);
+                isDemoMode = true;
             } else {
-              setUser(null);
+                setUser(null);
             }
-            setLoading(false);
-        });
-        return () => unsubscribe();
-    }
+        }
+        setLoading(false);
+    });
+
+    return () => unsubscribe();
   }, []);
 
   const setupRecaptcha = () => {
@@ -140,7 +141,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setDemoUser(adminUser);
         return;
     }
-    throw new Error('Invalid credentials');
+    await firebaseSignInWithEmailAndPassword(auth, email, pass);
   };
 
   const verifyOtp = async (otp: string): Promise<void> => {
