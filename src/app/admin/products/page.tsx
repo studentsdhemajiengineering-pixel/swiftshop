@@ -5,12 +5,12 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { PlusCircle, MoreHorizontal, Trash2 } from "lucide-react";
-import { getProducts, addProduct, updateProduct, deleteProduct } from "@/lib/firebase/service";
+import { getProducts, addProduct, updateProduct, deleteProduct, getCategories } from "@/lib/firebase/service";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
-import type { Product } from "@/lib/types";
+import type { Product, Category } from "@/lib/types";
 import {
   Dialog,
   DialogContent,
@@ -39,10 +39,21 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 
-const ProductForm = ({ product, onSave, onCancel }: { product: Partial<Product> | null, onSave: (product: Partial<Product>) => void, onCancel: () => void }) => {
-    const [formData, setFormData] = useState(product || {});
+const ProductForm = ({ 
+    product, 
+    categories, 
+    onSave, 
+    onCancel 
+}: { 
+    product: Partial<Product> | null, 
+    categories: Category[],
+    onSave: (product: Partial<Product>) => void, 
+    onCancel: () => void 
+}) => {
+    const [formData, setFormData] = useState<Partial<Product>>(product || {});
 
     useEffect(() => {
         setFormData(product || {});
@@ -52,34 +63,48 @@ const ProductForm = ({ product, onSave, onCancel }: { product: Partial<Product> 
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
+    
+    const handleSelectChange = (name: string, value: string) => {
+        setFormData(prev => ({...prev, [name]: value}));
+    }
 
-    const handleVariationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleVariationChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
         const { name, value } = e.target;
-        const [field, indexStr] = name.split('-');
-        const index = parseInt(indexStr, 10);
+        const variations = [...(formData.variations || [])];
+        const currentVariation = variations[index] || {};
         
-        setFormData(prev => {
-            const variations = [...(prev.variations || [])];
-            const currentVariation = variations[index] || {};
-            
-            let parsedValue: string | number = value;
-            if (field === 'price' || field === 'inventory' || field === 'originalPrice') {
-                parsedValue = value === '' ? '' : parseFloat(value);
-            }
+        let parsedValue: string | number = value;
+        if (name === 'price' || name === 'inventory' || name === 'originalPrice') {
+            parsedValue = value === '' ? '' : parseFloat(value);
+        }
 
-            variations[index] = { ...currentVariation, [field]: parsedValue };
-            return { ...prev, variations };
-        });
+        variations[index] = { ...currentVariation, [name]: parsedValue };
+        setFormData(prev => ({ ...prev, variations }));
+    }
+
+    const addVariation = () => {
+        setFormData(prev => ({
+            ...prev,
+            variations: [...(prev.variations || []), { id: `new-${Date.now()}`, name: '', price: 0, inventory: 0, unit: 'kg' }]
+        }));
+    }
+    
+    const removeVariation = (index: number) => {
+        setFormData(prev => ({
+            ...prev,
+            variations: (prev.variations || []).filter((_, i) => i !== index)
+        }));
     }
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         onSave(formData);
     }
+    const imageOptions = PlaceHolderImages.filter(p => p.id.startsWith('product-'));
 
     return (
         <form onSubmit={handleSubmit}>
-            <div className="space-y-4">
+            <div className="space-y-4 max-h-[60vh] overflow-y-auto p-1">
                 <div className="space-y-2">
                     <Label htmlFor="name">Product Name</Label>
                     <Input id="name" name="name" value={formData.name || ''} onChange={handleChange} required />
@@ -88,20 +113,75 @@ const ProductForm = ({ product, onSave, onCancel }: { product: Partial<Product> 
                     <Label htmlFor="description">Description</Label>
                     <Textarea id="description" name="description" value={formData.description || ''} onChange={handleChange} required />
                 </div>
-                 <div className="space-y-2">
-                    <Label>Variations</Label>
+                <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                       {(formData.variations || [{}] as any).map((v: any, i: number) => (
-                         <div key={i} className="grid grid-cols-3 gap-2">
-                            <Input name={`name-${i}`} placeholder="Name (e.g. 1kg)" value={v.name || ''} onChange={handleVariationChange} />
-                            <Input name={`price-${i}`} type="number" placeholder="Price" value={v.price || ''} onChange={handleVariationChange} />
-                            <Input name={`inventory-${i}`} type="number" placeholder="Inventory" value={v.inventory || ''} onChange={handleVariationChange} />
+                        <Label htmlFor="category">Category</Label>
+                        <Select name="category" value={formData.category || ''} onValueChange={(value) => handleSelectChange('category', value)}>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select a category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {categories.map(cat => (
+                                    <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="imageId">Image</Label>
+                         <Select name="imageId" value={formData.imageId || ''} onValueChange={(value) => handleSelectChange('imageId', value)}>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select an image" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {imageOptions.map(img => (
+                                    <SelectItem key={img.id} value={img.id}>{img.description}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                </div>
+
+                 <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                        <Label>Variations</Label>
+                        <Button type="button" size="sm" variant="outline" onClick={addVariation}>Add Variation</Button>
+                    </div>
+                    <div className="space-y-3">
+                       {(formData.variations || []).map((v: any, i: number) => (
+                         <div key={i} className="space-y-2 p-3 border rounded-md relative">
+                            { (formData.variations?.length || 0) > 1 &&
+                                <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1 h-6 w-6" onClick={() => removeVariation(i)}>
+                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                </Button>
+                            }
+                            <div className="grid grid-cols-2 gap-2">
+                                <Input name="name" placeholder="Name (e.g. 1kg)" value={v.name || ''} onChange={(e) => handleVariationChange(e, i)} />
+                                <Select name="unit" value={v.unit || 'kg'} onValueChange={(value) => handleVariationChange({target: {name: 'unit', value}} as any, i)}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Unit" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="kg">kg</SelectItem>
+                                        <SelectItem value="g">g</SelectItem>
+                                        <SelectItem value="piece">piece</SelectItem>
+                                        <SelectItem value="liter">liter</SelectItem>
+                                        <SelectItem value="ml">ml</SelectItem>
+                                        <SelectItem value="dozen">dozen</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                             <div className="grid grid-cols-3 gap-2">
+                                <Input name="price" type="number" placeholder="Price" value={v.price || ''} onChange={(e) => handleVariationChange(e, i)} />
+                                <Input name="originalPrice" type="number" placeholder="Original Price" value={v.originalPrice || ''} onChange={(e) => handleVariationChange(e, i)} />
+                                <Input name="inventory" type="number" placeholder="Inventory" value={v.inventory || ''} onChange={(e) => handleVariationChange(e, i)} />
+                            </div>
                          </div>
                        ))}
                     </div>
                 </div>
             </div>
-             <DialogFooter className="mt-6">
+             <DialogFooter className="mt-6 pt-4 border-t">
                 <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>
                 <Button type="submit">Save Product</Button>
             </DialogFooter>
@@ -112,35 +192,37 @@ const ProductForm = ({ product, onSave, onCancel }: { product: Partial<Product> 
 
 export default function AdminProductsPage() {
     const [products, setProducts] = useState<Product[]>([]);
+    const [categories, setCategories] = useState<Category[]>([]);
     const [loading, setLoading] = useState(true);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [editingProduct, setEditingProduct] = useState<Partial<Product> | null>(null);
     const { toast } = useToast();
 
-     const fetchProducts = async () => {
+     const fetchPageData = async () => {
         setLoading(true);
         try {
-            const fetchedProducts = await getProducts();
+            const [fetchedProducts, fetchedCategories] = await Promise.all([getProducts(), getCategories()]);
             setProducts(fetchedProducts);
+            setCategories(fetchedCategories);
         } catch (error) {
-            console.error("Error fetching products:", error);
-            toast({ title: "Error fetching products", variant: "destructive" });
+            console.error("Error fetching page data:", error);
+            toast({ title: "Error fetching data", variant: "destructive" });
         } finally {
             setLoading(false);
         }
     }
 
     useEffect(() => {
-        fetchProducts();
+        fetchPageData();
     }, []);
 
     const handleAddClick = () => {
         setEditingProduct({
             name: '',
             description: '',
-            imageId: 'product-fresh-vegetables', // Default image
-            category: 'vegetables-fruits', // Default category
-            variations: [{ id: '', name: '', price: 0, inventory: 0, unit: 'kg'}]
+            imageId: 'product-fresh-vegetables',
+            category: categories[0]?.id || '',
+            variations: [{ id: `new-${Date.now()}`, name: '', price: 0, inventory: 0, unit: 'kg'}]
         });
         setIsDialogOpen(true);
     };
@@ -154,7 +236,7 @@ export default function AdminProductsPage() {
         try {
             await deleteProduct(productId);
             toast({ title: "Product deleted successfully!" });
-            fetchProducts();
+            fetchPageData();
         } catch (error) {
             console.error("Error deleting product:", error);
             toast({ title: "Error deleting product", variant: "destructive" });
@@ -162,6 +244,11 @@ export default function AdminProductsPage() {
     };
 
     const handleSave = async (productData: Partial<Product>) => {
+        if (!productData.name || !productData.category || !productData.variations || productData.variations.length === 0) {
+            toast({ title: "Please fill all required fields", variant: "destructive" });
+            return;
+        }
+
         try {
             if (editingProduct && 'id' in editingProduct && editingProduct.id) {
                 await updateProduct(editingProduct.id, productData);
@@ -172,7 +259,7 @@ export default function AdminProductsPage() {
             }
             setIsDialogOpen(false);
             setEditingProduct(null);
-            fetchProducts(); // Refresh data
+            fetchPageData();
         } catch(e) {
             console.error("Error saving product:", e);
             toast({ title: "Error saving product", variant: "destructive" });
@@ -286,13 +373,14 @@ export default function AdminProductsPage() {
                 </Table>
             </CardContent>
         </Card>
-        <DialogContent>
+        <DialogContent className="max-w-2xl">
             <DialogHeader>
                 <DialogTitle>{editingProduct && 'id' in editingProduct && editingProduct.id ? 'Edit Product' : 'Add New Product'}</DialogTitle>
             </DialogHeader>
-            {editingProduct && (
+            {isDialogOpen && (
                 <ProductForm 
-                    product={editingProduct} 
+                    product={editingProduct}
+                    categories={categories}
                     onSave={handleSave} 
                     onCancel={() => { setIsDialogOpen(false); setEditingProduct(null); }} 
                 />
@@ -301,3 +389,4 @@ export default function AdminProductsPage() {
      </Dialog>
   );
 }
+
