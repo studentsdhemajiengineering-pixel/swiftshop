@@ -1,8 +1,6 @@
-
-
 'use client';
 
-import { collection, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc, onSnapshot } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc, onSnapshot, query, where } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { getAuth } from 'firebase/auth';
 import { initializeFirebase } from '@/firebase';
@@ -17,6 +15,9 @@ const auth = getAuth(initializeFirebase().firebaseApp);
 export async function uploadImage(file: File): Promise<string> {
     // Convert file to Base64 Data URL.
     return new Promise((resolve, reject) => {
+        if (file.size > 1024 * 1024) { // 1MB limit
+            return reject(new Error("Image size exceeds 1MB limit."));
+        }
         const reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = () => resolve(reader.result as string);
@@ -222,9 +223,22 @@ export async function deleteCategory(id: string) {
 }
 
 export async function getOrders(): Promise<Order[]> {
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+        // Return empty array or throw error if no user is logged in and not admin
+        return [];
+    }
+
+    const isAdmin = currentUser.email === 'admin@swiftshop.com';
+    const ordersCol = collection(firestore, 'orders');
+    
+    // Create a query based on the user's role
+    const ordersQuery = isAdmin 
+        ? ordersCol // Admin gets all orders
+        : query(ordersCol, where("userId", "==", currentUser.uid)); // Regular user gets only their orders
+
     return new Promise((resolve, reject) => {
-        const ordersCol = collection(firestore, 'orders');
-        const unsubscribe = onSnapshot(ordersCol, 
+        const unsubscribe = onSnapshot(ordersQuery, 
             (snapshot) => {
                 const orderList = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as Order));
                 resolve(orderList.sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
@@ -232,7 +246,7 @@ export async function getOrders(): Promise<Order[]> {
             },
             (error) => {
                 const permissionError = new FirestorePermissionError({
-                    path: ordersCol.path,
+                    path: ordersQuery.toString(), // Using query description for path context
                     operation: 'list',
                 });
                 errorEmitter.emit('permission-error', permissionError);
