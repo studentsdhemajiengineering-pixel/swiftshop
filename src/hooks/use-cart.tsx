@@ -50,7 +50,7 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
           price: variation.price,
           unit: variation.unit,
           quantity: 1,
-          imageId: product.imageId,
+          imageUrl: product.imageUrl,
           inventory: variation.inventory
       }
       return {

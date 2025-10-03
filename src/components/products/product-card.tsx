@@ -3,7 +3,6 @@
 
 import Image from 'next/image';
 import type { Product } from '@/lib/types';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { AddToCartButton } from '@/components/cart/add-to-cart-button';
 import { Card, CardContent } from '@/components/ui/card';
 import Link from 'next/link';
@@ -14,7 +13,6 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product }: ProductCardProps) {
-  const image = PlaceHolderImages.find((p) => p.id === product.imageId);
   const defaultVariation = product.variations[0];
   const discount = defaultVariation.originalPrice
     ? Math.round(((defaultVariation.originalPrice - defaultVariation.price) / defaultVariation.originalPrice) * 100)
@@ -38,13 +36,12 @@ export function ProductCard({ product }: ProductCardProps) {
         )}
         <div className="p-1 bg-white">
           <div className="relative aspect-[4/3] w-full rounded-md overflow-hidden border">
-            {image ? (
+            {product.imageUrl ? (
               <Image
-                src={image.imageUrl}
+                src={product.imageUrl}
                 alt={product.name}
                 fill
                 className="object-cover"
-                data-ai-hint={image.imageHint}
               />
             ) : (
               <div className="w-full h-full bg-secondary" />

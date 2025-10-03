@@ -4,7 +4,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useCart } from '@/hooks/use-cart';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Button } from '@/components/ui/button';
 import {
   Sheet,
@@ -39,13 +38,12 @@ export function CartSheet({ children }: { children: ReactNode }) {
             <ScrollArea className="flex-grow my-4">
               <div className="flex flex-col gap-6">
                 {cart.map((item) => {
-                  const image = PlaceHolderImages.find((p) => p.id === item.imageId);
                   return (
                     <div key={item.variationId} className="flex items-start gap-4">
                       <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-md">
-                        {image && (
+                        {item.imageUrl && (
                           <Image
-                            src={image.imageUrl}
+                            src={item.imageUrl}
                             alt={item.name}
                             fill
                             className="object-cover"

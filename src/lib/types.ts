@@ -12,7 +12,7 @@ export type ProductVariation = {
 export type Product = {
   id: string;
   name: string;
-  imageId: string;
+  imageUrl: string;
   category: string;
   description: string;
   variations: ProductVariation[];
@@ -25,7 +25,7 @@ export type CartItem = {
   price: number;
   unit: string;
   quantity: number;
-  imageId: string;
+  imageUrl: string;
   inventory: number;
 };
 

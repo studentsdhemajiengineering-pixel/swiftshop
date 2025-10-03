@@ -6,10 +6,8 @@ import { notFound, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, MapPin, ShoppingBag } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 import { format } from 'date-fns';
 import Image from 'next/image';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 const OrderDetailHeader = () => {
     const router = useRouter();
@@ -67,12 +65,11 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
                         </CardHeader>
                         <CardContent className="space-y-4">
                              {orderProducts.map(product => {
-                                const image = PlaceHolderImages.find((p) => p.id === product.imageId);
                                 return (
                                     <div key={product.id} className="flex items-start gap-4">
-                                        {image && (
+                                        {product.imageUrl && (
                                              <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-md border">
-                                                <Image src={image.imageUrl} alt={product.name} fill className="object-cover" />
+                                                <Image src={product.imageUrl} alt={product.name} fill className="object-cover" />
                                              </div>
                                         )}
                                         <div className="flex-grow">

@@ -4,7 +4,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Share2 } from 'lucide-react';
 import { AddToCartButton } from '@/components/cart/add-to-cart-button';
@@ -46,8 +45,6 @@ export function ProductDetailClient({ product }: { product: Product }) {
     return <div>Product variation not available.</div>;
   }
 
-  const image = PlaceHolderImages.find((p) => p.id === product.imageId);
-
   return (
     <div className="flex min-h-screen w-full flex-col bg-background">
       <ProductDetailHeader />
@@ -58,16 +55,15 @@ export function ProductDetailClient({ product }: { product: Product }) {
                 <div className="p-4 md:p-0">
                 <Carousel className="w-full max-w-xl mx-auto">
                     <CarouselContent>
-                    {[image, image, image].map((img, index) => (
+                    {[product.imageUrl, product.imageUrl, product.imageUrl].map((url, index) => (
                         <CarouselItem key={index}>
                         <div className="relative w-full aspect-square rounded-lg overflow-hidden border">
-                            {img && (
+                            {url && (
                                 <Image
-                                    src={img.imageUrl}
+                                    src={url}
                                     alt={product.name}
                                     fill
                                     className="object-cover"
-                                    data-ai-hint={img.imageHint}
                                     priority={index === 0}
                                 />
                             )}

@@ -9,7 +9,6 @@ import { getProducts, addProduct, updateProduct, deleteProduct, getCategories } 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
-import { PlaceHolderImages } from "@/lib/placeholder-images";
 import type { Product, Category } from "@/lib/types";
 import {
   Dialog,
@@ -100,7 +99,6 @@ const ProductForm = ({
         e.preventDefault();
         onSave(formData);
     }
-    const imageOptions = PlaceHolderImages.filter(p => p.id.startsWith('product-'));
 
     return (
         <form onSubmit={handleSubmit}>
@@ -128,17 +126,8 @@ const ProductForm = ({
                         </Select>
                     </div>
                     <div className="space-y-2">
-                        <Label htmlFor="imageId">Image</Label>
-                         <Select name="imageId" value={formData.imageId || ''} onValueChange={(value) => handleSelectChange('imageId', value)}>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select an image" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {imageOptions.map(img => (
-                                    <SelectItem key={img.id} value={img.id}>{img.description}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                        <Label htmlFor="imageUrl">Image URL</Label>
+                        <Input id="imageUrl" name="imageUrl" value={formData.imageUrl || ''} onChange={handleChange} required placeholder="https://..." />
                     </div>
                 </div>
 
@@ -220,7 +209,7 @@ export default function AdminProductsPage() {
         setEditingProduct({
             name: '',
             description: '',
-            imageId: 'product-fresh-vegetables',
+            imageUrl: '',
             category: categories[0]?.id || '',
             variations: [{ id: `new-${Date.now()}`, name: '', price: 0, inventory: 0, unit: 'kg'}]
         });
@@ -244,7 +233,7 @@ export default function AdminProductsPage() {
     };
 
     const handleSave = async (productData: Partial<Product>) => {
-        if (!productData.name || !productData.category || !productData.variations || productData.variations.length === 0) {
+        if (!productData.name || !productData.category || !productData.variations || productData.variations.length === 0 || !productData.imageUrl) {
             toast({ title: "Please fill all required fields", variant: "destructive" });
             return;
         }
@@ -267,7 +256,7 @@ export default function AdminProductsPage() {
     };
     
   return (
-     <Dialog open={isDialogOpen} onOpenChange={(open) => { if(!open) { setIsDialogOpen(false); setEditingProduct(null); } }}>
+    <>
         <Card>
             <CardHeader>
                 <div className="flex justify-between items-center">
@@ -310,17 +299,16 @@ export default function AdminProductsPage() {
                             </TableRow>
                         ))}
                         {!loading && products.map(product => {
-                            const image = PlaceHolderImages.find((p) => p.id === product.imageId);
                             const totalInventory = product.variations.reduce((acc, v) => acc + v.inventory, 0);
                             return (
                                 <TableRow key={product.id}>
                                     <TableCell className="hidden sm:table-cell">
-                                        {image && (
+                                        {product.imageUrl && (
                                             <Image
                                                 alt={product.name}
                                                 className="aspect-square rounded-md object-cover"
                                                 height="64"
-                                                src={image.imageUrl}
+                                                src={product.imageUrl}
                                                 width="64"
                                             />
                                         )}
@@ -373,6 +361,7 @@ export default function AdminProductsPage() {
                 </Table>
             </CardContent>
         </Card>
+      <Dialog open={isDialogOpen} onOpenChange={(open) => { if(!open) { setIsDialogOpen(false); setEditingProduct(null); } }}>
         <DialogContent className="max-w-2xl">
             <DialogHeader>
                 <DialogTitle>{editingProduct && 'id' in editingProduct && editingProduct.id ? 'Edit Product' : 'Add New Product'}</DialogTitle>
@@ -387,6 +376,6 @@ export default function AdminProductsPage() {
             )}
         </DialogContent>
      </Dialog>
+    </>
   );
 }
-
