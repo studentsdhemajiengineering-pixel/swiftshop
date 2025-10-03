@@ -68,6 +68,15 @@ function AdminLayoutContent({
     children: React.ReactNode;
 }) {
     const pathname = usePathname();
+    const router = useRouter();
+
+    const menuItems = [
+        { href: "/admin", label: "Dashboard", icon: Home },
+        { href: "/admin/products", label: "Products", icon: ShoppingCart },
+        { href: "/admin/orders", label: "Orders", icon: Package },
+        { href: "/admin/customers", label: "Customers", icon: Users },
+        { href: "/admin/settings", label: "Settings", icon: Settings },
+    ];
 
     return (
         <SidebarProvider>
@@ -77,36 +86,17 @@ function AdminLayoutContent({
                         <Logo />
                     </SidebarHeader>
                     <SidebarMenu>
-                        <SidebarMenuItem>
-                            <SidebarMenuButton href="/admin" isActive={pathname === '/admin'}>
-                                <Home />
-                                Dashboard
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-                        <SidebarMenuItem>
-                            <SidebarMenuButton href="/admin/products" isActive={pathname.startsWith('/admin/products')}>
-                                <ShoppingCart />
-                                Products
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-                        <SidebarMenuItem>
-                            <SidebarMenuButton href="/admin/orders" isActive={pathname.startsWith('/admin/orders')}>
-                                <Package />
-                                Orders
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-                         <SidebarMenuItem>
-                            <SidebarMenuButton href="/admin/customers" isActive={pathname.startsWith('/admin/customers')}>
-                                <Users />
-                                Customers
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-                         <SidebarMenuItem>
-                            <SidebarMenuButton href="/admin/settings" isActive={pathname.startsWith('/admin/settings')}>
-                                <Settings />
-                                Settings
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
+                        {menuItems.map((item) => (
+                            <SidebarMenuItem key={item.href}>
+                                <SidebarMenuButton 
+                                    onClick={() => router.push(item.href)} 
+                                    isActive={pathname === item.href || (item.href !== '/admin' && pathname.startsWith(item.href))}
+                                >
+                                    <item.icon />
+                                    {item.label}
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        ))}
                     </SidebarMenu>
                 </SidebarContent>
             </Sidebar>
