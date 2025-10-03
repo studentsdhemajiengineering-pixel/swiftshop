@@ -1,27 +1,30 @@
 
+// This file is no longer used for manual seeding via the UI.
+// The logic has been moved to src/app/admin/settings/actions.ts
+// You can delete this file or keep it for command-line usage if you fix the initial error.
+
 import { initializeApp, getApps, cert, ServiceAccount } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import productsData from '../data/products.json';
 import categoriesData from '../data/categories.json';
 import * as serviceAccount from './service-account.json';
 
-try {
-    if (getApps().length === 0) {
-        initializeApp({
-            credential: cert(serviceAccount as ServiceAccount),
-            projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-        });
+async function seed() {
+    try {
+        if (getApps().length === 0) {
+            initializeApp({
+                credential: cert(serviceAccount as ServiceAccount),
+            });
+        }
+    } catch (e) {
+        console.error("Firebase initialization failed. Make sure your service account credentials are set up correctly in src/lib/firebase/service-account.json");
+        console.error(e);
+        process.exit(1);
     }
-} catch (e) {
-    console.error("Firebase initialization failed. Make sure your service account credentials are set up correctly in src/lib/firebase/service-account.json");
-    console.error(e);
-    process.exit(1);
-}
 
 
-const db = getFirestore();
+    const db = getFirestore();
 
-async function seedDatabase() {
     console.log('Starting to seed database...');
 
     // Seed Categories
@@ -47,7 +50,11 @@ async function seedDatabase() {
     console.log('Database seeding completed successfully!');
 }
 
-seedDatabase().catch(error => {
+// To run this script, use: `npx tsx src/lib/firebase/seed.ts`
+// Make sure you have tsx installed: `npm install -D tsx`
+if (require.main === module) {
+  seed().catch(error => {
     console.error('Error seeding database:', error);
     process.exit(1);
-});
+  });
+}
