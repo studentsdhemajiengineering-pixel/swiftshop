@@ -8,7 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Calendar as CalendarIcon, Clock } from 'lucide-react';
+import { ArrowLeft, Calendar as CalendarIcon, Clock, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
@@ -20,6 +20,9 @@ import { useState } from 'react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { PrivateRoute } from '@/components/auth/private-route';
+import { addOrder } from '@/lib/firebase/service';
+import { useAuth } from '@/hooks/use-auth';
+import type { Order } from '@/lib/types';
 
 const CheckoutHeader = () => {
     const router = useRouter();
@@ -37,26 +40,70 @@ const CheckoutHeader = () => {
 
 function CheckoutPageContent() {
   const { state, dispatch } = useCart();
+  const { user } = useAuth();
   const { cart } = state;
   const router = useRouter();
   const { toast } = useToast();
   const [date, setDate] = useState<Date | undefined>();
   const [paymentMethod, setPaymentMethod] = useState('cod');
+  const [isLoading, setIsLoading] = useState(false);
 
   const subtotal = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
   const deliveryFee = 50.00;
   const total = subtotal + deliveryFee;
 
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
+    if (!user) {
+        toast({ title: 'You must be logged in to place an order.', variant: 'destructive'});
+        router.push('/login');
+        return;
+    }
+
     if (paymentMethod === 'phonepe') {
         router.push('/checkout/phonepe-payment');
-    } else {
+        return;
+    }
+    
+    setIsLoading(true);
+
+    try {
+        const orderData: Omit<Order, 'id'> = {
+            userId: user.uid,
+            customerName: user.displayName || user.phoneNumber || "Guest",
+            items: cart.map(item => ({
+                productId: item.productId,
+                productName: item.name,
+                variationId: item.variationId,
+                variationName: item.unit,
+                quantity: item.quantity,
+                price: item.price,
+                imageUrl: item.imageUrl
+            })),
+            date: new Date().toISOString(),
+            status: 'Preparing',
+            total: total,
+            address: "123, Green Avenue, Springfield, 12345", // Dummy address for now
+            paymentMethod: paymentMethod,
+        };
+
+        await addOrder(orderData);
+        
         toast({
             title: "Order Placed!",
             description: "Thank you for your purchase. Your groceries are on the way."
         });
         dispatch({ type: 'CLEAR_CART' });
-        router.push('/');
+        router.push('/track-order');
+
+    } catch (error) {
+        console.error("Failed to place order:", error);
+        toast({
+            title: 'Failed to place order',
+            description: 'There was an issue placing your order. Please try again.',
+            variant: 'destructive',
+        });
+    } finally {
+        setIsLoading(false);
     }
   }
 
@@ -193,7 +240,8 @@ function CheckoutPageContent() {
             </div>
 
             <div className="pt-4">
-                <Button className="w-full" size="lg" onClick={handlePlaceOrder}>
+                <Button className="w-full" size="lg" onClick={handlePlaceOrder} disabled={isLoading}>
+                    {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Place Order
                 </Button>
             </div>

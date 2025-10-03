@@ -268,6 +268,21 @@ export async function getOrder(id: string): Promise<Order | null> {
     });
 }
 
+export async function addOrder(order: Omit<Order, 'id'>) {
+    const ordersCol = collection(firestore, 'orders');
+    try {
+        await addDoc(ordersCol, order);
+    } catch(serverError) {
+        const permissionError = new FirestorePermissionError({
+            path: ordersCol.path,
+            operation: 'create',
+            requestResourceData: order,
+        });
+        errorEmitter.emit('permission-error', permissionError);
+        throw permissionError;
+    }
+}
+
 export function updateOrder(id: string, orderUpdate: Partial<Order>) {
     const orderDoc = doc(firestore, 'orders', id);
     updateDoc(orderDoc, orderUpdate).catch(async (serverError) => {

@@ -101,13 +101,16 @@ export default function TrackOrderPage() {
             if (user.isAdmin) {
                 setOrders(fetchedOrders);
             } else {
-                setOrders(fetchedOrders.slice(0,4));
+                setOrders(fetchedOrders.filter(o => o.userId === user.uid));
             }
             setLoading(false);
         }
         fetchOrders();
+    } else if (!loading && !user) {
+        // If loading is finished and there's no user, clear orders
+        setOrders([]);
     }
-  }, [user]);
+  }, [user, loading]);
 
   const currentOrders = orders.filter(o => o.status !== 'Delivered');
   const deliveredOrders = orders.filter(o => o.status === 'Delivered');

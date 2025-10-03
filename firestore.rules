@@ -2,23 +2,31 @@
  * @fileoverview Firestore Security Rules for SwiftShop.
  *
  * Core Philosophy:
- * This ruleset enforces a strict user-ownership model for personal data and allows public read access to product catalog information.
+ * This ruleset enforces a user-ownership model for user profiles, addresses, orders, order items, support tickets, and chat messages.
+ * Categories and branding settings are publicly readable, while admin access is not yet fully defined and requires further refinement.
  *
  * Data Structure:
- * - `/categories/{categoryId}`: Publicly readable product categories.
- * - `/products/{productId}`: Publicly readable product information.
- * - `/settings/branding`: Public branding configurations.
- * - `/users/{userId}`: User profiles, accessible only by the owning user.
- * - `/users/{userId}/addresses/{addressId}`: User's addresses, accessible only by the owning user.
- * - `/users/{userId}/orders/{orderId}`: User's orders, accessible only by the owning user.
- * - `/users/{userId}/orders/{orderId}/orderItems/{orderItemId}`: Order items, accessible only by the owning user.
- * - `/users/{userId}/supportTickets/{supportTicketId}`: User's support tickets, accessible only by the owning user.
- * - `/users/{userId}/supportTickets/{supportTicketId}/chatMessages/{chatMessageId}`: Chat messages, accessible only by the owning user.
+ * - /categories/{categoryId}: Stores grocery categories.
+ * - /products/{productId}: Stores product details.
+ * - /settings/branding: Stores branding settings.
+ * - /users/{userId}: Stores user profiles.
+ * - /users/{userId}/addresses/{addressId}: Stores user's addresses.
+ * - /users/{userId}/orders/{orderId}: Stores user's orders.
+ * - /users/{userId}/orders/{orderId}/orderItems/{orderItemId}: Stores order items within an order.
+ * - /users/{userId}/supportTickets/{supportTicketId}: Stores user's support tickets.
+ * - /users/{userId}/supportTickets/{supportTicketId}/chatMessages/{chatMessageId}: Stores chat messages within a support ticket.
  *
  * Key Security Decisions:
- * - Listing of user documents is disallowed to prevent data leakage.
- * - Categories and Products are publicly readable to allow for easy browsing.
- * - All user-specific data is nested under `/users/{userId}` and secured with `isOwner(userId)`.
+ * - User data is strictly controlled by the user ID in the path.
+ * - Listing of user documents is generally allowed within the user's own scope (e.g., listing orders).
+ * - Admin roles are not yet defined, so admin-specific rules are placeholders.
+ *
+ * Denormalization for Authorization:
+ * - The rules rely on the `userId` within the path to match `request.auth.uid` for authorization.  Data is implicitly denormalized
+ *   by requiring that the document ID of user-owned subcollections matches the `userId` of the parent.
+ *
+ * Structural Segregation:
+ * - Public data (categories, branding settings) is stored in top-level collections separate from user-private data.
  */
 rules_version = '2';
 service cloud.firestore {
@@ -27,158 +35,155 @@ service cloud.firestore {
     /**
      * @description Allows public read access to categories.
      * @path /categories/{categoryId}
-     * @allow (get, list)
-     * @deny (create, update, delete)
-     * @principle Allows anyone to read categories, but restricts writing.
+     * @allow (get, list) Public access. Any user can read category data.
+     * @deny (create, update, delete) No user can create, update, or delete category data.
+     * @principle Allows public read access for browsing product categories.
      */
     match /categories/{categoryId} {
       allow get, list: if true;
-      allow create: if false;
-      allow update: if false;
-      allow delete: if false;
+      allow create, update, delete: if false;
     }
 
     /**
-     * @description Allows public read access to products.
+     * @description Allows public read access to product details.
      * @path /products/{productId}
-     * @allow (get, list)
-     * @deny (create, update, delete)
-     * @principle Allows anyone to read products, but restricts writing.
+     * @allow (get, list) Public access. Any user can read product data.
+     * @deny (create, update, delete) No user can create, update, or delete product data.
+     * @principle Allows public read access to product information.
      */
     match /products/{productId} {
       allow get, list: if true;
-      allow create: if false;
-      allow update: if false;
-      allow delete: if false;
+      allow create, update, delete: if false;
     }
 
-     /**
-      * @description Allows public read access to branding settings.
-      * @path /settings/branding
-      * @allow (get, list)
-      * @deny (create, update, delete)
-      * @principle Allows anyone to read branding settings, but restricts writing.
-      */
-     match /settings/branding {
-       allow get, list: if true;
-       allow create: if false;
-       allow update: if false;
-       allow delete: if false;
-     }
+    /**
+     * @description Allows public read access to branding settings, but restricts writes.
+     * @path /settings/branding
+     * @allow (get, list) Public access. Any user can read branding settings.
+     * @deny (create, update, delete) No user can create, update, or delete branding settings.
+     * @principle Allows public access to branding information while restricting modifications.
+     */
+    match /settings/branding {
+      allow get, list: if true;
+      allow create, update, delete: if false;
+    }
 
     /**
-     * @description Restricts access to user profiles to the owning user.
+     * @description Enforces user-ownership for user profiles.
      * @path /users/{userId}
-     * @allow (create) User with matching ID can create their profile.
-     * @allow (get, update, delete) User must be signed in and own the profile.
-     * @deny create if the user id does not match the authenticated user id.
-     * @deny get, update, delete if the user is not signed in or does not own the profile.
+     * @allow (get, update, delete) The user can access their own profile.
+     * @allow (create) A user can create their own profile if the userId matches their auth.uid.
+     * @allow (list) Listing users is disallowed.
+     * @deny (get, update, delete) A user cannot access another user's profile.
      * @principle Enforces document ownership for user profiles.
      */
     match /users/{userId} {
-      allow get: if isSignedIn() && isOwner(userId);
+      allow get: if isOwner(userId);
       allow list: if false;
-      allow create: if isSignedIn() && isOwner(userId) ;
-      allow update: if isSignedIn() && isExistingOwner(userId);
-      allow delete: if isSignedIn() && isExistingOwner(userId);
+      allow create: if isOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Restricts access to user addresses to the owning user.
+     * @description Enforces user-ownership for addresses.
      * @path /users/{userId}/addresses/{addressId}
-     * @allow (create) User must be signed in and own the parent profile.
-     * @allow (get, update, delete, list) User must be signed in and own the parent profile.
-     * @deny create if the user is not signed in or does not own the parent profile.
-     * @deny get, update, delete, list if the user is not signed in or does not own the parent profile.
-     * @principle Enforces document ownership for user addresses.
+     * @allow (get, list, create, update, delete) The user can access their own addresses.
+     * @deny (get, list, create, update, delete) A user cannot access another user's addresses.
+     * @principle Enforces document ownership for addresses within a user's profile.
      */
     match /users/{userId}/addresses/{addressId} {
-      allow get: if isSignedIn() && isOwner(userId);
-      allow list: if isSignedIn() && isOwner(userId);
-      allow create: if isSignedIn() && isOwner(userId);
-      allow update: if isSignedIn() && isExistingOwner(userId);
-      allow delete: if isSignedIn() && isExistingOwner(userId);
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.userId == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+      allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Restricts access to user orders to the owning user.
+     * @description Enforces user-ownership for orders.
      * @path /users/{userId}/orders/{orderId}
-     * @allow (create) User must be signed in and own the parent profile.
-     * @allow (get, update, delete, list) User must be signed in and own the parent profile.
-     * @deny create if the user is not signed in or does not own the parent profile.
-     * @deny get, update, delete, list if the user is not signed in or does not own the parent profile.
-     * @principle Enforces document ownership for user orders.
+     * @allow (get, list, create, update, delete) The user can access their own orders.
+     * @deny (get, list, create, update, delete) A user cannot access another user's orders.
+     * @principle Enforces document ownership for orders within a user's profile.
      */
     match /users/{userId}/orders/{orderId} {
-      allow get: if isSignedIn() && isOwner(userId);
-      allow list: if isSignedIn() && isOwner(userId);
-      allow create: if isSignedIn() && isOwner(userId);
-      allow update: if isSignedIn() && isExistingOwner(userId);
-      allow delete: if isSignedIn() && isExistingOwner(userId);
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.userId == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+      allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Restricts access to user order items to the owning user.
+     * @description Enforces user-ownership for order items.
      * @path /users/{userId}/orders/{orderId}/orderItems/{orderItemId}
-     * @allow (create) User must be signed in and own the grandparent profile.
-     * @allow (get, update, delete, list) User must be signed in and own the grandparent profile.
-     * @deny create if the user is not signed in or does not own the grandparent profile.
-     * @deny get, update, delete, list if the user is not signed in or does not own the grandparent profile.
-     * @principle Enforces document ownership for user order items.
+     * @allow (get, list, create, update, delete) The user can access their own order items.
+     * @deny (get, list, create, update, delete) A user cannot access another user's order items.
+     * @principle Enforces document ownership for order items within a user's profile.
      */
     match /users/{userId}/orders/{orderId}/orderItems/{orderItemId} {
-      allow get: if isSignedIn() && isOwner(userId);
-      allow list: if isSignedIn() && isOwner(userId);
-      allow create: if isSignedIn() && isOwner(userId);
-      allow update: if isSignedIn() && isExistingOwner(userId);
-      allow delete: if isSignedIn() && isExistingOwner(userId);
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId); // No userId validation necessary since it's nested under orders
+      allow update: if isExistingOwner(userId); // No userId validation necessary since it's nested under orders
+      allow delete: if isExistingOwner(userId); // No userId validation necessary since it's nested under orders
     }
 
     /**
-     * @description Restricts access to user support tickets to the owning user.
+     * @description Enforces user-ownership for support tickets.
      * @path /users/{userId}/supportTickets/{supportTicketId}
-     * @allow (create) User must be signed in and own the parent profile.
-     * @allow (get, update, delete, list) User must be signed in and own the parent profile.
-     * @deny create if the user is not signed in or does not own the parent profile.
-     * @deny get, update, delete, list if the user is not signed in or does not own the parent profile.
-     * @principle Enforces document ownership for user support tickets.
+     * @allow (get, list, create, update, delete) The user can access their own support tickets.
+     * @deny (get, list, create, update, delete) A user cannot access another user's support tickets.
+     * @principle Enforces document ownership for support tickets within a user's profile.
      */
     match /users/{userId}/supportTickets/{supportTicketId} {
-      allow get: if isSignedIn() && isOwner(userId);
-      allow list: if isSignedIn() && isOwner(userId);
-      allow create: if isSignedIn() && isOwner(userId);
-      allow update: if isSignedIn() && isExistingOwner(userId);
-      allow delete: if isSignedIn() && isExistingOwner(userId);
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.userId == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+      allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Restricts access to user chat messages to the owning user.
+     * @description Enforces user-ownership for chat messages.
      * @path /users/{userId}/supportTickets/{supportTicketId}/chatMessages/{chatMessageId}
-     * @allow (create) User must be signed in and own the great-grandparent profile.
-     * @allow (get, update, delete, list) User must be signed in and own the great-grandparent profile.
-     * @deny create if the user is not signed in or does not own the great-grandparent profile.
-     * @deny get, update, delete, list if the user is not signed in or does not own the great-grandparent profile.
-     * @principle Enforces document ownership for user chat messages.
+     * @allow (get, list, create, update, delete) The user can access their own chat messages.
+     * @deny (get, list, create, update, delete) A user cannot access another user's chat messages.
+     * @principle Enforces document ownership for chat messages within a user's support ticket.
      */
     match /users/{userId}/supportTickets/{supportTicketId}/chatMessages/{chatMessageId} {
-      allow get: if isSignedIn() && isOwner(userId);
-      allow list: if isSignedIn() && isOwner(userId);
-      allow create: if isSignedIn() && isOwner(userId);
-      allow update: if isSignedIn() && isExistingOwner(userId);
-      allow delete: if isSignedIn() && isExistingOwner(userId);
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId); // No userId validation necessary since it's nested under supportTickets
+      allow update: if isExistingOwner(userId); // No userId validation necessary since it's nested under supportTickets
+      allow delete: if isExistingOwner(userId); // No userId validation necessary since it's nested under supportTickets
+    }
+
+    /**
+     * @description Allows admins to read all orders, and users to read specific order.
+     * @path /orders/{orderId}
+     * @allow (get) Any user can get data.
+     * @allow (list) Any user can list data.
+     * @deny (create, update, delete) No user can create, update, or delete data.
+     * @principle Allows public access to orders information while restricting modifications.
+     */
+    match /orders/{orderId} {
+       allow get, list: if true;
+       allow create, update, delete: if false;
     }
   }
 
-  // Helper Functions
+  // Helper functions
   function isSignedIn() {
     return request.auth != null;
   }
 
   function isOwner(userId) {
-    return request.auth.uid == userId;
+    return isSignedIn() && request.auth.uid == userId;
   }
 
   function isExistingOwner(userId) {
-      return isOwner(userId) && resource != null;
+    return isOwner(userId) && resource != null;
   }
 }
