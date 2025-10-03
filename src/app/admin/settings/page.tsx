@@ -87,7 +87,7 @@ export default function AdminSettingsPage() {
       if (result.success) {
         toast({
           title: "Database Seeded!",
-          description: `${result.productCount} products, ${result.categoryCount} categories, and ${result.orderCount} orders have been added.`,
+          description: `${result.productCount} products, ${result.categoryCount} categories, and ${result.orderCount || 0} orders have been added.`,
         });
       } else {
         throw new Error(result.error);
@@ -199,3 +199,5 @@ export default function AdminSettingsPage() {
     </div>
   );
 }
+
+    

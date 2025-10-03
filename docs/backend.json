@@ -325,175 +325,47 @@
     ]
   },
   "firestore": {
-    "structure": [
-      {
-        "path": "categories/{categoryId}",
-        "definition": {
-          "entityName": "Category",
-          "schema": {
-            "$ref": "#/backend/entities/Category"
-          },
-          "description": "Stores grocery categories. Publicly readable to allow browsing.",
-          "params": [
-            {
-              "name": "categoryId",
-              "description": "Unique identifier for the category."
-            }
-          ]
-        }
-      },
-      {
-        "path": "products/{productId}",
-        "definition": {
-          "entityName": "Product",
-          "schema": {
-            "$ref": "#/backend/entities/Product"
-          },
-          "description": "Stores product details.",
-          "params": [
-            {
-              "name": "productId",
-              "description": "Unique identifier for the product."
-            }
-          ]
-        }
-      },
-       {
-        "path": "settings/branding",
-        "definition": {
-          "entityName": "BrandingSettings",
-          "schema": {
-            "$ref": "#/backend/entities/BrandingSettings"
-          },
-          "description": "Stores branding settings. Publicly readable, admin writable.",
-          "params": []
-        }
-      },
-      {
-        "path": "users/{userId}",
-        "definition": {
-          "entityName": "User",
-          "schema": {
-            "$ref": "#/backend/entities/User"
-          },
-          "description": "Stores user profiles. Only the user can access their own profile.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "Unique identifier for the user.  Matches the Firebase Authentication UID."
-            }
-          ]
-        }
-      },
-      {
-        "path": "users/{userId}/addresses/{addressId}",
-        "definition": {
-          "entityName": "Address",
-          "schema": {
-            "$ref": "#/backend/entities/Address"
-          },
-          "description": "Stores user's addresses. Only the user can access their addresses.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "Unique identifier for the user.  Matches the Firebase Authentication UID."
-            },
-            {
-              "name": "addressId",
-              "description": "Unique identifier for the address."
-            }
-          ]
-        }
-      },
-      {
-        "path": "users/{userId}/orders/{orderId}",
-        "definition": {
-          "entityName": "Order",
-          "schema": {
-            "$ref": "#/backend/entities/Order"
-          },
-          "description": "Stores user's orders. Only the user can access their orders.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "Unique identifier for the user. Matches the Firebase Authentication UID."
-            },
-            {
-              "name": "orderId",
-              "description": "Unique identifier for the order."
-            }
-          ]
-        }
-      },
-      {
-        "path": "users/{userId}/orders/{orderId}/orderItems/{orderItemId}",
-        "definition": {
-          "entityName": "OrderItem",
-          "schema": {
-            "$ref": "#/backend/entities/OrderItem"
-          },
-          "description": "Stores order items within an order. Only the user can access their order items.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "Unique identifier for the user.  Matches the Firebase Authentication UID."
-            },
-            {
-              "name": "orderId",
-              "description": "Unique identifier for the order."
-            },
-            {
-              "name": "orderItemId",
-              "description": "Unique identifier for the order item."
-            }
-          ]
-        }
-      },
-      {
-        "path": "users/{userId}/supportTickets/{supportTicketId}",
-        "definition": {
-          "entityName": "SupportTicket",
-          "schema": {
-            "$ref": "#/backend/entities/SupportTicket"
-          },
-          "description": "Stores user's support tickets. Only the user can access their support tickets.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "Unique identifier for the user. Matches the Firebase Authentication UID."
-            },
-            {
-              "name": "supportTicketId",
-              "description": "Unique identifier for the support ticket."
-            }
-          ]
-        }
-      },
-      {
-        "path": "users/{userId}/supportTickets/{supportTicketId}/chatMessages/{chatMessageId}",
-        "definition": {
-          "entityName": "ChatMessage",
-          "schema": {
-            "$ref": "#/backend/entities/ChatMessage"
-          },
-          "description": "Stores chat messages within a support ticket. Only the user can access their chat messages.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "Unique identifier for the user. Matches the Firebase Authentication UID."
-            },
-            {
-              "name": "supportTicketId",
-              "description": "Unique identifier for the support ticket."
-            },
-            {
-              "name": "chatMessageId",
-              "description": "Unique identifier for the chat message."
-            }
-          ]
-        }
-      }
-    ],
-    "reasoning": "The Firestore structure is designed to address the 'FirestorePermissionError' reported during the listing of categories. It also incorporates best practices for security, scalability, and debuggability, particularly focusing on Authorization Independence. The structure leverages path-based ownership and denormalization of authorization data to avoid using `get()` calls in security rules, which can hinder atomic operations and increase debugging complexity.\n\nCategories are stored in a top-level collection called `categories`. To enable listing of categories without requiring authentication, the collection does not enforce any specific ownership or role-based access. This makes the data publicly readable, which aligns with the app's requirement for product browsing by category. The structure of Products and Categories ensures the integrity of the data using explicit data modeling.\n\nFor user-specific data like addresses, orders, and support tickets, path-based ownership under `/users/{userId}` is employed. This allows each user to manage their own data, and the security rules can easily enforce that only the authenticated user can access their own data. \n\nTo achieve authorization independence, collaborative data isn't present, because if it was, the membership map (`members: {uid: role}`) would be denormalized into each subcollection to improve the security posture.\n\nThe structure supports the required QAPs by:\n\n1.  **Enabling secure 'list' operations:** Categories are segregated into a collection that is publicly readable, thus QAPs are enforced without the need for custom security rules, simplifying list operations.\n2.  **Maintaining data integrity:** Path-based ownership enforces that users can only access data under their own user ID, maintaining the integrity of ownership."
+    "/categories/{categoryId}": {
+      "schema": { "$ref": "#/entities/Category"},
+      "description": "Stores grocery categories. Publicly readable to allow browsing."
+    },
+    "/products/{productId}": {
+      "schema": { "$ref": "#/entities/Product"},
+      "description": "Stores product details."
+    },
+    "/settings/branding": {
+      "schema": { "$ref": "#/entities/BrandingSettings"},
+      "description": "Stores branding settings. Publicly readable, admin writable."
+    },
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User"},
+      "description": "Stores user profiles. Only the user can access their own profile."
+    },
+    "/users/{userId}/addresses/{addressId}": {
+      "schema": { "$ref": "#/entities/Address"},
+      "description": "Stores user's addresses. Only the user can access their addresses."
+    },
+    "/users/{userId}/orders/{orderId}": {
+      "schema": { "$ref": "#/entities/Order"},
+      "description": "Stores user's orders. Only the user can access their orders."
+    },
+    "/users/{userId}/orders/{orderId}/orderItems/{orderItemId}": {
+      "schema": { "$ref": "#/entities/OrderItem"},
+      "description": "Stores order items within an order. Only the user can access their order items."
+    },
+    "/users/{userId}/supportTickets/{supportTicketId}": {
+      "schema": { "$ref": "#/entities/SupportTicket"},
+      "description": "Stores user's support tickets. Only the user can access their support tickets."
+    },
+    "/users/{userId}/supportTickets/{supportTicketId}/chatMessages/{chatMessageId}": {
+      "schema": { "$ref": "#/entities/ChatMessage"},
+      "description": "Stores chat messages within a support ticket. Only the user can access their chat messages."
+    },
+    "/orders/{orderId}": {
+      "schema": { "$ref": "#/entities/Order"},
+      "description": "Stores all orders. Writable by admins, readable by specific users."
+    }
   }
 }
+
+    

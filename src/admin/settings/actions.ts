@@ -150,7 +150,7 @@ export async function seedDatabase(): Promise<SeedResult> {
         });
         await productsBatch.commit();
         console.log(`${productsData.length} products seeded.`);
-
+        
         // Seed Orders
         console.log('Seeding orders...');
         const ordersBatch = db.batch();
@@ -173,3 +173,5 @@ export async function seedDatabase(): Promise<SeedResult> {
         return { success: false, error: error.message || "An unknown error occurred during seeding." };
     }
 }
+
+    
