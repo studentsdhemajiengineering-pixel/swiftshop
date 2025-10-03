@@ -205,7 +205,12 @@ export default function AdminCustomersPage() {
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align="end">
                                             <DropdownMenuItem asChild>
-                                                <Link href={`/admin/customers/${user.id}`}><Eye className="mr-2 h-4 w-4" />View</Link>
+                                                <Link href={`/admin/customers/${user.id}`}>
+                                                    <div className="flex items-center w-full">
+                                                        <Eye className="mr-2 h-4 w-4" />
+                                                        <span>View</span>
+                                                    </div>
+                                                </Link>
                                             </DropdownMenuItem>
                                             <DropdownMenuItem onClick={() => handleEditClick(user)}>Edit</DropdownMenuItem>
                                             <AlertDialog>
