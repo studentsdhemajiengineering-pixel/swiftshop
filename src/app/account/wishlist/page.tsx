@@ -1,11 +1,12 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Heart } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { ProductGrid } from '@/components/products/product-grid';
-import { allProducts } from '@/lib/data';
+import { getProducts } from '@/lib/firebase/service';
+import type { Product } from '@/lib/types';
+import { useEffect, useState } from 'react';
 
 const WishlistHeader = () => {
     const router = useRouter();
@@ -22,14 +23,28 @@ const WishlistHeader = () => {
 };
 
 export default function WishlistPage() {
-    const wishlistProducts = allProducts.slice(0, 4); // Mock data
+    const [wishlistProducts, setWishlistProducts] = useState<Product[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchWishlist = async () => {
+            setLoading(true);
+            const allProducts = await getProducts();
+            // Mock wishlist logic: show first 4 products with discounts
+            setWishlistProducts(allProducts.filter(p => p.variations.some(v => v.originalPrice)).slice(0, 4));
+            setLoading(false);
+        };
+        fetchWishlist();
+    }, []);
 
     return (
     <div className="flex min-h-screen w-full flex-col bg-muted/20">
         <WishlistHeader />
         <main className="flex-1">
             <div className="container mx-auto px-4 py-6 sm:px-6 lg:px-8">
-            {wishlistProducts.length > 0 ? (
+            {loading ? (
+                <p>Loading...</p>
+            ) : wishlistProducts.length > 0 ? (
                 <ProductGrid products={wishlistProducts} />
             ) : (
                 <div className="flex flex-col items-center justify-center h-full text-center py-20">

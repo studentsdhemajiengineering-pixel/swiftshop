@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from "react";
@@ -148,7 +147,7 @@ const ProductForm = ({
                     </div>
                     <div className="space-y-3">
                        {(formData.variations || []).map((v: any, i: number) => (
-                         <div key={i} className="space-y-2 p-3 border rounded-md relative">
+                         <div key={v.id || i} className="space-y-2 p-3 border rounded-md relative">
                             { (formData.variations?.length || 0) > 1 &&
                                 <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1 h-6 w-6" onClick={() => removeVariation(i)}>
                                     <Trash2 className="h-4 w-4 text-destructive" />
@@ -252,7 +251,7 @@ export default function AdminProductsPage() {
             let finalProductData = { ...productData };
 
             if (imageFile) {
-                const imageUrl = await uploadImage(imageFile);
+                const imageUrl = await uploadImage(imageFile, 'products');
                 finalProductData.imageUrl = imageUrl;
             } else if (!finalProductData.imageUrl) {
                 toast({ title: "Please upload an image", variant: "destructive" });

@@ -1,9 +1,7 @@
-
-
 'use client';
 
 import { collection, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc, onSnapshot } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL, getStorage, type FirebaseStorage } from 'firebase/storage';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { getAuth } from 'firebase/auth';
 import { initializeFirebase } from '@/firebase';
 import type { Product, Category, User, Order } from '@/lib/types';
@@ -11,7 +9,7 @@ import { errorEmitter } from '@/components/firebase/error-emitter';
 import { FirestorePermissionError } from '@/components/firebase/errors';
 
 const { firestore, storage } = initializeFirebase();
-const auth = getAuth(initializeFirebase().app);
+const auth = getAuth(initializeFirebase().firebaseApp);
 
 
 export async function uploadImage(file: File, folder: string = 'products'): Promise<string> {
@@ -95,11 +93,18 @@ export async function getProduct(id: string): Promise<Product | null> {
 
 export function addProduct(product: Omit<Product, 'id'>) {
     const productsCol = collection(firestore, 'products');
-    addDoc(productsCol, product).catch(async (serverError) => {
+    const newProductData = {
+        ...product,
+        variations: product.variations.map((v, index) => ({
+            ...v,
+            id: v.id.startsWith('new-') ? `${Date.now()}-${index}` : v.id
+        }))
+    };
+    addDoc(productsCol, newProductData).catch(async (serverError) => {
         const permissionError = new FirestorePermissionError({
             path: productsCol.path,
             operation: 'create',
-            requestResourceData: product,
+            requestResourceData: newProductData,
         });
         errorEmitter.emit('permission-error', permissionError);
     });
@@ -107,11 +112,18 @@ export function addProduct(product: Omit<Product, 'id'>) {
 
 export function updateProduct(id: string, product: Partial<Product>) {
     const productDoc = doc(firestore, 'products', id);
-    updateDoc(productDoc, product).catch(async (serverError) => {
+    const updatedProductData = {
+        ...product,
+        variations: product.variations?.map((v, index) => ({
+            ...v,
+            id: v.id.startsWith('new-') ? `${id}-${Date.now()}-${index}` : v.id
+        }))
+    };
+    updateDoc(productDoc, updatedProductData).catch(async (serverError) => {
         const permissionError = new FirestorePermissionError({
             path: productDoc.path,
             operation: 'update',
-            requestResourceData: product,
+            requestResourceData: updatedProductData,
         });
         errorEmitter.emit('permission-error', permissionError);
     });
