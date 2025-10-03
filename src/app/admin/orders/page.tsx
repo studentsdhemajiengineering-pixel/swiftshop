@@ -1,10 +1,13 @@
 
+'use client';
+
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { currentOrders, deliveredOrders } from "@/lib/data";
 import { format } from "date-fns";
+import Link from "next/link";
 
 export default function AdminOrdersPage() {
   const allOrders = [...currentOrders, ...deliveredOrders].sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime());
@@ -46,7 +49,9 @@ export default function AdminOrdersPage() {
                             <TableCell>{format(new Date(order.date), "MMM dd, yyyy")}</TableCell>
                             <TableCell>₹{order.total.toFixed(2)}</TableCell>
                             <TableCell>
-                                 <Button variant="outline" size="sm">View</Button>
+                                 <Button asChild variant="outline" size="sm">
+                                    <Link href={`/admin/orders/${order.id}`}>View</Link>
+                                 </Button>
                             </TableCell>
                         </TableRow>
                     ))}
