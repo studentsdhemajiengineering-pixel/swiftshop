@@ -1,0 +1,466 @@
+{
+  "entities": {
+    "Product": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Product",
+      "type": "object",
+      "description": "Represents a grocery product available for purchase.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the product."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the product."
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed description of the product."
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "URL of the product image.",
+          "format": "uri"
+        },
+        "price": {
+          "type": "number",
+          "description": "Price of the product."
+        },
+        "categoryId": {
+          "type": "string",
+          "description": "Reference to Category. (Relationship: Category 1:N Product)"
+        },
+        "inventory": {
+          "type": "number",
+          "description": "Current inventory level of the product."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "description",
+        "imageUrl",
+        "price",
+        "categoryId",
+        "inventory"
+      ]
+    },
+    "Category": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Category",
+      "type": "object",
+      "description": "Represents a category of grocery products.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the category."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the category."
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "URL of the category image.",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ]
+    },
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user of the SwiftShop application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user."
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address of the user.",
+          "format": "email"
+        },
+        "firstName": {
+          "type": "string",
+          "description": "First name of the user."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "Last name of the user."
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "firstName",
+        "lastName"
+      ]
+    },
+    "Address": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Address",
+      "type": "object",
+      "description": "Represents a delivery address for a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the address."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N Address)"
+        },
+        "street": {
+          "type": "string",
+          "description": "Street address."
+        },
+        "city": {
+          "type": "string",
+          "description": "City."
+        },
+        "state": {
+          "type": "string",
+          "description": "State."
+        },
+        "zipCode": {
+          "type": "string",
+          "description": "Zip code."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "street",
+        "city",
+        "state",
+        "zipCode"
+      ]
+    },
+    "Order": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Order",
+      "type": "object",
+      "description": "Represents an order placed by a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the order."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N Order)"
+        },
+        "addressId": {
+          "type": "string",
+          "description": "Reference to Address. (Relationship: Address 1:N Order)"
+        },
+        "orderDate": {
+          "type": "string",
+          "description": "Date and time the order was placed.",
+          "format": "date-time"
+        },
+        "totalAmount": {
+          "type": "number",
+          "description": "Total amount of the order."
+        },
+        "status": {
+          "type": "string",
+          "description": "Current status of the order (e.g., placed, processing, shipped, delivered)."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "addressId",
+        "orderDate",
+        "totalAmount",
+        "status"
+      ]
+    },
+    "OrderItem": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "OrderItem",
+      "type": "object",
+      "description": "Represents an item within an order.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the order item."
+        },
+        "orderId": {
+          "type": "string",
+          "description": "Reference to Order. (Relationship: Order 1:N OrderItem)"
+        },
+        "productId": {
+          "type": "string",
+          "description": "Reference to Product. (Relationship: Product 1:N OrderItem)"
+        },
+        "quantity": {
+          "type": "number",
+          "description": "Quantity of the product in the order item."
+        },
+        "itemPrice": {
+          "type": "number",
+          "description": "Price of the item at the time of order."
+        }
+      },
+      "required": [
+        "id",
+        "orderId",
+        "productId",
+        "quantity",
+        "itemPrice"
+      ]
+    },
+    "SupportTicket": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "SupportTicket",
+      "type": "object",
+      "description": "Represents a customer support ticket.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the support ticket."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N SupportTicket)"
+        },
+        "subject": {
+          "type": "string",
+          "description": "Subject of the support ticket."
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed description of the issue."
+        },
+        "status": {
+          "type": "string",
+          "description": "Current status of the support ticket (e.g., open, pending, closed)."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Date and time the ticket was created.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "subject",
+        "description",
+        "status",
+        "createdAt"
+      ]
+    },
+    "ChatMessage": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ChatMessage",
+      "type": "object",
+      "description": "Represents a message within a customer support chat.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the chat message."
+        },
+        "supportTicketId": {
+          "type": "string",
+          "description": "Reference to SupportTicket. (Relationship: SupportTicket 1:N ChatMessage)"
+        },
+        "senderId": {
+          "type": "string",
+          "description": "Reference to User who sent the message."
+        },
+        "message": {
+          "type": "string",
+          "description": "Content of the chat message."
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Date and time the message was sent.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "supportTicketId",
+        "senderId",
+        "message",
+        "timestamp"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "categories/{categoryId}",
+        "definition": {
+          "entityName": "Category",
+          "schema": {
+            "$ref": "#/backend/entities/Category"
+          },
+          "description": "Stores grocery categories. Publicly readable to allow browsing.",
+          "params": [
+            {
+              "name": "categoryId",
+              "description": "Unique identifier for the category."
+            }
+          ]
+        }
+      },
+      {
+        "path": "products/{productId}",
+        "definition": {
+          "entityName": "Product",
+          "schema": {
+            "$ref": "#/backend/entities/Product"
+          },
+          "description": "Stores product details.",
+          "params": [
+            {
+              "name": "productId",
+              "description": "Unique identifier for the product."
+            }
+          ]
+        }
+      },
+      {
+        "path": "users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user profiles. Only the user can access their own profile.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "Unique identifier for the user.  Matches the Firebase Authentication UID."
+            }
+          ]
+        }
+      },
+      {
+        "path": "users/{userId}/addresses/{addressId}",
+        "definition": {
+          "entityName": "Address",
+          "schema": {
+            "$ref": "#/backend/entities/Address"
+          },
+          "description": "Stores user's addresses. Only the user can access their addresses.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "Unique identifier for the user.  Matches the Firebase Authentication UID."
+            },
+            {
+              "name": "addressId",
+              "description": "Unique identifier for the address."
+            }
+          ]
+        }
+      },
+      {
+        "path": "users/{userId}/orders/{orderId}",
+        "definition": {
+          "entityName": "Order",
+          "schema": {
+            "$ref": "#/backend/entities/Order"
+          },
+          "description": "Stores user's orders. Only the user can access their orders.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "Unique identifier for the user. Matches the Firebase Authentication UID."
+            },
+            {
+              "name": "orderId",
+              "description": "Unique identifier for the order."
+            }
+          ]
+        }
+      },
+      {
+        "path": "users/{userId}/orders/{orderId}/orderItems/{orderItemId}",
+        "definition": {
+          "entityName": "OrderItem",
+          "schema": {
+            "$ref": "#/backend/entities/OrderItem"
+          },
+          "description": "Stores order items within an order. Only the user can access their order items.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "Unique identifier for the user.  Matches the Firebase Authentication UID."
+            },
+            {
+              "name": "orderId",
+              "description": "Unique identifier for the order."
+            },
+            {
+              "name": "orderItemId",
+              "description": "Unique identifier for the order item."
+            }
+          ]
+        }
+      },
+      {
+        "path": "users/{userId}/supportTickets/{supportTicketId}",
+        "definition": {
+          "entityName": "SupportTicket",
+          "schema": {
+            "$ref": "#/backend/entities/SupportTicket"
+          },
+          "description": "Stores user's support tickets. Only the user can access their support tickets.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "Unique identifier for the user. Matches the Firebase Authentication UID."
+            },
+            {
+              "name": "supportTicketId",
+              "description": "Unique identifier for the support ticket."
+            }
+          ]
+        }
+      },
+      {
+        "path": "users/{userId}/supportTickets/{supportTicketId}/chatMessages/{chatMessageId}",
+        "definition": {
+          "entityName": "ChatMessage",
+          "schema": {
+            "$ref": "#/backend/entities/ChatMessage"
+          },
+          "description": "Stores chat messages within a support ticket. Only the user can access their chat messages.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "Unique identifier for the user. Matches the Firebase Authentication UID."
+            },
+            {
+              "name": "supportTicketId",
+              "description": "Unique identifier for the support ticket."
+            },
+            {
+              "name": "chatMessageId",
+              "description": "Unique identifier for the chat message."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to address the 'FirestorePermissionError' reported during the listing of categories. It also incorporates best practices for security, scalability, and debuggability, particularly focusing on Authorization Independence. The structure leverages path-based ownership and denormalization of authorization data to avoid using `get()` calls in security rules, which can hinder atomic operations and increase debugging complexity.\n\nCategories are stored in a top-level collection called `categories`. To enable listing of categories without requiring authentication, the collection does not enforce any specific ownership or role-based access. This makes the data publicly readable, which aligns with the app's requirement for product browsing by category. The structure of Products and Categories ensures the integrity of the data using explicit data modeling.\n\nFor user-specific data like addresses, orders, and support tickets, path-based ownership under `/users/{userId}` is employed. This allows each user to manage their own data, and the security rules can easily enforce that only the authenticated user can access their own data. \n\nTo achieve authorization independence, collaborative data isn't present, because if it was, the membership map (`members: {uid: role}`) would be denormalized into each subcollection to improve the security posture.\n\nThe structure supports the required QAPs by:\n\n1.  **Enabling secure 'list' operations:** Categories are segregated into a collection that is publicly readable, thus QAPs are enforced without the need for custom security rules, simplifying list operations.\n2.  **Maintaining data integrity:** Path-based ownership enforces that users can only access data under their own user ID, maintaining the integrity of ownership."
+  }
+}

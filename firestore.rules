@@ -1,0 +1,164 @@
+/**
+ * @fileoverview Firestore Security Rules for SwiftShop.
+ *
+ * Core Philosophy:
+ * This ruleset prioritizes user data ownership. Users can only create, read, update, and delete their own data.
+ * Public read access is granted to the 'categories' collection to allow for product browsing without authentication.
+ *
+ * Data Structure:
+ * - /categories/{categoryId}: Publicly readable product categories.
+ * - /products/{productId}: Publicly readable product details.
+ * - /users/{userId}: User profiles, accessible only by the user.
+ * - /users/{userId}/addresses/{addressId}: User addresses, accessible only by the user.
+ * - /users/{userId}/orders/{orderId}: User orders, accessible only by the user.
+ * - /users/{userId}/orders/{orderId}/orderItems/{orderItemId}: Order items, accessible only by the user.
+ * - /users/{userId}/supportTickets/{supportTicketId}: User support tickets, accessible only by the user.
+ * - /users/{userId}/supportTickets/{supportTicketId}/chatMessages/{chatMessageId}: Chat messages within a support ticket, accessible only by the user.
+ *
+ * Key Security Decisions:
+ * - Listing of users is disallowed.
+ * - Strict ownership is enforced for all user-related data.
+ * - Data validation is relaxed for rapid prototyping, except for ownership checks.
+ *
+ * Denormalization for Authorization:
+ *  N/A: There is no requirement for denormalization in this rule set. The design uses simple path based authentication.
+ *
+ * Structural Segregation:
+ *  Public data (categories and products) are stored in separate, top-level collections with open read access.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * @description Allows anyone to read the list of available categories. Writes are not allowed.
+     * @path /categories/{categoryId}
+     * @allow (get, list) Public read access to allow browsing of product categories.
+     * @deny (create, update, delete) No one can create, update, or delete categories through the client.
+     * @principle Public read access for categories.
+     */
+    match /categories/{categoryId} {
+      allow get, list: if true;
+      allow create, update, delete: if false;
+    }
+
+    /**
+     * @description Allows anyone to read the list of available products. Writes are not allowed.
+     * @path /products/{productId}
+     * @allow (get, list) Public read access to allow browsing of products.
+     * @deny (create, update, delete) No one can create, update, or delete products through the client.
+     * @principle Public read access for products.
+     */
+    match /products/{productId} {
+      allow get, list: if true;
+      allow create, update, delete: if false;
+    }
+
+    /**
+     * @description Controls access to user profiles. Only the user can read, update, or delete their profile.
+     * @path /users/{userId}
+     * @allow (get, create, update, delete) User can (get, create, update, delete) their own profile.
+     *  e.g., request.auth.uid == 'user123' can get, create, update, or delete /users/user123
+     * @deny (get, create, update, delete) User cannot (get, create, update, delete) another user's profile.
+     *  e.g., request.auth.uid == 'user123' cannot get, create, update, or delete /users/user456
+     * @deny list No one can list users.
+     * @principle Enforces user-ownership for user profiles.
+     */
+    match /users/{userId} {
+      allow get, create: if isSignedIn() && isOwner(userId);
+      allow update: if isSignedIn() && isOwner(userId) && resource != null;
+      allow delete: if isSignedIn() && isOwner(userId) && resource != null;
+      allow list: if false;
+    }
+
+    /**
+     * @description Controls access to user addresses. Only the user can manage their addresses.
+     * @path /users/{userId}/addresses/{addressId}
+     * @allow (get, create, update, delete) User can (get, create, update, delete) their own addresses.
+     *  e.g., request.auth.uid == 'user123' can get, create, update, or delete /users/user123/addresses/addressABC
+     * @deny (get, create, update, delete) User cannot (get, create, update, delete) another user's addresses.
+     *  e.g., request.auth.uid == 'user123' cannot get, create, update, or delete /users/user456/addresses/addressXYZ
+     * @principle Enforces user-ownership for addresses.
+     */
+    match /users/{userId}/addresses/{addressId} {
+      allow get, list: if isSignedIn() && isOwner(userId);
+      allow create: if isSignedIn() && isOwner(userId);
+      allow update: if isSignedIn() && isOwner(userId) && resource != null;
+      allow delete: if isSignedIn() && isOwner(userId) && resource != null;
+    }
+
+    /**
+     * @description Controls access to user orders. Only the user can manage their orders.
+     * @path /users/{userId}/orders/{orderId}
+     * @allow (get, create, update, delete) User can (get, create, update, delete) their own orders.
+     *  e.g., request.auth.uid == 'user123' can get, create, update, or delete /users/user123/orders/order789
+     * @deny (get, create, update, delete) User cannot (get, create, update, or delete) another user's orders.
+     *  e.g., request.auth.uid == 'user123' cannot get, create, update, or delete /users/user456/orders/orderDEF
+     * @principle Enforces user-ownership for orders.
+     */
+    match /users/{userId}/orders/{orderId} {
+      allow get, list: if isSignedIn() && isOwner(userId);
+      allow create: if isSignedIn() && isOwner(userId);
+      allow update: if isSignedIn() && isOwner(userId) && resource != null;
+      allow delete: if isSignedIn() && isOwner(userId) && resource != null;
+    }
+
+    /**
+     * @description Controls access to order items. Only the user can manage their order items.
+     * @path /users/{userId}/orders/{orderId}/orderItems/{orderItemId}
+     * @allow (get, create, update, delete) User can (get, create, update, delete) their own order items.
+     *  e.g., request.auth.uid == 'user123' can get, create, update, or delete /users/user123/orders/order789/orderItems/itemGHI
+     * @deny (get, create, update, delete) User cannot (get, create, update, delete) another user's order items.
+     *  e.g., request.auth.uid == 'user123' cannot get, create, update, or delete /users/user456/orders/orderDEF/orderItems/itemJKL
+     * @principle Enforces user-ownership for order items.
+     */
+    match /users/{userId}/orders/{orderId}/orderItems/{orderItemId} {
+      allow get, list: if isSignedIn() && isOwner(userId);
+      allow create: if isSignedIn() && isOwner(userId);
+      allow update: if isSignedIn() && isOwner(userId) && resource != null;
+      allow delete: if isSignedIn() && isOwner(userId) && resource != null;
+    }
+
+    /**
+     * @description Controls access to support tickets. Only the user can manage their support tickets.
+     * @path /users/{userId}/supportTickets/{supportTicketId}
+     * @allow (get, create, update, delete) User can (get, create, update, delete) their own support tickets.
+     *  e.g., request.auth.uid == 'user123' can get, create, update, or delete /users/user123/supportTickets/ticketMNO
+     * @deny (get, create, update, delete) User cannot (get, create, update, delete) another user's support tickets.
+     *  e.g., request.auth.uid == 'user123' cannot get, create, update, or delete /users/user456/supportTickets/ticketPQR
+     * @principle Enforces user-ownership for support tickets.
+     */
+    match /users/{userId}/supportTickets/{supportTicketId} {
+      allow get, list: if isSignedIn() && isOwner(userId);
+      allow create: if isSignedIn() && isOwner(userId);
+      allow update: if isSignedIn() && isOwner(userId) && resource != null;
+      allow delete: if isSignedIn() && isOwner(userId) && resource != null;
+    }
+
+    /**
+     * @description Controls access to chat messages within support tickets. Only the user can manage their chat messages.
+     * @path /users/{userId}/supportTickets/{supportTicketId}/chatMessages/{chatMessageId}
+     * @allow (get, create, update, delete) User can (get, create, update, delete) their own chat messages.
+     *  e.g., request.auth.uid == 'user123' can get, create, update, or delete /users/user123/supportTickets/ticketMNO/chatMessages/messageSTU
+     * @deny (get, create, update, delete) User cannot (get, create, update, delete) another user's chat messages.
+     *  e.g., request.auth.uid == 'user123' cannot get, create, update, or delete /users/user456/supportTickets/ticketPQR/chatMessages/messageVWX
+     * @principle Enforces user-ownership for chat messages.
+     */
+    match /users/{userId}/supportTickets/{supportTicketId}/chatMessages/{chatMessageId} {
+      allow get, list: if isSignedIn() && isOwner(userId);
+      allow create: if isSignedIn() && isOwner(userId);
+      allow update: if isSignedIn() && isOwner(userId) && resource != null;
+      allow delete: if isSignedIn() && isOwner(userId) && resource != null;
+    }
+  }
+
+  // Helper function to determine if the user is signed in.
+  function isSignedIn() {
+    return request.auth != null;
+  }
+
+  // Helper function to determine if the user is the owner of the document.
+  function isOwner(userId) {
+    return request.auth.uid == userId;
+  }
+}
