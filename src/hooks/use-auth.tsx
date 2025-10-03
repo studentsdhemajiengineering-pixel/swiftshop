@@ -5,26 +5,26 @@ import React, { createContext, useContext, useState, useEffect, type ReactNode }
 import { auth } from '@/lib/firebase';
 import { 
   RecaptchaVerifier, 
-  signInWithPhoneNumber, 
+  signInWithPhoneNumber,
+  signInWithEmailAndPassword as firebaseSignInWithEmailAndPassword,
   onAuthStateChanged,
   type ConfirmationResult, 
   type User as FirebaseUser 
 } from 'firebase/auth';
 
 interface AuthContextType {
-  user: (FirebaseUser | { isDemo: boolean, phoneNumber: string, displayName: string, uid: string }) | null;
+  user: (FirebaseUser & { isAdmin?: boolean }) | null;
   isAuthenticated: boolean;
   loading: boolean;
   confirmationResult: ConfirmationResult | null;
   signInWithPhoneNumber: (phoneNumber: string) => Promise<void>;
+  signInWithEmailAndPassword: (email: string, pass: string) => Promise<void>;
   verifyOtp: (otp: string) => Promise<void>;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-// It's important to have a window.recaptchaVerifier instance for Firebase Phone Auth.
-// We declare it here to be accessible within the component.
 declare global {
   interface Window {
     recaptchaVerifier: RecaptchaVerifier;
@@ -36,6 +36,9 @@ const DEMO_PHONE_NUMBER = '+919876543210';
 const DEMO_OTP = '123456';
 const DEMO_USER_STORAGE_KEY = 'swiftshop-demo-user';
 let isDemoMode = false;
+
+const ADMIN_EMAIL = 'admin@swiftshop.com';
+const ADMIN_PASSWORD = 'password'; // In a real app, use Firebase Auth
 
 const setDemoUser = (user: AuthContextType['user']) => {
     if (typeof window !== 'undefined') {
@@ -52,7 +55,8 @@ const getDemoUser = (): AuthContextType['user'] | null => {
         const storedUser = window.localStorage.getItem(DEMO_USER_STORAGE_KEY);
         if (storedUser) {
             try {
-                return JSON.parse(storedUser);
+                const parsedUser = JSON.parse(storedUser);
+                return { ...parsedUser, isAdmin: parsedUser.email === ADMIN_EMAIL };
             } catch (e) {
                 console.error("Failed to parse demo user from localStorage", e);
                 return null;
@@ -74,25 +78,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         isDemoMode = true;
         setLoading(false);
     } else {
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
-          setUser(user);
-          setLoading(false);
+        const unsubscribe = onAuthStateChanged(auth, (fbUser) => {
+            if (fbUser) {
+              const augmentedUser: AuthContextType['user'] = { ...fbUser, isAdmin: fbUser.email === ADMIN_EMAIL };
+              setUser(augmentedUser);
+            } else {
+              setUser(null);
+            }
+            setLoading(false);
         });
         return () => unsubscribe();
     }
   }, []);
 
   const setupRecaptcha = () => {
-    // Check if the verifier is already initialized to avoid re-rendering.
     if (!window.recaptchaVerifier) {
       window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
         'size': 'invisible',
-        'callback': (response: any) => {
-          // reCAPTCHA solved, allow signInWithPhoneNumber.
-          console.log("reCAPTCHA solved");
-        },
+        'callback': () => console.log("reCAPTCHA solved"),
         'expired-callback': () => {
-            // Response expired. Ask user to solve reCAPTCHA again.
             console.log("reCAPTCHA expired");
             if (window.recaptchaVerifier) {
               window.recaptchaVerifier.clear();
@@ -105,7 +109,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signIn = async (phoneNumber: string): Promise<void> => {
      if (phoneNumber === DEMO_PHONE_NUMBER) {
         isDemoMode = true;
-        return; // Bypass Firebase for demo user
+        return;
     }
     isDemoMode = false;
     setupRecaptcha();
@@ -113,10 +117,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const result = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
       setConfirmationResult(result);
-      window.confirmationResult = result; // Store it on window if needed
+      window.confirmationResult = result;
     } catch (error) {
       console.error("Error during signInWithPhoneNumber", error);
-      // Reset reCAPTCHA on error
       if (window.recaptchaVerifier) {
         window.recaptchaVerifier.clear();
       }
@@ -124,10 +127,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const signInWithEmailAndPassword = async (email: string, pass: string): Promise<void> => {
+    if (email === ADMIN_EMAIL && pass === ADMIN_PASSWORD) {
+        isDemoMode = true;
+        const adminUser: AuthContextType['user'] = {
+            email: ADMIN_EMAIL,
+            displayName: 'Admin User',
+            uid: 'admin-user-uid',
+            isAdmin: true,
+        } as AuthContextType['user'];
+        setUser(adminUser);
+        setDemoUser(adminUser);
+        return;
+    }
+    throw new Error('Invalid credentials');
+  };
+
   const verifyOtp = async (otp: string): Promise<void> => {
     if (isDemoMode) {
         if (otp === DEMO_OTP) {
-            const demoUser = {
+            const demoUser: any = {
                 isDemo: true,
                 phoneNumber: DEMO_PHONE_NUMBER,
                 displayName: 'Demo User',
@@ -144,8 +163,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       throw new Error("No confirmation result available. Please send OTP first.");
     }
     await confirmationResult.confirm(otp);
-    // User is now signed in. The onAuthStateChanged listener will update the user state.
-    setConfirmationResult(null); // Clear confirmation result
+    setConfirmationResult(null);
   };
 
   const logout = async () => {
@@ -166,6 +184,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         loading,
         confirmationResult,
         signInWithPhoneNumber: signIn,
+        signInWithEmailAndPassword,
         verifyOtp,
         logout,
       }}

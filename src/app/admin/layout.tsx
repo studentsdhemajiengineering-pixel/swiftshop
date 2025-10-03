@@ -16,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { PrivateRoute } from "@/components/auth/private-route";
 
 function AdminHeader() {
     const { user, logout } = useAuth();
@@ -23,7 +24,7 @@ function AdminHeader() {
 
     const handleLogout = async () => {
         await logout();
-        router.push('/login');
+        router.push('/admin/login');
     };
     
     return (
@@ -46,7 +47,7 @@ function AdminHeader() {
                                 {user?.displayName || 'Admin'}
                             </p>
                             <p className="text-xs leading-none text-muted-foreground">
-                                {user?.phoneNumber}
+                                {user?.email}
                             </p>
                         </div>
                     </DropdownMenuLabel>
@@ -61,7 +62,7 @@ function AdminHeader() {
     );
 }
 
-export default function AdminLayout({
+function AdminLayoutContent({
     children,
 }: {
     children: React.ReactNode;
@@ -116,5 +117,20 @@ export default function AdminLayout({
                 </main>
             </SidebarInset>
         </SidebarProvider>
+    );
+}
+
+
+export default function AdminLayout({
+    children,
+}: {
+    children: React.ReactNode;
+}) {
+    return (
+        <PrivateRoute adminOnly={true}>
+            <AdminLayoutContent>
+                {children}
+            </AdminLayoutContent>
+        </PrivateRoute>
     );
 }
