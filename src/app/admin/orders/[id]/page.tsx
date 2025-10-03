@@ -2,13 +2,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { currentOrders, deliveredOrders } from '@/lib/data';
-import { getProducts } from '@/lib/firebase/service';
+import { currentOrders, deliveredOrders, allProducts } from '@/lib/data';
 import { notFound, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, CreditCard, MapPin, User, CheckCircle, Package } from 'lucide-react';
+import { ArrowLeft, CreditCard, MapPin, User, Package } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { format } from 'date-fns';
 import Image from 'next/image';
 import { Separator } from '@/components/ui/separator';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -35,16 +33,7 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
   const initialOrder = allOrders.find((o) => o.id === params.id);
   
   const [order, setOrder] = useState<Order | undefined>(initialOrder);
-  const [products, setProducts] = useState<Product[]>([]);
   const { toast } = useToast();
-
-  useEffect(() => {
-    async function fetchProducts() {
-        const fetchedProducts = await getProducts();
-        setProducts(fetchedProducts);
-    }
-    fetchProducts();
-  }, []);
 
   if (!order) {
     notFound();
@@ -52,7 +41,7 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
   
   const orderProducts = order.items
     .map(itemName => {
-      const product = products.find(p => p.name === itemName);
+      const product = allProducts.find(p => p.name === itemName);
       // In a real app, you'd probably store quantity and selected variation in the order item
       return product ? { ...product, quantity: 1, variation: product.variations[0] } : null;
     })
@@ -145,7 +134,7 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
                                             <Package className="h-4 w-4" />
                                         </Button>
                                     </DropdownMenuTrigger>
-                                    <DropdownMenuContent className="w-full">
+                                    <DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width]">
                                         {statusOptions.map(status => (
                                             <DropdownMenuItem key={status} onClick={() => handleStatusChange(status)}>
                                                 {status}
@@ -192,3 +181,5 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
     </div>
   );
 }
+
+    
