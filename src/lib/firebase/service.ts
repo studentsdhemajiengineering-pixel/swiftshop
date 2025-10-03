@@ -2,13 +2,17 @@
 'use client';
 
 import { collection, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc, onSnapshot } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { ref, uploadBytes, getDownloadURL, getStorage, type FirebaseStorage } from 'firebase/storage';
+import { getAuth } from 'firebase/auth';
 import { initializeFirebase } from '@/firebase';
 import type { Product, Category } from '@/lib/types';
 import { errorEmitter } from '@/components/firebase/error-emitter';
 import { FirestorePermissionError } from '@/components/firebase/errors';
 
-const { firestore, storage } = initializeFirebase();
+const { firestore, app } = initializeFirebase();
+const storage: FirebaseStorage = getStorage(app);
+const auth = getAuth(app);
+
 
 export async function uploadImage(file: File, folder: string = 'products'): Promise<string> {
     const storageRef = ref(storage, `${folder}/${Date.now()}_${file.name}`);
