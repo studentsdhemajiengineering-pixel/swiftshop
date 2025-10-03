@@ -5,7 +5,6 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { PlusCircle, MoreHorizontal, Trash2, Eye } from "lucide-react";
-import { getUsers, addUser, updateUser, deleteUser } from "@/lib/firebase/service";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import type { User } from "@/lib/types";
@@ -25,7 +24,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -37,7 +35,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
-import { useUsers } from "@/hooks/use-users";
 import { Skeleton } from "@/components/ui/skeleton";
 
 
@@ -96,20 +93,21 @@ const UserForm = ({
     );
 };
 
+const dummyUsers: User[] = [
+    { id: 'usr_1', firstName: 'Liam', lastName: 'Johnson', email: 'liam@example.com', phone: '+1-202-555-0141' },
+    { id: 'usr_2', firstName: 'Olivia', lastName: 'Smith', email: 'olivia@example.com', phone: '+1-202-555-0192' },
+    { id: 'usr_3', firstName: 'Noah', lastName: 'Williams', email: 'noah@example.com', phone: '+1-202-555-0128' },
+    { id: 'usr_4', firstName: 'Emma', lastName: 'Brown', email: 'emma@example.com', phone: '+1-202-555-0115' },
+    { id: 'usr_5', firstName: 'Oliver', lastName: 'Jones', email: 'oliver@example.com', phone: '+1-202-555-0177' },
+];
 
 export default function AdminCustomersPage() {
-    const { users, loading, error, refetch } = useUsers();
+    const [users, setUsers] = useState<User[]>(dummyUsers);
+    const [loading, setLoading] = useState(false);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [editingUser, setEditingUser] = useState<Partial<User> | null>(null);
     const { toast } = useToast();
     
-    useEffect(() => {
-        if(error) {
-            // Permission errors are handled globally
-            console.error("Error fetching users:", error);
-        }
-    }, [error]);
-
     const handleAddClick = () => {
         setEditingUser({ firstName: '', lastName: '', email: '', phone: '' });
         setIsDialogOpen(true);
@@ -121,13 +119,8 @@ export default function AdminCustomersPage() {
     };
 
     const handleDelete = async (userId: string) => {
-        try {
-            await deleteUser(userId);
-            toast({ title: "Customer deleted successfully!" });
-            refetch();
-        } catch (error) {
-            console.error("Error deleting customer:", error);
-        }
+        setUsers(users.filter(u => u.id !== userId));
+        toast({ title: "Customer deleted successfully!" });
     };
 
     const handleSave = async (userData: Partial<User>) => {
@@ -136,20 +129,16 @@ export default function AdminCustomersPage() {
             return;
         }
 
-        try {
-            if (editingUser && 'id' in editingUser && editingUser.id) {
-                await updateUser(editingUser.id, userData);
-                toast({ title: "Customer updated successfully!" });
-            } else {
-                 await addUser(userData as Omit<User, 'id'>);
-                 toast({ title: "Customer added successfully!" });
-            }
-            setIsDialogOpen(false);
-            setEditingUser(null);
-            refetch();
-        } catch(e) {
-            console.error("Error saving customer:", e);
+        if (editingUser && editingUser.id) {
+            setUsers(users.map(u => u.id === editingUser.id ? { ...u, ...userData } : u));
+            toast({ title: "Customer updated successfully!" });
+        } else {
+             const newUser = { ...userData, id: `usr_${Date.now()}` } as User;
+             setUsers([...users, newUser]);
+             toast({ title: "Customer added successfully!" });
         }
+        setIsDialogOpen(false);
+        setEditingUser(null);
     };
     
   return (
