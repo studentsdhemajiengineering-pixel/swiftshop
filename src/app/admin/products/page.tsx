@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from "react";
@@ -39,6 +38,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { PlaceHolderImages } from "@/lib/placeholder-images";
 
 
 const ProductForm = ({ 
@@ -135,6 +135,7 @@ const ProductForm = ({
                     <div className="space-y-2">
                         <Label htmlFor="image">Image</Label>
                         <Input id="image" name="image" type="file" onChange={handleImageChange} accept="image/*" />
+                         <p className="text-xs text-muted-foreground">If no image is uploaded, a default placeholder will be used. Image uploads require upgrading your Firebase project to the Blaze plan.</p>
                         {formData.imageUrl && !imageFile && (
                             <Image src={formData.imageUrl} alt={formData.name || 'product image'} width={80} height={80} className="mt-2 rounded-md object-cover" />
                         )}
@@ -205,7 +206,6 @@ export default function AdminProductsPage() {
             setCategories(fetchedCategories);
         } catch (error) {
             console.error("Error fetching page data:", error);
-            // The service will emit a permission error, so we don't need a toast here
         } finally {
             setLoading(false);
         }
@@ -231,9 +231,9 @@ export default function AdminProductsPage() {
         setIsDialogOpen(true);
     };
 
-    const handleDelete = (productId: string) => {
+    const handleDelete = async (productId: string) => {
         try {
-            deleteProduct(productId);
+            await deleteProduct(productId);
             toast({ title: "Product deleted successfully!" });
             fetchPageData();
         } catch (error) {
@@ -254,17 +254,21 @@ export default function AdminProductsPage() {
             if (imageFile) {
                 const imageUrl = await uploadImage(imageFile, 'products');
                 finalProductData.imageUrl = imageUrl;
-            } else if (!finalProductData.imageUrl) {
-                toast({ title: "Please upload an image", variant: "destructive" });
-                return;
+            } else if (!editingProduct?.id) {
+                const placeholder = PlaceHolderImages.find(p => p.id === 'product-fresh-vegetables');
+                finalProductData.imageUrl = placeholder?.imageUrl || 'https://placehold.co/600x400';
             }
 
             if (editingProduct && 'id' in editingProduct && editingProduct.id) {
                 await updateProduct(editingProduct.id, finalProductData);
                 toast({ title: "Product updated successfully!" });
             } else {
-                 await addProduct(finalProductData as Omit<Product, 'id'>);
-                 toast({ title: "Product added successfully!" });
+                if (!finalProductData.imageUrl) {
+                    toast({ title: "Image is required for new products", variant: "destructive" });
+                    return;
+                }
+                await addProduct(finalProductData as Omit<Product, 'id'>);
+                toast({ title: "Product added successfully!" });
             }
             setIsDialogOpen(false);
             setEditingProduct(null);

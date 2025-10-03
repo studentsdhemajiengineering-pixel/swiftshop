@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from "react";
@@ -36,6 +35,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { PlaceHolderImages } from "@/lib/placeholder-images";
 
 
 const CategoryForm = ({ 
@@ -80,6 +80,7 @@ const CategoryForm = ({
                 <div className="space-y-2">
                     <Label htmlFor="image">Image</Label>
                     <Input id="image" name="image" type="file" onChange={handleImageChange} accept="image/*" />
+                    <p className="text-xs text-muted-foreground">If no image is uploaded, a default placeholder will be used. Image uploads require upgrading your Firebase project to the Blaze plan.</p>
                     {formData.imageUrl && !imageFile && (
                         <Image src={formData.imageUrl} alt={formData.name || 'category image'} width={80} height={80} className="mt-2 rounded-md object-cover" />
                     )}
@@ -108,7 +109,6 @@ export default function AdminCategoriesPage() {
             setCategories(fetchedCategories);
         } catch (error) {
             console.error("Error fetching categories:", error);
-            // The service will emit a permission error, so we don't need a toast here
         } finally {
             setLoading(false);
         }
@@ -151,10 +151,10 @@ export default function AdminCategoriesPage() {
             if (imageFile) {
                 const imageUrl = await uploadImage(imageFile, 'categories');
                 finalCategoryData.imageUrl = imageUrl;
-            } else if (editingCategory === null && !imageFile) {
-                // Image is required for new categories.
-                toast({ title: "Please upload an image for a new category", variant: "destructive" });
-                return;
+            } else if (!editingCategory) {
+                // For new categories without an image, use a placeholder.
+                const placeholder = PlaceHolderImages.find(p => p.id === 'cat-kitchenware');
+                finalCategoryData.imageUrl = placeholder?.imageUrl || 'https://placehold.co/600x400';
             }
             
             if (editingCategory) {
