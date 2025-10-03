@@ -22,7 +22,11 @@ export async function getProduct(id: string): Promise<Product | null> {
 
 export async function addProduct(product: Omit<Product, 'id'>): Promise<string> {
     const productsCol = collection(db, 'products');
-    const docRef = await addDoc(productsCol, product);
+    // Firestore will auto-generate an ID, so we don't include product.id
+    const productData = { ...product };
+    // @ts-ignore
+    delete productData.id;
+    const docRef = await addDoc(productsCol, productData);
     return docRef.id;
 }
 

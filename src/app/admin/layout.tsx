@@ -2,9 +2,64 @@
 'use client';
 
 import { SidebarProvider, Sidebar, SidebarTrigger, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarHeader, SidebarContent, SidebarFooter, SidebarInset } from "@/components/ui/sidebar";
-import { Home, ShoppingCart, Package, Users, Settings } from "lucide-react";
+import { Home, ShoppingCart, Package, Users, Settings, User as UserIcon, LogOut } from "lucide-react";
 import { Logo } from "@/components/shared/logo";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useAuth } from "@/hooks/use-auth";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+
+function AdminHeader() {
+    const { user, logout } = useAuth();
+    const router = useRouter();
+
+    const handleLogout = async () => {
+        await logout();
+        router.push('/login');
+    };
+    
+    return (
+        <header className="flex items-center justify-between p-4 bg-background border-b h-16">
+            <SidebarTrigger />
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                        <Avatar>
+                            <AvatarFallback>
+                                <UserIcon />
+                            </AvatarFallback>
+                        </Avatar>
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                    <DropdownMenuLabel className="font-normal">
+                        <div className="flex flex-col space-y-1">
+                            <p className="text-sm font-medium leading-none">
+                                {user?.displayName || 'Admin'}
+                            </p>
+                            <p className="text-xs leading-none text-muted-foreground">
+                                {user?.phoneNumber}
+                            </p>
+                        </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleLogout}>
+                        <LogOut className="mr-2 h-4 w-4" />
+                        <span>Log out</span>
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+        </header>
+    );
+}
 
 export default function AdminLayout({
     children,
@@ -53,16 +108,9 @@ export default function AdminLayout({
                         </SidebarMenuItem>
                     </SidebarMenu>
                 </SidebarContent>
-                <SidebarFooter>
-                    {/* Add footer content if needed */}
-                </SidebarFooter>
             </Sidebar>
             <SidebarInset>
-                <header className="flex items-center justify-between p-4 bg-background border-b h-16">
-                    <SidebarTrigger />
-                    {/* We can add a dynamic title here later */}
-                    <div>{/* User menu or other actions */}</div>
-                </header>
+                <AdminHeader />
                 <main className="p-6 bg-muted/40 flex-1">
                     {children}
                 </main>

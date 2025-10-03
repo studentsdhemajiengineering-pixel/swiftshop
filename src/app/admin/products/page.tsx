@@ -4,8 +4,8 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
-import { PlusCircle, MoreHorizontal } from "lucide-react";
-import { getProducts, addProduct, updateProduct } from "@/lib/firebase/service";
+import { PlusCircle, MoreHorizontal, Trash2 } from "lucide-react";
+import { getProducts, addProduct, updateProduct, deleteProduct } from "@/lib/firebase/service";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
@@ -18,6 +18,17 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from "@/components/ui/textarea";
@@ -32,6 +43,10 @@ import {
 
 const ProductForm = ({ product, onSave, onCancel }: { product: Partial<Product> | null, onSave: (product: Partial<Product>) => void, onCancel: () => void }) => {
     const [formData, setFormData] = useState(product || {});
+
+    useEffect(() => {
+        setFormData(product || {});
+    }, [product]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -135,6 +150,17 @@ export default function AdminProductsPage() {
         setIsDialogOpen(true);
     };
 
+    const handleDelete = async (productId: string) => {
+        try {
+            await deleteProduct(productId);
+            toast({ title: "Product deleted successfully!" });
+            fetchProducts();
+        } catch (error) {
+            console.error("Error deleting product:", error);
+            toast({ title: "Error deleting product", variant: "destructive" });
+        }
+    };
+
     const handleSave = async (productData: Partial<Product>) => {
         try {
             if (editingProduct && 'id' in editingProduct && editingProduct.id) {
@@ -230,7 +256,26 @@ export default function AdminProductsPage() {
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
                                                 <DropdownMenuItem onClick={() => handleEditClick(product)}>Edit</DropdownMenuItem>
-                                                <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
+                                                <AlertDialog>
+                                                    <AlertDialogTrigger asChild>
+                                                        <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">
+                                                            <Trash2 className="mr-2 h-4 w-4" />
+                                                            Delete
+                                                        </DropdownMenuItem>
+                                                    </AlertDialogTrigger>
+                                                    <AlertDialogContent>
+                                                        <AlertDialogHeader>
+                                                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                                        <AlertDialogDescription>
+                                                            This action cannot be undone. This will permanently delete the product.
+                                                        </AlertDialogDescription>
+                                                        </AlertDialogHeader>
+                                                        <AlertDialogFooter>
+                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                        <AlertDialogAction onClick={() => handleDelete(product.id)}>Continue</AlertDialogAction>
+                                                        </AlertDialogFooter>
+                                                    </AlertDialogContent>
+                                                </AlertDialog>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </TableCell>
@@ -243,18 +288,16 @@ export default function AdminProductsPage() {
         </Card>
         <DialogContent>
             <DialogHeader>
-                <DialogTitle>{editingProduct && 'id' in editingProduct ? 'Edit Product' : 'Add New Product'}</DialogTitle>
+                <DialogTitle>{editingProduct && 'id' in editingProduct && editingProduct.id ? 'Edit Product' : 'Add New Product'}</DialogTitle>
             </DialogHeader>
             {editingProduct && (
                 <ProductForm 
                     product={editingProduct} 
                     onSave={handleSave} 
-                    onCancel={() => setIsDialogOpen(false)} 
+                    onCancel={() => { setIsDialogOpen(false); setEditingProduct(null); }} 
                 />
             )}
         </DialogContent>
      </Dialog>
   );
 }
-
-    
