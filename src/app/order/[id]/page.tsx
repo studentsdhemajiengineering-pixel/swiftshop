@@ -1,13 +1,17 @@
 
+
 'use client';
 
-import { allProducts, currentOrders, deliveredOrders } from '@/lib/data';
+import { getOrder } from '@/lib/firebase/service';
 import { notFound, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, MapPin, ShoppingBag } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { format } from 'date-fns';
 import Image from 'next/image';
+import { useEffect, useState } from 'react';
+import type { Order, OrderItem } from '@/lib/types';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const OrderDetailHeader = () => {
     const router = useRouter();
@@ -24,17 +28,44 @@ const OrderDetailHeader = () => {
 };
 
 export default function OrderDetailPage({ params }: { params: { id: string } }) {
-  const allOrders = [...currentOrders, ...deliveredOrders];
-  const order = allOrders.find((o) => o.id === params.id);
+  const [order, setOrder] = useState<Order | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchOrder = async () => {
+        if (!params.id) return;
+        setLoading(true);
+        const fetchedOrder = await getOrder(params.id);
+        if (fetchedOrder) {
+            setOrder(fetchedOrder);
+        } else {
+            notFound();
+        }
+        setLoading(false);
+    }
+    fetchOrder();
+  }, [params.id]);
+
+  if (loading) {
+     return (
+         <div className="flex min-h-screen w-full flex-col bg-muted/20">
+            <OrderDetailHeader />
+             <main className="flex-1">
+                <div className="container mx-auto max-w-2xl px-4 py-6 sm:px-6 lg:px-8 space-y-6">
+                    <Skeleton className="h-28 w-full" />
+                    <Skeleton className="h-48 w-full" />
+                    <Skeleton className="h-24 w-full" />
+                    <Skeleton className="h-24 w-full" />
+                </div>
+            </main>
+        </div>
+     )
+  }
 
   if (!order) {
     notFound();
   }
-
-  const orderProducts = order.items
-    .map(itemName => allProducts.find(p => p.name === itemName))
-    .filter((p): p is NonNullable<typeof p> => p !== undefined);
-
+  
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/20">
         <OrderDetailHeader />
@@ -64,21 +95,21 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
                             <CardTitle>Items</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                             {orderProducts.map(product => {
+                             {order.items.map((item: OrderItem) => {
                                 return (
-                                    <div key={product.id} className="flex items-start gap-4">
-                                        {product.imageUrl && (
+                                    <div key={item.variationId} className="flex items-start gap-4">
+                                        {item.imageUrl && (
                                              <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-md border">
-                                                <Image src={product.imageUrl} alt={product.name} fill className="object-cover" />
+                                                <Image src={item.imageUrl} alt={item.productName} fill className="object-cover" />
                                              </div>
                                         )}
                                         <div className="flex-grow">
-                                            <h4 className="font-medium">{product.name}</h4>
+                                            <h4 className="font-medium">{item.productName}</h4>
                                             <p className="text-sm text-muted-foreground">
-                                               {product.variations[0].name}
+                                               {item.variationName}
                                             </p>
                                         </div>
-                                         <p className="font-medium text-sm">₹{product.variations[0].price.toFixed(2)}</p>
+                                         <p className="font-medium text-sm">₹{item.price.toFixed(2)}</p>
                                     </div>
                                 )
                              })}
@@ -106,7 +137,7 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
                                 <MapPin className="h-6 w-6 text-muted-foreground mt-1" />
                                 <div>
                                     <p className="font-medium">Home</p>
-                                    <p className="text-muted-foreground">123, Green Avenue, Springfield, 12345</p>
+                                    <p className="text-muted-foreground">{order.address}</p>
                                 </div>
                             </div>
                         </CardContent>

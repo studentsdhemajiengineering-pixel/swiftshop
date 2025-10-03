@@ -1,11 +1,12 @@
 
+
 'use client';
 
 import { collection, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc, onSnapshot } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL, getStorage, type FirebaseStorage } from 'firebase/storage';
 import { getAuth } from 'firebase/auth';
 import { initializeFirebase } from '@/firebase';
-import type { Product, Category, User } from '@/lib/types';
+import type { Product, Category, User, Order } from '@/lib/types';
 import { errorEmitter } from '@/components/firebase/error-emitter';
 import { FirestorePermissionError } from '@/components/firebase/errors';
 
@@ -185,6 +186,66 @@ export function deleteCategory(id: string) {
         errorEmitter.emit('permission-error', permissionError);
     });
 }
+
+export async function getOrders(): Promise<Order[]> {
+    return new Promise((resolve, reject) => {
+        const ordersCol = collection(firestore, 'orders');
+        const unsubscribe = onSnapshot(ordersCol, 
+            (snapshot) => {
+                const orderList = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as Order));
+                resolve(orderList.sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
+                unsubscribe();
+            },
+            (error) => {
+                const permissionError = new FirestorePermissionError({
+                    path: ordersCol.path,
+                    operation: 'list',
+                });
+                errorEmitter.emit('permission-error', permissionError);
+                reject(permissionError);
+                unsubscribe();
+            }
+        );
+    });
+}
+
+export async function getOrder(id: string): Promise<Order | null> {
+    return new Promise((resolve, reject) => {
+        const orderDoc = doc(firestore, 'orders', id);
+        const unsubscribe = onSnapshot(orderDoc,
+            (snapshot) => {
+                if (snapshot.exists()) {
+                    resolve({ ...snapshot.data(), id: snapshot.id } as Order);
+                } else {
+                    resolve(null);
+                }
+                unsubscribe();
+            },
+            (error) => {
+                 const permissionError = new FirestorePermissionError({
+                    path: orderDoc.path,
+                    operation: 'get',
+                });
+                errorEmitter.emit('permission-error', permissionError);
+                reject(permissionError);
+                unsubscribe();
+            }
+        );
+    });
+}
+
+export function updateOrder(id: string, orderUpdate: Partial<Order>) {
+    const orderDoc = doc(firestore, 'orders', id);
+    updateDoc(orderDoc, orderUpdate).catch(async (serverError) => {
+        const permissionError = new FirestorePermissionError({
+            path: orderDoc.path,
+            operation: 'update',
+            requestResourceData: orderUpdate,
+        });
+        errorEmitter.emit('permission-error', permissionError);
+    });
+}
+
 
 // User Management Functions
 export async function getUsers(): Promise<User[]> {

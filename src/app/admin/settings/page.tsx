@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
@@ -86,7 +87,7 @@ export default function AdminSettingsPage() {
       if (result.success) {
         toast({
           title: "Database Seeded!",
-          description: `${result.productCount} products and ${result.categoryCount} categories have been added.`,
+          description: `${result.productCount} products, ${result.categoryCount} categories, and ${result.orderCount} orders have been added.`,
         });
       } else {
         throw new Error(result.error);
@@ -187,7 +188,7 @@ export default function AdminSettingsPage() {
             </CardHeader>
             <CardContent className="space-y-4">
                 <p className="text-sm text-muted-foreground">
-                    Click the button below to populate your Firestore database with the initial set of products and categories. This can only be done once and may take a moment.
+                    Click the button below to populate your Firestore database with the initial set of products, categories and orders. This can only be done once and may take a moment.
                 </p>
                 <Button onClick={handleSeed} disabled={isSeeding}>
                     {isSeeding && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

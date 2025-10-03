@@ -1,8 +1,10 @@
 
+
 import { initializeApp, getApps, cert, ServiceAccount } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import productsData from '../data/products.json';
 import categoriesData from '../data/categories.json';
+import ordersData from '../data/orders.json';
 import * as serviceAccount from './service-account.json';
 
 // A simple check to see if the service account is populated
@@ -58,6 +60,21 @@ async function seed() {
         console.log(`${productsData.length} products seeded successfully.`);
     } catch (error) {
         console.error('Error seeding products:', error);
+        process.exit(1);
+    }
+
+    // Seed Orders
+    try {
+        console.log('Seeding orders...');
+        const ordersBatch = db.batch();
+        ordersData.forEach(order => {
+            const docRef = db.collection('orders').doc(order.id);
+            ordersBatch.set(docRef, order);
+        });
+        await ordersBatch.commit();
+        console.log(`${ordersData.length} orders seeded successfully.`);
+    } catch (error) {
+        console.error('Error seeding orders:', error);
         process.exit(1);
     }
 

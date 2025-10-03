@@ -1,35 +1,59 @@
 
-{
-    "currentOrders": [
-        {
+[
+    {
         "id": "SW12345",
+        "userId": "user-demo",
+        "customerName": "Liam Johnson",
         "date": "2024-07-29T16:30:00Z",
         "status": "Out for Delivery",
         "total": 549.50,
-        "items": ["Fresh Vegetables", "Organic Atta", "Sunflower Oil"]
-        },
-        {
+        "items": [
+            { "productId": "1", "productName": "Fresh Vegetables", "variationId": "1-1kg", "variationName": "1kg", "quantity": 1, "price": 89, "imageUrl": "https://images.unsplash.com/photo-1599297915019-39c62af59ea1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8ZnJlc2glMjB2ZWdldGFibGVzfGVufDB8fHx8MTc1OTA0MjY5NXww&ixlib=rb-4.1.0&q=80&w=1080" },
+            { "productId": "2", "productName": "Organic Atta", "variationId": "2-1kg", "variationName": "1kg", "quantity": 2, "price": 110, "imageUrl": "https://images.unsplash.com/photo-1752158652720-98c23aa65021?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxvcmdhbmljJTIwYXR0YXxlbnwwfHx8fDE3NTkxMzkyMjR8MA&ixlib=rb-4.1.0&q=80&w=1080" },
+            { "productId": "3", "productName": "Sunflower Oil", "variationId": "3-1l", "variationName": "1L", "quantity": 1, "price": 181, "imageUrl": "https://images.unsplash.com/photo-1608019527603-faa25edca921?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxzdW5mbG93ZXIlMjBvaWx8ZW58MHx8fHwxNzU5MTI5NjY5fDA&ixlib-rb-4.1.0&q=80&w=1080" }
+        ],
+        "address": "123, Green Avenue, Springfield, 12345, +91 98765 43210",
+        "paymentMethod": "Cash on Delivery"
+    },
+    {
         "id": "SW12344",
+        "userId": "user-demo",
+        "customerName": "Olivia Smith",
         "date": "2024-07-29T15:10:00Z",
         "status": "Preparing",
         "total": 210.00,
-        "items": ["Fresh Milk", "Organic Eggs"]
-        }
-    ],
-    "deliveredOrders": [
-        {
+        "items": [
+            { "productId": "4", "productName": "Fresh Milk", "variationId": "4-1l", "variationName": "1L", "quantity": 2, "price": 57, "imageUrl": "https://images.unsplash.com/photo-1641800723567-c1af28dd79bd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxmcmVzaCUyMG1pbGt8ZW58MHx8fHwxNzU5MTM5MjI0fDA&ixlib-rb-4.1.0&q=80&w=1080" },
+            { "productId": "5", "productName": "Organic Eggs", "variationId": "5-6pc", "variationName": "6 pieces", "quantity": 1, "price": 70, "imageUrl": "https://images.unsplash.com/photo-1586554102388-c03845e22442?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxjYXJ0b24lMjBlZ2dzfGVufDB8fHx8MTc1OTA2NTQyN3ww&ixlib-rb-4.1.0&q=80&w=1080" }
+        ],
+        "address": "456, Business Tower, Metropolis, 67890, +91 98765 43211",
+        "paymentMethod": "PhonePe"
+    },
+    {
         "id": "SW12341",
+        "userId": "user-demo",
+        "customerName": "Noah Williams",
         "date": "2024-07-28T18:05:00Z",
         "status": "Delivered",
         "total": 1190.00,
-        "items": ["Organic Atta", "Sunflower Oil", "Fresh Milk"]
-        },
-        {
+        "items": [
+            { "productId": "2", "productName": "Organic Atta", "variationId": "2-5kg", "variationName": "5kg", "quantity": 2, "price": 520, "imageUrl": "https://images.unsplash.com/photo-1752158652720-98c23aa65021?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxvcmdhbmljJTIwYXR0YXxlbnwwfHx8fDE3NTkxMzkyMjR8MA&ixlib-rb-4.1.0&q=80&w=1080" },
+            { "productId": "3", "productName": "Sunflower Oil", "variationId": "3-1l", "variationName": "1L", "quantity": 1, "price": 181, "imageUrl": "https://images.unsplash.com/photo-1608019527603-faa25edca921?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxzdW5mbG93ZXIlMjBvaWx8ZW58MHx8fHwxNzU5MTI5NjY5fDA&ixlib-rb-4.1.0&q=80&w=1080" }
+        ],
+        "address": "789, Liberty Rd, Star City, 54321, +91 98765 43212",
+        "paymentMethod": "Credit Card"
+    },
+    {
         "id": "SW12339",
+        "userId": "user-demo",
+        "customerName": "Emma Brown",
         "date": "2024-07-27T12:45:00Z",
         "status": "Delivered",
         "total": 78.00,
-        "items": ["Chicken Breast"]
-        }
-    ]
-}
+        "items": [
+            { "productId": "6", "productName": "Chicken Breast", "variationId": "6-1kg", "variationName": "1kg", "quantity": 1, "price": 450, "imageUrl": "https://images.unsplash.com/photo-1642102903996-cdad15f5dcdd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxyYXclMjBjaGlja2VufGVufDB8fHx8MTc1OTEyODM4MHww&ixlib-rb-4.1.0&q=80&w=1080" }
+        ],
+        "address": "101, Lakeview, Central City, 98765, +91 98765 43213",
+        "paymentMethod": "Cash on Delivery"
+    }
+]

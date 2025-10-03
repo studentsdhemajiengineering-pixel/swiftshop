@@ -6,11 +6,13 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, Mail, Phone } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import type { User } from '@/lib/types';
-import { currentOrders } from '@/lib/data'; 
+import type { User, Order } from '@/lib/types';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { getOrders } from '@/lib/firebase/service';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const dummyUsers: User[] = [
     { id: 'usr_1', firstName: 'Liam', lastName: 'Johnson', email: 'liam@example.com', phone: '+1-202-555-0141' },
@@ -37,13 +39,38 @@ const CustomerDetailHeader = () => {
 
 export default function CustomerDetailPage({ params }: { params: { id: string } }) {
   const user = dummyUsers.find(u => u.id === params.id);
+  const [userOrders, setUserOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      setLoading(true);
+      const allOrders = await getOrders();
+      // In a real app, the user ID would match the Firebase Auth UID.
+      // For this demo with dummy users, we'll just assign some orders.
+      const customerId = user?.id; 
+      if (customerId === 'usr_1') { // Liam Johnson
+          setUserOrders(allOrders.filter(o => o.customerName === 'Liam Johnson'));
+      } else if (customerId === 'usr_2') { // Olivia Smith
+          setUserOrders(allOrders.filter(o => o.customerName === 'Olivia Smith'));
+      } else if (customerId === 'usr_3') { // Noah Williams
+          setUserOrders(allOrders.filter(o => o.customerName === 'Noah Williams'));
+      } else if (customerId === 'usr_4') { // Emma Brown
+          setUserOrders(allOrders.filter(o => o.customerName === 'Emma Brown'));
+      } else {
+          setUserOrders([]);
+      }
+      setLoading(false);
+    };
+
+    if(user) {
+        fetchOrders();
+    }
+  }, [user]);
 
   if (!user) {
     notFound();
   }
-
-  // TODO: Fetch real orders for this user
-  const userOrders = currentOrders.slice(0, 2);
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/20">
@@ -99,20 +126,37 @@ export default function CustomerDetailPage({ params }: { params: { id: string } 
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {userOrders.map(order => (
-                                            <TableRow key={order.id}>
-                                                <TableCell className="font-medium">{order.id}</TableCell>
-                                                <TableCell>
-                                                    <Badge variant="outline">{order.status}</Badge>
-                                                </TableCell>
-                                                <TableCell>₹{order.total.toFixed(2)}</TableCell>
-                                                <TableCell>
-                                                    <Button asChild variant="outline" size="sm">
-                                                        <Link href={`/admin/orders/${order.id}`}>View</Link>
-                                                    </Button>
+                                        {loading ? (
+                                            [...Array(2)].map((_, i) => (
+                                                <TableRow key={i}>
+                                                    <TableCell><Skeleton className="h-5 w-20" /></TableCell>
+                                                    <TableCell><Skeleton className="h-6 w-24 rounded-full" /></TableCell>
+                                                    <TableCell><Skeleton className="h-5 w-16" /></TableCell>
+                                                    <TableCell><Skeleton className="h-8 w-14" /></TableCell>
+                                                </TableRow>
+                                            ))
+                                        ) : userOrders.length > 0 ? (
+                                            userOrders.map(order => (
+                                                <TableRow key={order.id}>
+                                                    <TableCell className="font-medium">#{order.id}</TableCell>
+                                                    <TableCell>
+                                                        <Badge variant="outline">{order.status}</Badge>
+                                                    </TableCell>
+                                                    <TableCell>₹{order.total.toFixed(2)}</TableCell>
+                                                    <TableCell>
+                                                        <Button asChild variant="outline" size="sm">
+                                                            <Link href={`/admin/orders/${order.id}`}>View</Link>
+                                                        </Button>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))
+                                        ) : (
+                                            <TableRow>
+                                                <TableCell colSpan={4} className="text-center text-muted-foreground">
+                                                    No orders found for this customer.
                                                 </TableCell>
                                             </TableRow>
-                                        ))}
+                                        )}
                                     </TableBody>
                                 </Table>
                             </CardContent>
@@ -124,5 +168,3 @@ export default function CustomerDetailPage({ params }: { params: { id: string } 
     </div>
   );
 }
-
-    

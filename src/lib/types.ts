@@ -1,4 +1,5 @@
 
+
 export type ProductVariation = {
   id: string;
   name: string;
@@ -42,12 +43,26 @@ export type Promo = {
   href: string;
 }
 
+export type OrderItem = {
+  productId: string;
+  productName: string;
+  variationId: string;
+  variationName: string;
+  quantity: number;
+  price: number;
+  imageUrl: string;
+}
+
 export type Order = {
     id: string;
+    userId: string;
+    customerName: string;
+    items: OrderItem[];
     date: string;
     status: 'Preparing' | 'Out for Delivery' | 'Delivered';
     total: number;
-    items: string[];
+    address: string;
+    paymentMethod: string;
 }
 
 export type User = {

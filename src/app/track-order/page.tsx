@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import Link from 'next/link';
@@ -7,11 +8,15 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { currentOrders, deliveredOrders } from '@/lib/data';
+import { getOrders } from '@/lib/firebase/service';
 import type { Order } from '@/lib/types';
 import { format } from 'date-fns';
+import { useEffect, useState } from 'react';
+import { useAuth } from '@/hooks/use-auth';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const OrderCard = ({ order }: { order: Order }) => {
+    const itemsSummary = order.items.map(i => i.productName).join(', ');
     return (
         <Card>
             <CardHeader>
@@ -33,7 +38,7 @@ const OrderCard = ({ order }: { order: Order }) => {
             </CardHeader>
             <CardContent>
                 <p className="text-sm text-muted-foreground truncate">
-                    {order.items.join(', ')}
+                    {itemsSummary}
                 </p>
                 <Separator className='my-3' />
                 <div className='flex justify-between items-center'>
@@ -55,7 +60,58 @@ const OrderCard = ({ order }: { order: Order }) => {
     )
 }
 
+const OrderListSkeleton = () => (
+    <div className="space-y-4 py-4">
+        {[...Array(3)].map((_, i) => (
+            <Card key={i}>
+                <CardHeader>
+                    <div className='flex justify-between items-start'>
+                        <div>
+                            <Skeleton className="h-5 w-24 mb-1" />
+                            <Skeleton className="h-3 w-32" />
+                        </div>
+                        <Skeleton className="h-6 w-20 rounded-full" />
+                    </div>
+                </CardHeader>
+                <CardContent>
+                     <Skeleton className="h-4 w-full mb-3" />
+                    <Separator className='my-3' />
+                    <div className='flex justify-between items-center'>
+                        <Skeleton className="h-6 w-16" />
+                        <Skeleton className="h-8 w-24" />
+                    </div>
+                </CardContent>
+            </Card>
+        ))}
+    </div>
+);
+
 export default function TrackOrderPage() {
+  const { user } = useAuth();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (user) {
+        const fetchOrders = async () => {
+            setLoading(true);
+            const fetchedOrders = await getOrders();
+            // In a real app, you would fetch orders for the current user
+            // For now, we show all orders if user is admin, or a subset for demo user
+            if (user.isAdmin) {
+                setOrders(fetchedOrders);
+            } else {
+                setOrders(fetchedOrders.slice(0,4));
+            }
+            setLoading(false);
+        }
+        fetchOrders();
+    }
+  }, [user]);
+
+  const currentOrders = orders.filter(o => o.status !== 'Delivered');
+  const deliveredOrders = orders.filter(o => o.status === 'Delivered');
+
   return (
     <div className="flex min-h-screen w-full flex-col">
       <Header />
@@ -67,18 +123,22 @@ export default function TrackOrderPage() {
                     <TabsTrigger value="delivered">Delivered</TabsTrigger>
                 </TabsList>
                 <TabsContent value="current">
-                   <div className="space-y-4 py-4">
-                     {currentOrders.map(order => (
-                        <OrderCard key={order.id} order={order} />
-                     ))}
-                   </div>
+                   {loading ? <OrderListSkeleton /> : (
+                       <div className="space-y-4 py-4">
+                         {currentOrders.map(order => (
+                            <OrderCard key={order.id} order={order} />
+                         ))}
+                       </div>
+                   )}
                 </TabsContent>
                 <TabsContent value="delivered">
-                    <div className="space-y-4 py-4">
-                     {deliveredOrders.map(order => (
-                        <OrderCard key={order.id} order={order} />
-                     ))}
-                   </div>
+                    {loading ? <OrderListSkeleton /> : (
+                        <div className="space-y-4 py-4">
+                        {deliveredOrders.map(order => (
+                            <OrderCard key={order.id} order={order} />
+                        ))}
+                      </div>
+                    )}
                 </TabsContent>
             </Tabs>
         </div>
