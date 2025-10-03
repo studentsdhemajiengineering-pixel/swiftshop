@@ -5,7 +5,7 @@ import { collection, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc, onSnaps
 import { ref, uploadBytes, getDownloadURL, getStorage, type FirebaseStorage } from 'firebase/storage';
 import { getAuth } from 'firebase/auth';
 import { initializeFirebase } from '@/firebase';
-import type { Product, Category } from '@/lib/types';
+import type { Product, Category, User } from '@/lib/types';
 import { errorEmitter } from '@/components/firebase/error-emitter';
 import { FirestorePermissionError } from '@/components/firebase/errors';
 
@@ -153,5 +153,84 @@ export function deleteCategory(id: string) {
             operation: 'delete',
         });
         errorEmitter.emit('permission-error', permissionError);
+    });
+}
+
+// User Management Functions
+export async function getUsers(): Promise<User[]> {
+    return new Promise((resolve, reject) => {
+        const usersCol = collection(firestore, 'users');
+        onSnapshot(usersCol,
+            (snapshot) => {
+                const userList = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as User));
+                resolve(userList);
+            },
+            (error) => {
+                const permissionError = new FirestorePermissionError({
+                    path: usersCol.path,
+                    operation: 'list',
+                });
+                errorEmitter.emit('permission-error', permissionError);
+                reject(permissionError);
+            }
+        );
+    });
+}
+
+export function addUser(user: Omit<User, 'id'>) {
+    const usersCol = collection(firestore, 'users');
+    addDoc(usersCol, user).catch(async (serverError) => {
+        const permissionError = new FirestorePermissionError({
+            path: usersCol.path,
+            operation: 'create',
+            requestResourceData: user,
+        });
+        errorEmitter.emit('permission-error', permissionError);
+    });
+}
+
+export function updateUser(id: string, user: Partial<User>) {
+    const userDoc = doc(firestore, 'users', id);
+    updateDoc(userDoc, user).catch(async (serverError) => {
+        const permissionError = new FirestorePermissionError({
+            path: userDoc.path,
+            operation: 'update',
+            requestResourceData: user,
+        });
+        errorEmitter.emit('permission-error', permissionError);
+    });
+}
+
+export function deleteUser(id: string) {
+    const userDoc = doc(firestore, 'users', id);
+    deleteDoc(userDoc).catch(async (serverError) => {
+        const permissionError = new FirestorePermissionError({
+            path: userDoc.path,
+            operation: 'delete',
+        });
+        errorEmitter.emit('permission-error', permissionError);
+    });
+}
+
+export async function getUser(id: string): Promise<User | null> {
+    return new Promise((resolve, reject) => {
+        const userDoc = doc(firestore, 'users', id);
+        onSnapshot(userDoc,
+            (snapshot) => {
+                if (snapshot.exists()) {
+                    resolve({ ...snapshot.data(), id: snapshot.id } as User);
+                } else {
+                    resolve(null);
+                }
+            },
+            (error) => {
+                 const permissionError = new FirestorePermissionError({
+                    path: userDoc.path,
+                    operation: 'get',
+                });
+                errorEmitter.emit('permission-error', permissionError);
+                reject(permissionError);
+            }
+        );
     });
 }

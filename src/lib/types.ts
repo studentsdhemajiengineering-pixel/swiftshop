@@ -49,3 +49,11 @@ export type Order = {
     total: number;
     items: string[];
 }
+
+export type User = {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+}
