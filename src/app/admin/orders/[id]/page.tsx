@@ -1,8 +1,9 @@
 
 'use client';
 
-import { useState } from 'react';
-import { allProducts, currentOrders, deliveredOrders } from '@/lib/data';
+import { useState, useEffect } from 'react';
+import { currentOrders, deliveredOrders } from '@/lib/data';
+import { getProducts } from '@/lib/firebase/service';
 import { notFound, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, CreditCard, MapPin, User, CheckCircle, Package } from 'lucide-react';
@@ -13,7 +14,7 @@ import { Separator } from '@/components/ui/separator';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import type { Order } from '@/lib/types';
+import type { Order, Product } from '@/lib/types';
 
 const OrderDetailHeader = ({orderId}: {orderId: string}) => {
     const router = useRouter();
@@ -34,7 +35,16 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
   const initialOrder = allOrders.find((o) => o.id === params.id);
   
   const [order, setOrder] = useState<Order | undefined>(initialOrder);
+  const [products, setProducts] = useState<Product[]>([]);
   const { toast } = useToast();
+
+  useEffect(() => {
+    async function fetchProducts() {
+        const fetchedProducts = await getProducts();
+        setProducts(fetchedProducts);
+    }
+    fetchProducts();
+  }, []);
 
   if (!order) {
     notFound();
@@ -42,7 +52,7 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
   
   const orderProducts = order.items
     .map(itemName => {
-      const product = allProducts.find(p => p.name === itemName);
+      const product = products.find(p => p.name === itemName);
       // In a real app, you'd probably store quantity and selected variation in the order item
       return product ? { ...product, quantity: 1, variation: product.variations[0] } : null;
     })

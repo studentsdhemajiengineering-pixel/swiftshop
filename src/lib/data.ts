@@ -1,6 +1,7 @@
 
-import type { Order } from '@/lib/types';
+import type { Order, Product } from '@/lib/types';
 import ordersData from './data/orders.json';
+import productsData from './data/products.json';
 
 export const purchaseHistory = [
   'Fresh Vegetables',
@@ -11,3 +12,7 @@ export const purchaseHistory = [
 
 export const currentOrders: Order[] = ordersData.currentOrders;
 export const deliveredOrders: Order[] = ordersData.deliveredOrders;
+export const allProducts: Product[] = productsData.map(p => ({
+  ...p,
+  variations: p.variations.map(v => ({...v, id: v.id || `${p.id}-${v.name}`}))
+}));
