@@ -98,7 +98,7 @@ export default function AdminCategoriesPage() {
     const [categories, setCategories] = useState<Category[]>([]);
     const [loading, setLoading] = useState(true);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const [editingCategory, setEditingCategory] = useState<Partial<Category> | null>(null);
+    const [editingCategory, setEditingCategory] = useState<Category | null>(null);
     const { toast } = useToast();
 
      const fetchPageData = async () => {
@@ -119,10 +119,7 @@ export default function AdminCategoriesPage() {
     }, []);
 
     const handleAddClick = () => {
-        setEditingCategory({
-            name: '',
-            imageUrl: '',
-        });
+        setEditingCategory(null);
         setIsDialogOpen(true);
     };
 
@@ -133,7 +130,7 @@ export default function AdminCategoriesPage() {
 
     const handleDelete = async (categoryId: string) => {
         try {
-            deleteCategory(categoryId);
+            await deleteCategory(categoryId);
             toast({ title: "Category deleted successfully!" });
             fetchPageData();
         } catch (error) {
@@ -155,15 +152,19 @@ export default function AdminCategoriesPage() {
                 const imageUrl = await uploadImage(imageFile, 'categories');
                 finalCategoryData.imageUrl = imageUrl;
             } else if (!finalCategoryData.imageUrl) {
-                toast({ title: "Please upload an image", variant: "destructive" });
+                toast({ title: "Please upload an image for a new category", variant: "destructive" });
                 return;
             }
             
-            if (editingCategory && 'id' in editingCategory && editingCategory.id) {
-                updateCategory(editingCategory.id, finalCategoryData);
+            if (editingCategory) {
+                await updateCategory(editingCategory.id, finalCategoryData);
                 toast({ title: "Category updated successfully!" });
             } else {
-                 addCategory({ name: finalCategoryData.name!, imageUrl: finalCategoryData.imageUrl! });
+                 if (!finalCategoryData.imageUrl) {
+                    toast({ title: "Image is required to create a new category.", variant: "destructive" });
+                    return;
+                }
+                 await addCategory({ name: finalCategoryData.name!, imageUrl: finalCategoryData.imageUrl! });
                  toast({ title: "Category added successfully!" });
             }
             setIsDialogOpen(false);
@@ -270,7 +271,7 @@ export default function AdminCategoriesPage() {
       <Dialog open={isDialogOpen} onOpenChange={(open) => { if(!open) { setIsDialogOpen(false); setEditingCategory(null); } }}>
         <DialogContent>
             <DialogHeader>
-                <DialogTitle>{editingCategory && 'id' in editingCategory && editingCategory.id ? 'Edit Category' : 'Add New Category'}</DialogTitle>
+                <DialogTitle>{editingCategory ? 'Edit Category' : 'Add New Category'}</DialogTitle>
             </DialogHeader>
             {isDialogOpen && (
                 <CategoryForm 

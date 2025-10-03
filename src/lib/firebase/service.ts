@@ -1,3 +1,4 @@
+
 'use client';
 
 import { collection, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc, onSnapshot } from 'firebase/firestore';
@@ -12,7 +13,7 @@ const { firestore, storage } = initializeFirebase();
 const auth = getAuth(initializeFirebase().firebaseApp);
 
 
-export async function uploadImage(file: File, folder: string = 'products'): Promise<string> {
+export async function uploadImage(file: File, folder: string = 'images'): Promise<string> {
     const storageRef = ref(storage, `${folder}/${Date.now()}_${file.name}`);
     await uploadBytes(storageRef, file);
     const downloadURL = await getDownloadURL(storageRef);
@@ -91,7 +92,7 @@ export async function getProduct(id: string): Promise<Product | null> {
     });
 }
 
-export function addProduct(product: Omit<Product, 'id'>) {
+export async function addProduct(product: Omit<Product, 'id'>) {
     const productsCol = collection(firestore, 'products');
     const newProductData = {
         ...product,
@@ -100,17 +101,20 @@ export function addProduct(product: Omit<Product, 'id'>) {
             id: v.id.startsWith('new-') ? `${Date.now()}-${index}` : v.id
         }))
     };
-    addDoc(productsCol, newProductData).catch(async (serverError) => {
+    try {
+        await addDoc(productsCol, newProductData);
+    } catch(serverError) {
         const permissionError = new FirestorePermissionError({
             path: productsCol.path,
             operation: 'create',
             requestResourceData: newProductData,
         });
         errorEmitter.emit('permission-error', permissionError);
-    });
+        throw permissionError;
+    }
 }
 
-export function updateProduct(id: string, product: Partial<Product>) {
+export async function updateProduct(id: string, product: Partial<Product>) {
     const productDoc = doc(firestore, 'products', id);
     const updatedProductData = {
         ...product,
@@ -119,25 +123,31 @@ export function updateProduct(id: string, product: Partial<Product>) {
             id: v.id.startsWith('new-') ? `${id}-${Date.now()}-${index}` : v.id
         }))
     };
-    updateDoc(productDoc, updatedProductData).catch(async (serverError) => {
+     try {
+        await updateDoc(productDoc, updatedProductData)
+    } catch(serverError) {
         const permissionError = new FirestorePermissionError({
             path: productDoc.path,
             operation: 'update',
             requestResourceData: updatedProductData,
         });
         errorEmitter.emit('permission-error', permissionError);
-    });
+        throw permissionError;
+    }
 }
 
-export function deleteProduct(id: string) {
+export async function deleteProduct(id: string) {
     const productDoc = doc(firestore, 'products', id);
-    deleteDoc(productDoc).catch(async (serverError) => {
+    try {
+        await deleteDoc(productDoc);
+    } catch(serverError) {
         const permissionError = new FirestorePermissionError({
             path: productDoc.path,
             operation: 'delete',
         });
         errorEmitter.emit('permission-error', permissionError);
-    });
+        throw permissionError;
+    }
 }
 
 
@@ -163,40 +173,48 @@ export async function getCategories(): Promise<Category[]> {
     });
 }
 
-export function addCategory(category: Omit<Category, 'id'>) {
+export async function addCategory(category: Omit<Category, 'id'>) {
     const categoriesCol = collection(firestore, 'categories');
-    addDoc(categoriesCol, category)
-    .catch(async (serverError) => {
+    try {
+        await addDoc(categoriesCol, category);
+    } catch(serverError) {
         const permissionError = new FirestorePermissionError({
             path: categoriesCol.path,
             operation: 'create',
             requestResourceData: category,
         });
         errorEmitter.emit('permission-error', permissionError);
-    });
+        throw permissionError;
+    }
 }
 
-export function updateCategory(id: string, category: Partial<Category>) {
+export async function updateCategory(id: string, category: Partial<Category>) {
     const categoryDoc = doc(firestore, 'categories', id);
-    updateDoc(categoryDoc, category).catch(async (serverError) => {
+    try {
+        await updateDoc(categoryDoc, category);
+    } catch(serverError) {
         const permissionError = new FirestorePermissionError({
             path: categoryDoc.path,
             operation: 'update',
             requestResourceData: category,
         });
         errorEmitter.emit('permission-error', permissionError);
-    });
+        throw permissionError;
+    }
 }
 
-export function deleteCategory(id: string) {
+export async function deleteCategory(id: string) {
     const categoryDoc = doc(firestore, 'categories', id);
-    deleteDoc(categoryDoc).catch(async (serverError) => {
+    try {
+        await deleteDoc(categoryDoc);
+    } catch(serverError) {
         const permissionError = new FirestorePermissionError({
             path: categoryDoc.path,
             operation: 'delete',
         });
         errorEmitter.emit('permission-error', permissionError);
-    });
+        throw permissionError;
+    }
 }
 
 export async function getOrders(): Promise<Order[]> {
