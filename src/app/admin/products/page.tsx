@@ -1,13 +1,11 @@
 
-
 'use client';
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { PlusCircle, MoreHorizontal } from "lucide-react";
-// import { getProducts, addProduct, updateProduct } from "@/lib/firebase/service";
-import { allProducts } from "@/lib/data";
+import { getProducts, addProduct, updateProduct } from "@/lib/firebase/service";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
@@ -47,7 +45,14 @@ const ProductForm = ({ product, onSave, onCancel }: { product: Partial<Product> 
         
         setFormData(prev => {
             const variations = [...(prev.variations || [])];
-            variations[index] = { ...variations[index], [field]: value };
+            const currentVariation = variations[index] || {};
+            
+            let parsedValue: string | number = value;
+            if (field === 'price' || field === 'inventory' || field === 'originalPrice') {
+                parsedValue = value === '' ? '' : parseFloat(value);
+            }
+
+            variations[index] = { ...currentVariation, [field]: parsedValue };
             return { ...prev, variations };
         });
     }
@@ -71,7 +76,7 @@ const ProductForm = ({ product, onSave, onCancel }: { product: Partial<Product> 
                  <div className="space-y-2">
                     <Label>Variations</Label>
                     <div className="space-y-2">
-                       {(formData.variations || [{} as any]).map((v: any, i: number) => (
+                       {(formData.variations || [{}] as any).map((v: any, i: number) => (
                          <div key={i} className="grid grid-cols-3 gap-2">
                             <Input name={`name-${i}`} placeholder="Name (e.g. 1kg)" value={v.name || ''} onChange={handleVariationChange} />
                             <Input name={`price-${i}`} type="number" placeholder="Price" value={v.price || ''} onChange={handleVariationChange} />
@@ -99,9 +104,15 @@ export default function AdminProductsPage() {
 
      const fetchProducts = async () => {
         setLoading(true);
-        // Using static data for now
-        setProducts(allProducts);
-        setLoading(false);
+        try {
+            const fetchedProducts = await getProducts();
+            setProducts(fetchedProducts);
+        } catch (error) {
+            console.error("Error fetching products:", error);
+            toast({ title: "Error fetching products", variant: "destructive" });
+        } finally {
+            setLoading(false);
+        }
     }
 
     useEffect(() => {
@@ -127,18 +138,17 @@ export default function AdminProductsPage() {
     const handleSave = async (productData: Partial<Product>) => {
         try {
             if (editingProduct && 'id' in editingProduct && editingProduct.id) {
-                // await updateProduct(editingProduct.id, productData);
-                console.log("Updating product (local):", editingProduct.id, productData)
-                toast({ title: "Product updated successfully! (Local)" });
+                await updateProduct(editingProduct.id, productData);
+                toast({ title: "Product updated successfully!" });
             } else {
-                //  await addProduct(productData as Omit<Product, 'id'>);
-                 console.log("Adding product (local):", productData);
-                 toast({ title: "Product added successfully! (Local)" });
+                 await addProduct(productData as Omit<Product, 'id'>);
+                 toast({ title: "Product added successfully!" });
             }
             setIsDialogOpen(false);
             setEditingProduct(null);
             fetchProducts(); // Refresh data
         } catch(e) {
+            console.error("Error saving product:", e);
             toast({ title: "Error saving product", variant: "destructive" });
         }
     };
@@ -246,3 +256,5 @@ export default function AdminProductsPage() {
      </Dialog>
   );
 }
+
+    
