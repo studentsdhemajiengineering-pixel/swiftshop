@@ -8,8 +8,8 @@ import { Header } from '@/components/layout/header';
 import { HeroCarousel } from '@/components/layout/hero-carousel';
 import { PromoGrid } from '@/components/products/promo-grid';
 import { Button } from '@/components/ui/button';
-import { getCategories, getProducts } from '@/lib/firebase/service';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { getCategories, getProducts, getBrandingSettings } from '@/lib/firebase/service';
+import { PlaceHolderImages, type ImagePlaceholder } from '@/lib/placeholder-images';
 import { promoItems } from '@/lib/promo-data';
 import type { Category, Product } from '@/lib/types';
 import Link from 'next/link';
@@ -19,20 +19,36 @@ import { Skeleton } from '@/components/ui/skeleton';
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [branding, setBranding] = useState<{heroImageUrls: string[]}>({heroImageUrls: []});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      const [fetchedProducts, fetchedCategories] = await Promise.all([getProducts(), getCategories()]);
+      const [fetchedProducts, fetchedCategories, fetchedBranding] = await Promise.all([
+          getProducts(), 
+          getCategories(),
+          getBrandingSettings()
+      ]);
       setProducts(fetchedProducts);
       setCategories(fetchedCategories);
+      if (fetchedBranding?.heroImageUrls) {
+        setBranding({heroImageUrls: fetchedBranding.heroImageUrls});
+      }
       setLoading(false);
     }
     fetchData();
   }, []);
 
-  const heroImages = PlaceHolderImages.filter(p => p.id.startsWith('hero-'));
+  const heroImages: ImagePlaceholder[] = branding.heroImageUrls.length > 0
+    ? branding.heroImageUrls.map((url, index) => ({
+        id: `hero-banner-${index}`,
+        imageUrl: url,
+        description: `Hero Banner ${index + 1}`,
+        imageHint: 'hero banner'
+      }))
+    : PlaceHolderImages.filter(p => p.id.startsWith('hero-'));
+
   const popularProducts = products.slice(0, 8);
   const hotDeals = products.filter(p => p.variations.some(v => v.originalPrice)).slice(0, 8);
 
@@ -52,7 +68,7 @@ export default function Home() {
       <main className="flex-1">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <section className="py-4 md:py-6">
-            <HeroCarousel images={heroImages} />
+             {loading ? <Skeleton className="h-56 w-full" /> : <HeroCarousel images={heroImages} />}
           </section>
 
           <section className="py-6">

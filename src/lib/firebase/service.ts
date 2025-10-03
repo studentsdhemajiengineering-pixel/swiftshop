@@ -9,9 +9,8 @@ import type { Product, Category, User } from '@/lib/types';
 import { errorEmitter } from '@/components/firebase/error-emitter';
 import { FirestorePermissionError } from '@/components/firebase/errors';
 
-const { firestore, app } = initializeFirebase();
-const storage: FirebaseStorage = getStorage(app);
-const auth = getAuth(app);
+const { firestore, storage } = initializeFirebase();
+const auth = getAuth(initializeFirebase().app);
 
 
 export async function uploadImage(file: File, folder: string = 'products'): Promise<string> {
@@ -21,13 +20,39 @@ export async function uploadImage(file: File, folder: string = 'products'): Prom
     return downloadURL;
 }
 
+export async function getBrandingSettings(): Promise<{logoUrl?: string, heroImageUrls?: string[]} | null> {
+    return new Promise((resolve, reject) => {
+        const settingsDoc = doc(firestore, 'settings', 'branding');
+        const unsubscribe = onSnapshot(settingsDoc,
+            (snapshot) => {
+                if (snapshot.exists()) {
+                    resolve(snapshot.data() as {logoUrl?: string, heroImageUrls?: string[]});
+                } else {
+                    resolve(null);
+                }
+                unsubscribe();
+            },
+            (error) => {
+                 const permissionError = new FirestorePermissionError({
+                    path: settingsDoc.path,
+                    operation: 'get',
+                });
+                errorEmitter.emit('permission-error', permissionError);
+                reject(permissionError);
+                unsubscribe();
+            }
+        );
+    });
+}
+
 export async function getProducts(): Promise<Product[]> {
     return new Promise((resolve, reject) => {
         const productsCol = collection(firestore, 'products');
-        onSnapshot(productsCol, 
+        const unsubscribe = onSnapshot(productsCol, 
             (snapshot) => {
                 const productList = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as Product));
                 resolve(productList);
+                unsubscribe();
             },
             (error) => {
                 const permissionError = new FirestorePermissionError({
@@ -36,6 +61,7 @@ export async function getProducts(): Promise<Product[]> {
                 });
                 errorEmitter.emit('permission-error', permissionError);
                 reject(permissionError);
+                unsubscribe();
             }
         );
     });
@@ -44,13 +70,14 @@ export async function getProducts(): Promise<Product[]> {
 export async function getProduct(id: string): Promise<Product | null> {
     return new Promise((resolve, reject) => {
         const productDoc = doc(firestore, 'products', id);
-        onSnapshot(productDoc,
+        const unsubscribe = onSnapshot(productDoc,
             (snapshot) => {
                 if (snapshot.exists()) {
                     resolve({ ...snapshot.data(), id: snapshot.id } as Product);
                 } else {
                     resolve(null);
                 }
+                unsubscribe();
             },
             (error) => {
                  const permissionError = new FirestorePermissionError({
@@ -59,6 +86,7 @@ export async function getProduct(id: string): Promise<Product | null> {
                 });
                 errorEmitter.emit('permission-error', permissionError);
                 reject(permissionError);
+                unsubscribe();
             }
         );
     });
@@ -103,10 +131,11 @@ export function deleteProduct(id: string) {
 export async function getCategories(): Promise<Category[]> {
      return new Promise((resolve, reject) => {
         const categoriesCol = collection(firestore, 'categories');
-        onSnapshot(categoriesCol,
+        const unsubscribe = onSnapshot(categoriesCol,
             (snapshot) => {
                 const categoryList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Category));
                 resolve(categoryList);
+                unsubscribe();
             },
             (error) => {
                 const permissionError = new FirestorePermissionError({
@@ -115,6 +144,7 @@ export async function getCategories(): Promise<Category[]> {
                 });
                 errorEmitter.emit('permission-error', permissionError);
                 reject(permissionError);
+                unsubscribe();
             }
         );
     });
@@ -158,23 +188,9 @@ export function deleteCategory(id: string) {
 
 // User Management Functions
 export async function getUsers(): Promise<User[]> {
-    return new Promise((resolve, reject) => {
-        const usersCol = collection(firestore, 'users');
-        onSnapshot(usersCol,
-            (snapshot) => {
-                const userList = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as User));
-                resolve(userList);
-            },
-            (error) => {
-                const permissionError = new FirestorePermissionError({
-                    path: usersCol.path,
-                    operation: 'list',
-                });
-                errorEmitter.emit('permission-error', permissionError);
-                reject(permissionError);
-            }
-        );
-    });
+    const usersCol = collection(firestore, 'users');
+    const snapshot = await getDocs(usersCol);
+    return snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as User));
 }
 
 export function addUser(user: Omit<User, 'id'>) {
@@ -213,24 +229,10 @@ export function deleteUser(id: string) {
 }
 
 export async function getUser(id: string): Promise<User | null> {
-    return new Promise((resolve, reject) => {
-        const userDoc = doc(firestore, 'users', id);
-        onSnapshot(userDoc,
-            (snapshot) => {
-                if (snapshot.exists()) {
-                    resolve({ ...snapshot.data(), id: snapshot.id } as User);
-                } else {
-                    resolve(null);
-                }
-            },
-            (error) => {
-                 const permissionError = new FirestorePermissionError({
-                    path: userDoc.path,
-                    operation: 'get',
-                });
-                errorEmitter.emit('permission-error', permissionError);
-                reject(permissionError);
-            }
-        );
-    });
+    const userDoc = doc(firestore, 'users', id);
+    const snapshot = await getDoc(userDoc);
+    if (snapshot.exists()) {
+        return { ...snapshot.data(), id: snapshot.id } as User;
+    }
+    return null;
 }

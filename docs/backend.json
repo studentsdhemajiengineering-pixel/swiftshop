@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "Product": {
@@ -294,6 +295,27 @@
         "message",
         "timestamp"
       ]
+    },
+    "BrandingSettings": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "BrandingSettings",
+      "type": "object",
+      "description": "Stores branding settings for the application.",
+      "properties": {
+        "logoUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL of the store logo."
+        },
+        "heroImageUrls": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uri"
+          },
+          "description": "An array of URLs for hero section banners."
+        }
+      }
     }
   },
   "auth": {
@@ -334,6 +356,17 @@
               "description": "Unique identifier for the product."
             }
           ]
+        }
+      },
+       {
+        "path": "settings/branding",
+        "definition": {
+          "entityName": "BrandingSettings",
+          "schema": {
+            "$ref": "#/backend/entities/BrandingSettings"
+          },
+          "description": "Stores branding settings. Publicly readable, admin writable.",
+          "params": []
         }
       },
       {
