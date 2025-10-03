@@ -135,7 +135,7 @@ export default function AdminCategoriesPage() {
             fetchPageData();
         } catch (error) {
             console.error("Error deleting category:", error);
-            // Error is handled by the service
+            toast({ title: "Error deleting category", description: (error as Error).message, variant: "destructive" });
         }
     };
 
@@ -151,7 +151,8 @@ export default function AdminCategoriesPage() {
             if (imageFile) {
                 const imageUrl = await uploadImage(imageFile, 'categories');
                 finalCategoryData.imageUrl = imageUrl;
-            } else if (!finalCategoryData.imageUrl) {
+            } else if (editingCategory === null && !imageFile) {
+                // Image is required for new categories.
                 toast({ title: "Please upload an image for a new category", variant: "destructive" });
                 return;
             }
@@ -172,7 +173,7 @@ export default function AdminCategoriesPage() {
             fetchPageData();
         } catch(e) {
             console.error("Error saving category:", e);
-            // Error is handled by the service
+            toast({ title: "Error saving category", description: (e as Error).message, variant: "destructive" });
         }
     };
     

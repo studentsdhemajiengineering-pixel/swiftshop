@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from "react";
@@ -237,7 +238,7 @@ export default function AdminProductsPage() {
             fetchPageData();
         } catch (error) {
             console.error("Error deleting product:", error);
-            // Error is handled by the service
+            toast({ title: "Error deleting product", description: (error as Error).message, variant: "destructive" });
         }
     };
 
@@ -259,10 +260,10 @@ export default function AdminProductsPage() {
             }
 
             if (editingProduct && 'id' in editingProduct && editingProduct.id) {
-                updateProduct(editingProduct.id, finalProductData);
+                await updateProduct(editingProduct.id, finalProductData);
                 toast({ title: "Product updated successfully!" });
             } else {
-                 addProduct(finalProductData as Omit<Product, 'id'>);
+                 await addProduct(finalProductData as Omit<Product, 'id'>);
                  toast({ title: "Product added successfully!" });
             }
             setIsDialogOpen(false);
@@ -270,7 +271,7 @@ export default function AdminProductsPage() {
             fetchPageData();
         } catch(e) {
             console.error("Error saving product:", e);
-            // Error is handled by the service
+            toast({ title: "Error saving product", description: (e as Error).message, variant: "destructive" });
         }
     };
     
