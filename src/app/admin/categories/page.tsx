@@ -166,6 +166,8 @@ export default function AdminCategoriesPage() {
                  if(finalCategoryData.name && finalCategoryData.imageUrl) {
                     addCategory({ name: finalCategoryData.name, imageUrl: finalCategoryData.imageUrl });
                     toast({ title: "Category added successfully!" });
+                 } else {
+                    toast({ title: "Category name and image are required.", variant: "destructive" });
                  }
             }
             setIsDialogOpen(false);
