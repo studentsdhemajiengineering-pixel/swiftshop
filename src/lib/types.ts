@@ -32,7 +32,7 @@ export type CartItem = {
 export type Category = {
     id: string;
     name: string;
-    imageId: string;
+    imageUrl: string;
 };
 
 export type Promo = {

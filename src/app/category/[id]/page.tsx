@@ -1,11 +1,13 @@
 
 'use client';
 
-import { allProducts, categories } from '@/lib/data';
+import { getProducts, getCategories } from '@/lib/firebase/service';
+import type { Product, Category } from '@/lib/types';
 import { notFound, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { ProductGrid } from '@/components/products/product-grid';
+import { useEffect, useState } from 'react';
 
 const CategoryHeader = ({ categoryName }: { categoryName: string }) => {
     const router = useRouter();
@@ -23,20 +25,49 @@ const CategoryHeader = ({ categoryName }: { categoryName: string }) => {
 
 
 export default function CategoryDetailPage({ params }: { params: { id: string } }) {
-  const category = categories.find((c) => c.id === params.id);
+  const [category, setCategory] = useState<Category | null | undefined>(undefined);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      const [allProducts, allCategories] = await Promise.all([getProducts(), getCategories()]);
+      const currentCategory = allCategories.find((c) => c.id === params.id);
+      setCategory(currentCategory);
+
+      if (currentCategory) {
+        const productsInCategory = allProducts.filter(p => p.category === params.id);
+        setProducts(productsInCategory);
+      }
+      setLoading(false);
+    }
+    fetchData();
+  }, [params.id]);
   
+  if (loading) {
+    return (
+        <div className="flex min-h-screen w-full flex-col bg-muted/20">
+            <CategoryHeader categoryName="Loading..." />
+            <main className="flex-1">
+                <div className="container mx-auto px-4 py-6 sm:px-6 lg:px-8">
+                    <p>Loading products...</p>
+                </div>
+            </main>
+        </div>
+    )
+  }
+
   if (!category) {
     notFound();
   }
-
-  const productsInCategory = allProducts.filter(p => p.category === params.id);
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/20">
       <CategoryHeader categoryName={category.name} />
       <main className="flex-1">
         <div className="container mx-auto px-4 py-6 sm:px-6 lg:px-8">
-          <ProductGrid products={productsInCategory} />
+          <ProductGrid products={products} />
         </div>
       </main>
     </div>

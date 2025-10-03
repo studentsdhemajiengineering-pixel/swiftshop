@@ -2,7 +2,7 @@
 'use client';
 
 import { SidebarProvider, Sidebar, SidebarTrigger, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarHeader, SidebarContent, SidebarFooter, SidebarInset } from "@/components/ui/sidebar";
-import { Home, ShoppingCart, Package, Users, Settings, User as UserIcon, LogOut } from "lucide-react";
+import { Home, ShoppingCart, Package, Users, Settings, User as UserIcon, LogOut, Tags } from "lucide-react";
 import { Logo } from "@/components/shared/logo";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
@@ -73,6 +73,7 @@ function AdminLayoutContent({
     const menuItems = [
         { href: "/admin", label: "Dashboard", icon: Home },
         { href: "/admin/products", label: "Products", icon: ShoppingCart },
+        { href: "/admin/categories", label: "Categories", icon: Tags },
         { href: "/admin/orders", label: "Orders", icon: Package },
         { href: "/admin/customers", label: "Customers", icon: Users },
         { href: "/admin/settings", label: "Settings", icon: Settings },

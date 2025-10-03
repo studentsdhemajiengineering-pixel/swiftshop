@@ -1,11 +1,11 @@
 
-import { collection, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc, setDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '@/lib/firebase';
 import type { Product, Category } from '@/lib/types';
 
-export async function uploadImage(file: File): Promise<string> {
-    const storageRef = ref(storage, `products/${Date.now()}_${file.name}`);
+export async function uploadImage(file: File, folder: string = 'products'): Promise<string> {
+    const storageRef = ref(storage, `${folder}/${Date.now()}_${file.name}`);
     await uploadBytes(storageRef, file);
     const downloadURL = await getDownloadURL(storageRef);
     return downloadURL;
@@ -50,4 +50,20 @@ export async function getCategories(): Promise<Category[]> {
     const categorySnapshot = await getDocs(categoriesCol);
     const categoryList = categorySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Category));
     return categoryList;
+}
+
+export async function addCategory(category: Omit<Category, 'id'>): Promise<string> {
+    const categoriesCol = collection(db, 'categories');
+    const docRef = await addDoc(categoriesCol, category);
+    return docRef.id;
+}
+
+export async function updateCategory(id: string, category: Partial<Category>): Promise<void> {
+    const categoryDoc = doc(db, 'categories', id);
+    await updateDoc(categoryDoc, category);
+}
+
+export async function deleteCategory(id: string): Promise<void> {
+    const categoryDoc = doc(db, 'categories', id);
+    await deleteDoc(categoryDoc);
 }

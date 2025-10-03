@@ -1,21 +1,50 @@
 
-import Image from 'next/image';
-import { allProducts, categories } from '@/lib/data';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { Header } from '@/components/layout/header';
-import { CategoryGrid } from '@/components/products/category-grid';
+'use client';
+
 import { ProductCarousel } from '@/components/products/product-carousel';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { PromoGrid } from '@/components/products/promo-grid';
-import { promoItems } from '@/lib/promo-data';
+import { CategoryGrid } from '@/components/products/category-grid';
 import { CategoryCarousel } from '@/components/products/category-carousel';
+import { Header } from '@/components/layout/header';
 import { HeroCarousel } from '@/components/layout/hero-carousel';
+import { PromoGrid } from '@/components/products/promo-grid';
+import { Button } from '@/components/ui/button';
+import { getCategories, getProducts } from '@/lib/firebase/service';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { promoItems } from '@/lib/promo-data';
+import type { Category, Product } from '@/lib/types';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Home() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      const [fetchedProducts, fetchedCategories] = await Promise.all([getProducts(), getCategories()]);
+      setProducts(fetchedProducts);
+      setCategories(fetchedCategories);
+      setLoading(false);
+    }
+    fetchData();
+  }, []);
+
   const heroImages = PlaceHolderImages.filter(p => p.id.startsWith('hero-'));
-  const popularProducts = allProducts.slice(0, 8);
-  const hotDeals = allProducts.filter(p => p.variations.some(v => v.originalPrice)).slice(0, 8);
+  const popularProducts = products.slice(0, 8);
+  const hotDeals = products.filter(p => p.variations.some(v => v.originalPrice)).slice(0, 8);
+
+  const ProductCarouselSkeleton = () => (
+    <div className="flex space-x-4">
+      {[...Array(5)].map((_, i) => (
+        <div key={i} className="w-[45%] sm:w-1/3 md:w-1/4 lg:w-1/5 flex-shrink-0">
+          <Skeleton className="h-[250px] w-full" />
+        </div>
+      ))}
+    </div>
+  );
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/20">
@@ -33,12 +62,34 @@ export default function Home() {
                 <Link href="/categories">See all</Link>
               </Button>
             </div>
-            <div className="md:hidden">
-              <CategoryGrid categories={categories.slice(0, 8)} />
-            </div>
-             <div className="hidden md:block">
-              <CategoryCarousel categories={categories} />
-            </div>
+             {loading ? (
+                <div className="grid grid-cols-4 gap-4 md:hidden">
+                    {[...Array(8)].map((_, i) => (
+                        <div key={i} className="flex flex-col items-center">
+                            <Skeleton className="h-20 w-20 rounded-full" />
+                            <Skeleton className="h-4 w-16 mt-2" />
+                        </div>
+                    ))}
+                </div>
+             ) : (
+                <div className="md:hidden">
+                  <CategoryGrid categories={categories.slice(0, 8)} />
+                </div>
+             )}
+             {loading ? (
+                <div className="hidden md:flex space-x-4">
+                    {[...Array(8)].map((_, i) => (
+                        <div key={i} className="flex flex-col items-center">
+                            <Skeleton className="h-24 w-24 rounded-full" />
+                            <Skeleton className="h-4 w-20 mt-2" />
+                        </div>
+                    ))}
+                </div>
+             ) : (
+                <div className="hidden md:block">
+                  <CategoryCarousel categories={categories} />
+                </div>
+             )}
           </section>
 
           <section className="py-6">
@@ -48,7 +99,7 @@ export default function Home() {
                     <Link href="/categories">See all</Link>
                 </Button>
             </div>
-            <ProductCarousel products={hotDeals} />
+            {loading ? <ProductCarouselSkeleton /> : <ProductCarousel products={hotDeals} />}
           </section>
 
           <section className="py-6">
@@ -62,7 +113,7 @@ export default function Home() {
                     <Link href="/categories">See all</Link>
                 </Button>
             </div>
-            <ProductCarousel products={popularProducts} />
+            {loading ? <ProductCarouselSkeleton /> : <ProductCarousel products={popularProducts} />}
           </section>
 
            <section className="py-6">
@@ -72,7 +123,7 @@ export default function Home() {
                     <Link href="/categories">See all</Link>
                 </Button>
             </div>
-            <ProductCarousel products={allProducts} />
+             {loading ? <ProductCarouselSkeleton /> : <ProductCarousel products={products} />}
           </section>
         </div>
       </main>
