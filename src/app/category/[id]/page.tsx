@@ -66,7 +66,7 @@ export default function CategoryDetailPage({ params }: { params: { id: string } 
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/20">
-      <div className='hidden md:block'><Header /></div>
+      <Header />
       <CategoryHeader categoryName={category.name} />
       <main className="flex-1">
         <div className="container mx-auto px-4 py-6 sm:px-6 lg:px-8">
