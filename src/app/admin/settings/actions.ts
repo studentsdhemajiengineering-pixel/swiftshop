@@ -4,6 +4,7 @@
 
 import { initializeApp, getApps, cert, ServiceAccount } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
+import { getStorage } from 'firebase-admin/storage';
 import productsData from '@/lib/data/products.json';
 import categoriesData from '@/lib/data/categories.json';
 import ordersData from '@/lib/data/orders.json';
@@ -17,15 +18,10 @@ interface SeedResult {
     error?: string;
 }
 
-interface BrandingSettingsPayload {
-    logoUrl: string | null;
-    heroImageUrls: (string | null)[];
-}
-
 interface BrandingSettingsResult {
     success: boolean;
     logoUrl?: string;
-    heroImageUrls?: string[];
+    heroImageUrls?: (string | null)[];
     error?: string;
 }
 
@@ -51,26 +47,59 @@ function initializeAdminApp() {
     }
     return {
         db: getFirestore(),
+        storage: getStorage(),
     };
 }
 
-export async function saveBrandingSettings(payload: BrandingSettingsPayload): Promise<BrandingSettingsResult> {
-    const { db } = initializeAdminApp();
+export async function saveBrandingSettings(formData: FormData): Promise<BrandingSettingsResult> {
+    const { db, storage } = initializeAdminApp();
     
+    const logoFile = formData.get('logo') as File | null;
+    const heroBanners: (File | null)[] = [
+        formData.get('heroBanner0') as File | null,
+        formData.get('heroBanner1') as File | null,
+        formData.get('heroBanner2') as File | null,
+    ];
+
+    let logoUrl: string | undefined = undefined;
+    const heroImageUrls: (string | null)[] = [null, null, null];
+
     try {
+        if (logoFile) {
+            const logoRef = storage.bucket().file(`settings/logo/${Date.now()}_${logoFile.name}`);
+            await logoRef.save(Buffer.from(await logoFile.arrayBuffer()));
+            logoUrl = (await logoRef.getSignedUrl({ action: 'read', expires: '03-09-2491' }))[0];
+        }
+
+        for (let i = 0; i < heroBanners.length; i++) {
+            const file = heroBanners[i];
+            if (file) {
+                const heroRef = storage.bucket().file(`settings/hero/${Date.now()}_${file.name}`);
+                await heroRef.save(Buffer.from(await file.arrayBuffer()));
+                const url = (await heroRef.getSignedUrl({ action: 'read', expires: '03-09-2491' }))[0];
+                heroImageUrls[i] = url;
+            }
+        }
+        
         const settingsRef = db.collection('settings').doc('branding');
+        const currentSettings = (await settingsRef.get()).data() || {};
         
-        const dataToUpdate: { logoUrl?: string, heroImageUrls?: string[] } = {};
+        const dataToUpdate: any = {};
+        if (logoUrl) {
+            dataToUpdate.logoUrl = logoUrl;
+        }
         
-        if (payload.logoUrl) {
-            dataToUpdate.logoUrl = payload.logoUrl;
-        }
+        const finalHeroUrls = currentSettings.heroImageUrls || [];
+        heroImageUrls.forEach((url, index) => {
+            if (url) { // Only update if a new file was uploaded for this slot
+                finalHeroUrls[index] = url;
+            }
+        });
+        dataToUpdate.heroImageUrls = finalHeroUrls.filter((url: string | null) => url !== null);
 
-        if (payload.heroImageUrls) {
-            dataToUpdate.heroImageUrls = payload.heroImageUrls.filter(url => url) as string[];
+        if (Object.keys(dataToUpdate).length > 0) {
+          await settingsRef.set(dataToUpdate, { merge: true });
         }
-
-        await settingsRef.set(dataToUpdate, { merge: true });
 
         const updatedDoc = await settingsRef.get();
         const updatedData = updatedDoc.data();
@@ -150,4 +179,5 @@ export async function seedDatabase(): Promise<SeedResult> {
         return { success: false, error: error.message || "An unknown error occurred during seeding." };
     }
 }
+
 
