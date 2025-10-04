@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { ShoppingBasket } from 'lucide-react';
-import { getBrandingSettings } from '@/lib/firebase/service';
+import { getBrandingSettings } from '@/admin/settings/actions';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 
