@@ -92,25 +92,27 @@ export default function TrackOrderPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user) {
-        const fetchOrders = async () => {
-            setLoading(true);
-            const fetchedOrders = await getOrders();
-            // In a real app, you would fetch orders for the current user
-            // For now, we show all orders if user is admin, or a subset for demo user
-            if (user.isAdmin) {
-                setOrders(fetchedOrders);
-            } else {
-                setOrders(fetchedOrders.filter(o => o.userId === user.uid));
-            }
-            setLoading(false);
+    const fetchOrders = async () => {
+        setLoading(true);
+        const fetchedOrders = await getOrders();
+        // In a real app, you would fetch orders for the current user
+        // For now, we show all orders if user is admin, or a subset for demo user
+        if (user?.isAdmin) {
+            setOrders(fetchedOrders);
+        } else if (user) {
+            setOrders(fetchedOrders.filter(o => o.userId === user.uid));
         }
+        setLoading(false);
+    }
+    
+    if (user) {
         fetchOrders();
-    } else if (!loading && !user) {
-        // If loading is finished and there's no user, clear orders
+    } else {
+        // If there's no user, we assume loading is done and there are no orders.
+        setLoading(false);
         setOrders([]);
     }
-  }, [user, loading]);
+  }, [user]);
 
   const currentOrders = orders.filter(o => o.status !== 'Delivered');
   const deliveredOrders = orders.filter(o => o.status === 'Delivered');
