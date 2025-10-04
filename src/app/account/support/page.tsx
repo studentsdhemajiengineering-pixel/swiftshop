@@ -6,11 +6,12 @@ import { ArrowLeft, ChevronRight, LifeBuoy, MessageSquare, Phone } from 'lucide-
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Header } from '@/components/layout/header';
 
 const SupportHeader = () => {
     const router = useRouter();
     return (
-        <header className="bg-background sticky top-0 z-40 border-b">
+        <header className="bg-background sticky top-0 z-40 border-b md:hidden">
             <div className="container flex h-14 items-center gap-4">
                 <Button variant="ghost" size="icon" onClick={() => router.back()} className="h-8 w-8">
                     <ArrowLeft className="h-5 w-5" />
@@ -36,9 +37,11 @@ const contactOptions = [
 export default function SupportPage() {
   return (
     <div className="flex min-h-screen w-full flex-col bg-background">
+      <div className='hidden md:block'><Header /></div>
       <SupportHeader />
       <main className="flex-1">
         <div className="container mx-auto max-w-2xl px-4 py-6 sm:px-6 lg:px-8">
+            <h1 className="text-2xl font-bold tracking-tight mb-6 hidden md:block">Help & Support</h1>
             <div className="space-y-8">
                 <div>
                     <h2 className="text-xl font-bold mb-4">Frequently Asked Questions</h2>

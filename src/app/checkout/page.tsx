@@ -23,11 +23,12 @@ import { PrivateRoute } from '@/components/auth/private-route';
 import { addOrder } from '@/lib/firebase/service';
 import { useAuth } from '@/hooks/use-auth';
 import type { Order } from '@/lib/types';
+import { Header } from '@/components/layout/header';
 
 const CheckoutHeader = () => {
     const router = useRouter();
     return (
-        <header className="bg-background sticky top-0 z-40 border-b">
+        <header className="bg-background sticky top-0 z-40 border-b md:hidden">
             <div className="container flex h-14 items-center">
                 <Button variant="ghost" size="icon" onClick={() => router.back()} className="mr-2">
                     <ArrowLeft className="h-5 w-5" />
@@ -110,6 +111,7 @@ function CheckoutPageContent() {
   if (cart.length === 0) {
     return (
         <div className="flex min-h-screen w-full flex-col">
+            <div className='hidden md:block'><Header /></div>
             <CheckoutHeader />
             <main className="flex-1 flex items-center justify-center bg-secondary/10">
                 <div className="text-center p-4">
@@ -126,9 +128,11 @@ function CheckoutPageContent() {
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-secondary/10">
+      <div className='hidden md:block'><Header /></div>
       <CheckoutHeader />
       <main className="flex-1">
         <div className="container mx-auto px-4 py-6 sm:px-6 lg:px-8 max-w-2xl">
+          <h1 className="text-2xl font-bold tracking-tight mb-6 hidden md:block">Checkout</h1>
           <div className="space-y-6">
             
             <div>

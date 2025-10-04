@@ -24,11 +24,12 @@ import { Label } from '@/components/ui/label';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Header } from '@/components/layout/header';
 
 const PaymentsHeader = ({ onAdd }: { onAdd: () => void }) => {
     const router = useRouter();
     return (
-        <header className="bg-background sticky top-0 z-40 border-b">
+        <header className="bg-background sticky top-0 z-40 border-b md:hidden">
             <div className="container flex h-14 items-center gap-4">
                 <Button variant="ghost" size="icon" onClick={() => router.back()} className="h-8 w-8">
                     <ArrowLeft className="h-5 w-5" />
@@ -99,9 +100,16 @@ export default function PaymentsPage() {
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
     <div className="flex min-h-screen w-full flex-col bg-muted/20">
+      <div className='hidden md:block'><Header /></div>
       <PaymentsHeader onAdd={() => setIsDialogOpen(true)} />
       <main className="flex-1">
         <div className="container mx-auto max-w-2xl px-4 py-6 sm:px-6 lg:px-8">
+            <div className='flex justify-between items-center mb-6'>
+                <h1 className="text-2xl font-bold tracking-tight hidden md:block">Payment Methods</h1>
+                <Button onClick={() => setIsDialogOpen(true)} className='hidden md:flex'>
+                    <Plus className="mr-2 h-4 w-4" /> Add New Method
+                </Button>
+            </div>
           <div className="space-y-4">
             {methods.map((item) => (
                  <Card key={item.id}>

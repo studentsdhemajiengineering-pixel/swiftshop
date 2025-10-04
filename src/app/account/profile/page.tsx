@@ -9,11 +9,12 @@ import { ArrowLeft, User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
+import { Header } from '@/components/layout/header';
 
 const ProfileHeader = () => {
     const router = useRouter();
     return (
-        <header className="bg-background sticky top-0 z-40 border-b">
+        <header className="bg-background sticky top-0 z-40 border-b md:hidden">
             <div className="container flex h-14 items-center gap-4">
                 <Button variant="ghost" size="icon" onClick={() => router.back()} className="h-8 w-8">
                     <ArrowLeft className="h-5 w-5" />
@@ -38,9 +39,11 @@ export default function ProfilePage() {
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-background">
+      <div className='hidden md:block'><Header /></div>
       <ProfileHeader />
       <main className="flex-1">
         <div className="container mx-auto max-w-2xl px-4 py-6 sm:px-6 lg:px-8">
+          <h1 className="text-2xl font-bold tracking-tight mb-6 hidden md:block">Edit Profile</h1>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="flex flex-col items-center space-y-4">
                 <Avatar className="h-24 w-24">

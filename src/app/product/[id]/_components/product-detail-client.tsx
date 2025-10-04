@@ -19,6 +19,7 @@ import { Label } from '@/components/ui/label';
 import type { Product, ProductVariation } from '@/lib/types';
 import Link from 'next/link';
 import { useCart } from '@/hooks/use-cart';
+import { Header } from '@/components/layout/header';
 
 const ProductDetailHeader = () => {
     const router = useRouter();
@@ -47,6 +48,9 @@ export function ProductDetailClient({ product }: { product: Product }) {
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-background">
+      <div className="hidden md:block">
+        <Header />
+      </div>
       <ProductDetailHeader />
       <main className="flex-1 pt-4 pb-20 md:py-10">
         <div className="container mx-auto max-w-5xl">
