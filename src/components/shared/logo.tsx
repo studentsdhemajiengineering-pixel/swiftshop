@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { ShoppingBasket } from 'lucide-react';
-import { getBrandingSettings } from '@/admin/settings/actions';
+import { getBrandingSettings, getAppSettings } from '@/app/admin/settings/actions';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 
@@ -13,26 +13,32 @@ interface LogoProps {
 
 export function Logo({ onClick }: LogoProps) {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [storeName, setStoreName] = useState('SwiftShop');
 
   useEffect(() => {
-    async function fetchLogo() {
-      const settings = await getBrandingSettings();
-      if (settings?.logoUrl) {
-        setLogoUrl(settings.logoUrl);
+    async function fetchSettings() {
+      const branding = await getBrandingSettings();
+      if (branding?.logoUrl) {
+        setLogoUrl(branding.logoUrl);
+      }
+      
+      const appSettings = await getAppSettings();
+      if (appSettings?.storeSettings?.storeName) {
+          setStoreName(appSettings.storeSettings.storeName);
       }
     }
-    fetchLogo();
+    fetchSettings();
   }, []);
 
   return (
     <Link href="/" className="flex items-center space-x-2" onClick={onClick}>
       {logoUrl ? (
-        <Image src={logoUrl} alt="SwiftShop Logo" width={32} height={32} />
+        <Image src={logoUrl} alt={`${storeName} Logo`} width={32} height={32} />
       ) : (
         <ShoppingBasket className="h-8 w-8 text-primary" />
       )}
       <span className="text-2xl font-bold font-headline text-foreground">
-        SwiftShop
+        {storeName}
       </span>
     </Link>
   );
