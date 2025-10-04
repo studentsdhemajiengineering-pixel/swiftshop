@@ -18,13 +18,8 @@ export default function AdminSettingsPage() {
   const [isSavingApiKeys, setIsSavingApiKeys] = useState(false);
   const [isSavingStoreSettings, setIsSavingStoreSettings] = useState(false);
   
-  const [logoFile, setLogoFile] = useState<File | null>(null);
-  const [logoPreview, setLogoPreview] = useState<string | null>(null);
-  const [currentLogoUrl, setCurrentLogoUrl] = useState<string | null>(null);
-
-  const [heroFiles, setHeroFiles] = useState<(File | null)[]>([null, null, null]);
-  const [heroPreviews, setHeroPreviews] = useState<(string | null)[]>([null, null, null]);
-  const [currentHeroUrls, setCurrentHeroUrls] = useState<string[]>([]);
+  const [logoUrl, setLogoUrl] = useState('');
+  const [heroImageUrls, setHeroImageUrls] = useState<(string | null)[]>(['', '', '']);
   
   const [apiKeys, setApiKeys] = useState({
     googleMapsApiKey: '',
@@ -41,10 +36,14 @@ export default function AdminSettingsPage() {
     async function fetchSettings() {
         const branding = await getBrandingSettings();
         if (branding?.logoUrl) {
-            setCurrentLogoUrl(branding.logoUrl);
+            setLogoUrl(branding.logoUrl);
         }
         if (branding?.heroImageUrls) {
-            setCurrentHeroUrls(branding.heroImageUrls);
+            const urls = [...branding.heroImageUrls];
+            while (urls.length < 3) {
+                urls.push('');
+            }
+            setHeroImageUrls(urls);
         }
 
         const appSettings = await getAppSettings();
@@ -58,47 +57,24 @@ export default function AdminSettingsPage() {
     fetchSettings();
   }, []);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, setter: React.Dispatch<React.SetStateAction<File | null>>, previewSetter: React.Dispatch<React.SetStateAction<string | null>>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setter(file);
-      previewSetter(URL.createObjectURL(file));
-    }
-  };
-
-  const handleHeroFileChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const newFiles = [...heroFiles];
-      newFiles[index] = file;
-      setHeroFiles(newFiles);
-
-      const newPreviews = [...heroPreviews];
-      newPreviews[index] = URL.createObjectURL(file);
-      setHeroPreviews(newPreviews);
-    }
+  const handleHeroUrlChange = (url: string, index: number) => {
+    const newUrls = [...heroImageUrls];
+    newUrls[index] = url;
+    setHeroImageUrls(newUrls);
   };
   
   const handleRemoveHeroImage = (index: number) => {
-    const newFiles = [...heroFiles];
-    newFiles[index] = null;
-    setHeroFiles(newFiles);
-    
-    const newPreviews = [...heroPreviews];
-    newPreviews[index] = null;
-    setHeroPreviews(newPreviews);
-    
-    const newCurrentUrls = [...currentHeroUrls];
-    newCurrentUrls[index] = '';
-    setCurrentHeroUrls(newCurrentUrls);
+    const newUrls = [...heroImageUrls];
+    newUrls[index] = '';
+    setHeroImageUrls(newUrls);
   }
 
   const handleBrandingSave = async () => {
     setIsSavingBranding(true);
     
     const payload = {
-        logo: logoFile,
-        heroBanners: heroFiles
+        logoUrl,
+        heroImageUrls,
     };
 
     try {
@@ -108,12 +84,14 @@ export default function AdminSettingsPage() {
           title: "Branding Updated!",
           description: "Your new logo and hero banners have been saved.",
         });
-        if (result.logoUrl) setCurrentLogoUrl(result.logoUrl);
-        if (result.heroImageUrls) setCurrentHeroUrls(result.heroImageUrls as string[]);
-        setLogoFile(null);
-        setLogoPreview(null);
-        setHeroFiles([null, null, null]);
-        setHeroPreviews([null, null, null]);
+        if (result.logoUrl) setLogoUrl(result.logoUrl);
+        if (result.heroImageUrls) {
+            const urls = [...result.heroImageUrls];
+            while (urls.length < 3) {
+                urls.push('');
+            }
+            setHeroImageUrls(urls as string[]);
+        }
 
       } else {
         throw new Error(result.error);
@@ -205,10 +183,10 @@ export default function AdminSettingsPage() {
             <CardContent className="space-y-6">
                 <div className="space-y-2">
                     <Label htmlFor="logo">Store Logo</Label>
-                    <Input id="logo" type="file" onChange={(e) => handleFileChange(e, setLogoFile, setLogoPreview)} />
-                    {(logoPreview || currentLogoUrl) && (
+                    <Input id="logo" type="text" placeholder="Enter image URL" value={logoUrl} onChange={(e) => setLogoUrl(e.target.value)} />
+                    {logoUrl && (
                         <div className="mt-2 p-2 border rounded-md w-fit">
-                            <Image src={logoPreview || currentLogoUrl!} alt="Logo preview" width={100} height={100} className="object-contain" />
+                            <Image src={logoUrl} alt="Logo preview" width={100} height={100} className="object-contain" />
                         </div>
                     )}
                 </div>
@@ -218,16 +196,16 @@ export default function AdminSettingsPage() {
                         <div key={index} className="space-y-2">
                              <Label htmlFor={`hero-${index}`} className="text-sm font-normal">Banner {index + 1}</Label>
                              <div className="flex items-center gap-2">
-                                <Input id={`hero-${index}`} type="file" onChange={(e) => handleHeroFileChange(e, index)} />
-                                {(heroPreviews[index] || currentHeroUrls[index]) && (
+                                <Input id={`hero-${index}`} type="text" placeholder="Enter image URL" value={heroImageUrls[index] || ''} onChange={(e) => handleHeroUrlChange(e.target.value, index)} />
+                                {heroImageUrls[index] && (
                                     <Button size="icon" variant="ghost" onClick={() => handleRemoveHeroImage(index)}>
                                         <Trash2 className="w-4 h-4 text-destructive" />
                                     </Button>
                                 )}
                              </div>
-                             {(heroPreviews[index] || currentHeroUrls[index]) && (
+                             {heroImageUrls[index] && (
                                 <div className="mt-2 p-2 border rounded-md w-fit">
-                                    <Image src={heroPreviews[index]! || currentHeroUrls[index]!} alt={`Banner ${index+1} preview`} width={200} height={100} className="object-cover rounded-md" />
+                                    <Image src={heroImageUrls[index]!} alt={`Banner ${index+1} preview`} width={200} height={100} className="object-cover rounded-md" />
                                 </div>
                              )}
                         </div>

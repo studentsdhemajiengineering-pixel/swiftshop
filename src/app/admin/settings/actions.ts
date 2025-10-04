@@ -19,8 +19,8 @@ interface SeedResult {
 }
 
 interface BrandingSettingsPayload {
-    logo: File | null;
-    heroBanners: (File | null)[];
+    logoUrl: string | null;
+    heroImageUrls: (string | null)[];
 }
 
 interface BrandingSettingsResult {
@@ -68,43 +68,27 @@ function initializeAdminApp() {
 }
 
 export async function saveBrandingSettings(payload: BrandingSettingsPayload): Promise<BrandingSettingsResult> {
-    const { db, storage } = initializeAdminApp();
+    const { db } = initializeAdminApp();
     
-    let logoUrl: string | undefined = undefined;
-    const heroImageUrls: (string | null)[] = [];
-
     try {
         const settingsRef = db.collection('settings').doc('branding');
-        const currentSettings = (await settingsRef.get()).data() || {};
         
-        if (payload.logo) {
-            const logoRef = storage.bucket().file(`settings/logo/${payload.logo.name}`);
-            await logoRef.save(Buffer.from(await payload.logo.arrayBuffer()));
-            logoUrl = (await logoRef.getSignedUrl({ action: 'read', expires: '03-09-2491' }))[0];
+        const dataToUpdate: { logoUrl?: string | null; heroImageUrls?: (string | null)[] } = {};
+
+        if (payload.logoUrl !== undefined) {
+            dataToUpdate.logoUrl = payload.logoUrl;
         }
 
-        const finalHeroUrls = currentSettings.heroImageUrls || [];
-
-        for (let i = 0; i < payload.heroBanners.length; i++) {
-            const file = payload.heroBanners[i];
-            if (file) {
-                const heroRef = storage.bucket().file(`settings/hero/${file.name}`);
-                await heroRef.save(Buffer.from(await file.arrayBuffer()));
-                const url = (await heroRef.getSignedUrl({ action: 'read', expires: '03-09-2491' }))[0];
-                finalHeroUrls[i] = url;
-            }
+        if (payload.heroImageUrls) {
+            dataToUpdate.heroImageUrls = payload.heroImageUrls.filter(url => url); // Remove empty strings
         }
-        
-        const dataToUpdate: any = {};
-        if (logoUrl) dataToUpdate.logoUrl = logoUrl;
-        dataToUpdate.heroImageUrls = finalHeroUrls.filter(Boolean); // Keep existing, add new
 
         await settingsRef.set(dataToUpdate, { merge: true });
 
         return {
             success: true,
-            logoUrl: dataToUpdate.logoUrl || currentSettings.logoUrl,
-            heroImageUrls: dataToUpdate.heroImageUrls
+            logoUrl: dataToUpdate.logoUrl || undefined,
+            heroImageUrls: dataToUpdate.heroImageUrls || []
         };
     } catch (error: any) {
         console.error('Error saving branding settings:', error);
