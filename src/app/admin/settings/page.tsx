@@ -16,56 +16,52 @@ export default function AdminSettingsPage() {
   const { toast } = useToast();
   const [isSeeding, setIsSeeding] = useState(false);
   const [isSavingBranding, setIsSavingBranding] = useState(false);
-  const [logoPreview, setLogoPreview] = useState<string | null>(null);
-  const [heroPreviews, setHeroPreviews] = useState<(string | null)[]>([]);
-  const [logoFile, setLogoFile] = useState<File | null>(null);
-  const [heroFiles, setHeroFiles] = useState<(File | null)[]>([]);
+  const [logoUrl, setLogoUrl] = useState('');
+  const [heroUrls, setHeroUrls] = useState<string[]>(['', '', '']);
 
   useEffect(() => {
     async function fetchSettings() {
         const settings = await getBrandingSettings();
         if (settings?.logoUrl) {
-            setLogoPreview(settings.logoUrl);
+            setLogoUrl(settings.logoUrl);
         }
         if (settings?.heroImageUrls) {
-            setHeroPreviews(settings.heroImageUrls);
+            const urls = [...settings.heroImageUrls];
+            while (urls.length < 3) {
+                urls.push('');
+            }
+            setHeroUrls(urls.slice(0,3));
         }
     }
     fetchSettings();
   }, []);
 
-  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setLogoFile(file);
-      setLogoPreview(URL.createObjectURL(file));
-    }
-  };
-
   const handleHeroChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      const newFiles = [...heroFiles];
-      newFiles[index] = file;
-      setHeroFiles(newFiles);
-
-      const newPreviews = [...heroPreviews];
-      newPreviews[index] = URL.createObjectURL(file);
-      setHeroPreviews(newPreviews);
-    }
+      const newUrls = [...heroUrls];
+      newUrls[index] = e.target.value;
+      setHeroUrls(newUrls);
   };
 
   const handleBrandingSave = async () => {
     setIsSavingBranding(true);
     try {
-      const result = await saveBrandingSettings({ logo: logoFile, heroBanners: heroFiles });
+      const result = await saveBrandingSettings({ 
+          logoUrl, 
+          heroImageUrls: heroUrls 
+      });
       if (result.success) {
         toast({
           title: "Branding Updated!",
           description: "Your new logo and hero banners have been saved.",
         });
-        if (result.logoUrl) setLogoPreview(result.logoUrl);
-        if (result.heroImageUrls) setHeroPreviews(result.heroImageUrls);
+        if (result.logoUrl) setLogoUrl(result.logoUrl);
+        if (result.heroImageUrls) {
+            const urls = [...result.heroImageUrls];
+            while (urls.length < 3) {
+                urls.push('');
+            }
+            setHeroUrls(urls.slice(0,3));
+        }
       } else {
         throw new Error(result.error);
       }
@@ -112,23 +108,23 @@ export default function AdminSettingsPage() {
             </CardHeader>
             <CardContent className="space-y-6">
                 <div className="space-y-2">
-                    <Label htmlFor="logo-upload">Store Logo</Label>
-                    <Input id="logo-upload" type="file" accept="image/*" onChange={handleLogoChange} />
-                    {logoPreview && (
+                    <Label htmlFor="logo-url">Store Logo URL</Label>
+                    <Input id="logo-url" type="text" placeholder="https://example.com/logo.png" value={logoUrl} onChange={(e) => setLogoUrl(e.target.value)} />
+                    {logoUrl && (
                         <div className="mt-2 p-2 border rounded-md w-fit">
-                            <Image src={logoPreview} alt="Logo preview" width={100} height={100} className="object-contain" />
+                            <Image src={logoUrl} alt="Logo preview" width={100} height={100} className="object-contain" />
                         </div>
                     )}
                 </div>
                 <div className="space-y-4">
-                    <Label>Hero Section Banners</Label>
+                    <Label>Hero Section Banner URLs</Label>
                     {[...Array(3)].map((_, index) => (
                         <div key={index} className="space-y-2">
-                             <Label htmlFor={`hero-upload-${index}`} className="text-sm font-normal">Banner {index + 1}</Label>
-                             <Input id={`hero-upload-${index}`} type="file" accept="image/*" onChange={(e) => handleHeroChange(e, index)} />
-                             {heroPreviews[index] && (
+                             <Label htmlFor={`hero-url-${index}`} className="text-sm font-normal">Banner {index + 1} URL</Label>
+                             <Input id={`hero-url-${index}`} type="text" placeholder="https://example.com/banner.jpg" value={heroUrls[index] || ''} onChange={(e) => handleHeroChange(e, index)} />
+                             {heroUrls[index] && (
                                 <div className="mt-2 p-2 border rounded-md w-fit">
-                                    <Image src={heroPreviews[index]!} alt={`Banner ${index+1} preview`} width={200} height={100} className="object-cover rounded-md" />
+                                    <Image src={heroUrls[index]!} alt={`Banner ${index+1} preview`} width={200} height={100} className="object-cover rounded-md" />
                                 </div>
                              )}
                         </div>

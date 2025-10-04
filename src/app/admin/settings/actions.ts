@@ -4,7 +4,6 @@
 
 import { initializeApp, getApps, cert, ServiceAccount } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
-import { getStorage } from 'firebase-admin/storage';
 import productsData from '@/lib/data/products.json';
 import categoriesData from '@/lib/data/categories.json';
 import ordersData from '@/lib/data/orders.json';
@@ -19,14 +18,14 @@ interface SeedResult {
 }
 
 interface BrandingSettingsPayload {
-    logo: File | null;
-    heroBanners: (File | null)[];
+    logoUrl: string | null;
+    heroImageUrls: (string | null)[];
 }
 
 interface BrandingSettingsResult {
     success: boolean;
     logoUrl?: string;
-    heroImageUrls?: (string | null)[];
+    heroImageUrls?: string[];
     error?: string;
 }
 
@@ -52,56 +51,34 @@ function initializeAdminApp() {
     }
     return {
         db: getFirestore(),
-        storage: getStorage(),
     };
 }
 
 export async function saveBrandingSettings(payload: BrandingSettingsPayload): Promise<BrandingSettingsResult> {
-    const { db, storage } = initializeAdminApp();
+    const { db } = initializeAdminApp();
     
-    let logoUrl: string | undefined = undefined;
-    const heroImageUrls: (string | null)[] = [];
-
     try {
-        if (payload.logo) {
-            const logoRef = storage.bucket().file(`settings/logo/${payload.logo.name}`);
-            await logoRef.save(Buffer.from(await payload.logo.arrayBuffer()));
-            logoUrl = (await logoRef.getSignedUrl({ action: 'read', expires: '03-09-2491' }))[0];
+        const settingsRef = db.collection('settings').doc('branding');
+        
+        const dataToUpdate: { logoUrl?: string, heroImageUrls?: string[] } = {};
+        
+        if (payload.logoUrl) {
+            dataToUpdate.logoUrl = payload.logoUrl;
         }
 
-        for (let i = 0; i < payload.heroBanners.length; i++) {
-            const file = payload.heroBanners[i];
-            if (file) {
-                const heroRef = storage.bucket().file(`settings/hero/${file.name}`);
-                await heroRef.save(Buffer.from(await file.arrayBuffer()));
-                const url = (await heroRef.getSignedUrl({ action: 'read', expires: '03-09-2491' }))[0];
-                heroImageUrls.push(url);
-            } else {
-                 heroImageUrls.push(null);
-            }
+        if (payload.heroImageUrls) {
+            dataToUpdate.heroImageUrls = payload.heroImageUrls.filter(url => url) as string[];
         }
-        
-        const settingsRef = db.collection('settings').doc('branding');
-        const currentSettings = (await settingsRef.get()).data() || {};
-        
-        const dataToUpdate: any = {};
-        if (logoUrl) dataToUpdate.logoUrl = logoUrl;
-        
-        // This logic ensures we only update banners that were changed, preserving old ones.
-        const finalHeroUrls = currentSettings.heroImageUrls || [];
-        heroImageUrls.forEach((url, index) => {
-            if (url) {
-                finalHeroUrls[index] = url;
-            }
-        });
-        dataToUpdate.heroImageUrls = finalHeroUrls;
 
         await settingsRef.set(dataToUpdate, { merge: true });
 
+        const updatedDoc = await settingsRef.get();
+        const updatedData = updatedDoc.data();
+
         return {
             success: true,
-            logoUrl: dataToUpdate.logoUrl || currentSettings.logoUrl,
-            heroImageUrls: dataToUpdate.heroImageUrls
+            logoUrl: updatedData?.logoUrl,
+            heroImageUrls: updatedData?.heroImageUrls
         };
     } catch (error: any) {
         console.error('Error saving branding settings:', error);
@@ -173,3 +150,4 @@ export async function seedDatabase(): Promise<SeedResult> {
         return { success: false, error: error.message || "An unknown error occurred during seeding." };
     }
 }
+
