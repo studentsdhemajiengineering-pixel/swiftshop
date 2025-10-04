@@ -72,18 +72,36 @@ The deployment process remains the same. The Blaze plan ensures your application
 To rebrand and sell this platform to a client, you will need to perform the following steps:
 
 1.  **Create a New Firebase Project for the Client**: Each client must have their own dedicated Firebase project. This ensures data isolation and security.
-2.  **Update Firebase Configuration**:
-    - Go to the new Firebase project's settings and generate a new web app configuration.
+
+2.  **Configure Firebase Authentication**:
+    - In the new Firebase project, navigate to the **Authentication** section.
+    - Go to the **Sign-in method** tab.
+    - Enable the **Phone** provider. This is crucial for the OTP-based login to work.
+    - **Important**: For production apps, you must configure the **reCAPTCHA** settings in Firebase to prevent abuse. Follow Firebase's documentation to link your project with the reCAPTCHA Enterprise API.
+
+3.  **Update Firebase Configuration in Code**:
+    - In the client's Firebase project settings, find your web app and copy the `firebaseConfig` object.
     - Replace the contents of `src/firebase/config.ts` with the new client-specific configuration.
-3.  **Generate a Service Account Key**:
+
+4.  **Generate a Service Account Key**:
     - In the client's Firebase project, go to `Project settings > Service accounts`.
     - Generate a new private key and download the JSON file.
     - **Crucially**, replace the contents of `src/lib/firebase/service-account.json` with the contents of the newly downloaded key file. This grants the admin panel the necessary server-side permissions.
-4.  **Configure Admin Settings**:
-    - Once deployed, log into the admin panel.
+
+5.  **Set Up Payment Gateway (PhonePe)**:
+    - The client needs to sign up for a **PhonePe Merchant Account**.
+    - Once approved, they will receive an **API Key** and **API Secret**.
+    - These credentials must be entered into the admin panel under `Settings > API Keys`. The "Cash on Delivery" option requires no setup.
+
+6.  **Deploy the Application**: Deploy the updated application code to a hosting service, preferably Firebase App Hosting, linked to the client's new Firebase project.
+
+7.  **Configure Admin Settings**:
+    - Once deployed, log into the admin panel (the default admin user is `admin@swiftshop.com` with password `password`).
     - Navigate to the **Settings** page.
-    - **Branding**: Update the Store Logo and Hero Banners with the client's branding assets.
+    - **Branding**: Update the Store Logo and Hero Banners with the client's branding assets by providing image URLs.
     - **Store Settings**: Set the client's store name and desired delivery fee.
-    - **API Keys**: Input the client's unique API keys for services like Google Maps.
-5.  **Seed the Database**: Use the "Seed Database" button in the admin panel to populate the client's new, empty database with a starting set of categories and products, which they can then customize.
-6.  **Handover**: Provide the client with admin credentials and documentation on how to use the admin panel.
+    - **API Keys**: Input the client's unique API keys for services like PhonePe and Google Maps.
+
+8.  **Seed the Database**: Use the "Seed Database" button in the admin panel to populate the client's new, empty database with a starting set of categories and products, which they can then customize.
+
+9.  **Handover**: Provide the client with admin credentials and documentation on how to use the admin panel.
