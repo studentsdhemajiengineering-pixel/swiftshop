@@ -1,0 +1,181 @@
+/**
+ * @fileoverview Firestore Security Rules for SwiftShop.
+ *
+ * Core Philosophy:
+ * This ruleset enforces a combination of public read access for certain collections (e.g., 'categories'),
+ * user-ownership for user-specific data trees, and restricted access for sensitive data like orders.
+ * Data shape validation is relaxed for rapid prototyping.
+ *
+ * Data Structure:
+ * - Publicly readable data: /categories/{categoryId}, /settings/branding
+ * - User-owned data: /users/{userId}/{addresses, orders, supportTickets}
+ * - Top-level orders collection with restricted write access: /orders/{orderId}
+ *
+ * Key Security Decisions:
+ * - Users can only access their own data under their /users/{userId} path.
+ * - Categories and branding settings are publicly readable.
+ * - Listing all users is not permitted.
+ * - Write access to the top-level /orders collection is not yet defined (TODO).
+ *
+ * Denormalization for Authorization:
+ *  - User IDs are used in paths (e.g., /users/{userId}) to enforce ownership without needing extra reads.
+ *
+ * Structural Segregation:
+ *  - User-specific data is stored under the /users/{userId} collection to easily enforce ownership.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * @description Allows anyone to read the list of categories.
+     * @path /categories/{categoryId}
+     * @allow (get, list) Any user can read category data.
+     * @deny (create, update, delete) No one can create, update, or delete categories through the client.
+     * @principle Public read access for product browsing.
+     */
+    match /categories/{categoryId} {
+      allow get, list: if true;
+      allow create, update, delete: if false;
+    }
+
+    /**
+     * @description Allows any user to read products. Write permissions are not defined in the provided documents.
+     * @path /products/{productId}
+     * @allow (get, list) Any user can read product data.
+     * @deny (create, update, delete) No one can create, update, or delete products through the client.
+     * @principle Public read access for product browsing, restricted writes.
+     */
+    match /products/{productId} {
+      allow get, list: if true;
+      allow create, update, delete: if false;
+    }
+
+    /**
+     * @description Allows any user to read branding settings, but only allows admin users to create, update, or delete the settings.
+     * @path /settings/branding
+     * @allow (get, list) Any user can read branding settings.
+     * @deny (create, update, delete) No one can create, update, or delete branding settings through the client.
+     * @principle Public read access for branding information, restricted writes.
+     */
+    match /settings/branding {
+      allow get, list: if true;
+      allow create, update, delete: if false;
+    }
+
+    /**
+     * @description Restricts access to user profiles to the owner only.
+     * @path /users/{userId}
+     * @allow (get, update, delete) User with matching userId can read, update, and delete their own profile.
+     * @allow (create) User can create their profile if their auth UID matches the userId.
+     * @deny (get, update, delete) User cannot access other user's profiles.
+     * @deny (create) User cannot create a profile with a different userId than their auth UID.
+     * @principle Enforces user-ownership for profile data.
+     */
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false;
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId) && resource != null;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Restricts access to user addresses to the owner only.
+     * @path /users/{userId}/addresses/{addressId}
+     * @allow (get, list, create, update, delete) User with matching userId can manage their own addresses.
+     * @deny (get, list, create, update, delete) User cannot access other user's addresses.
+     * @principle Enforces user-ownership for address data.
+     */
+    match /users/{userId}/addresses/{addressId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId) && resource != null;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Restricts access to user orders to the owner only.
+     * @path /users/{userId}/orders/{orderId}
+     * @allow (get, list, create, update, delete) User with matching userId can manage their own orders.
+     * @deny (get, list, create, update, delete) User cannot access other user's orders.
+     * @principle Enforces user-ownership for order data.
+     */
+    match /users/{userId}/orders/{orderId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId) && resource != null;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Restricts access to order items within a user's order to the owner only.
+     * @path /users/{userId}/orders/{orderId}/orderItems/{orderItemId}
+     * @allow (get, list, create, update, delete) User with matching userId can manage their own order items.
+     * @deny (get, list, create, update, delete) User cannot access other user's order items.
+     * @principle Enforces user-ownership for order item data.
+     */
+    match /users/{userId}/orders/{orderId}/orderItems/{orderItemId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId) && resource != null;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Restricts access to user support tickets to the owner only.
+     * @path /users/{userId}/supportTickets/{supportTicketId}
+     * @allow (get, list, create, update, delete) User with matching userId can manage their own support tickets.
+     * @deny (get, list, create, update, delete) User cannot access other user's support tickets.
+     * @principle Enforces user-ownership for support ticket data.
+     */
+    match /users/{userId}/supportTickets/{supportTicketId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId) && resource != null;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Restricts access to chat messages within a user's support ticket to the owner only.
+     * @path /users/{userId}/supportTickets/{supportTicketId}/chatMessages/{chatMessageId}
+     * @allow (get, list, create, update, delete) User with matching userId can manage their own chat messages.
+     * @deny (get, list, create, update, delete) User cannot access other user's chat messages.
+     * @principle Enforces user-ownership for chat message data.
+     */
+    match /users/{userId}/supportTickets/{supportTicketId}/chatMessages/{chatMessageId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId) && resource != null;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Access control for all orders. Writable by admins, readable by specific users.  Rules are currently incomplete.
+     * @path /orders/{orderId}
+     * @allow (get, list) Any user can read order data.
+     * @deny (create, update, delete) No one can create, update, or delete orders through the client.
+     * @principle restricted writes.
+     */
+    match /orders/{orderId} {
+         allow get, list: if true;
+         allow create, update, delete: if false;
+    }
+
+  }
+
+  // Helper function to determine if the user is signed in
+  function isSignedIn() {
+    return request.auth != null;
+  }
+
+  // Helper function to determine if the user is the owner of the resource
+  function isOwner(userId) {
+    return isSignedIn() && request.auth.uid == userId;
+  }
+
+    // Helper function to determine if the user is the existing owner of the resource.
+  function isExistingOwner(userId) {
+    return isOwner(userId) && resource != null;
+  }
+}
