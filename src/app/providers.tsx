@@ -11,7 +11,6 @@ export function AppProviders({ children }: { children: ReactNode }) {
     <AuthProvider>
       <CartProvider>
         {children}
-        <FirebaseErrorListener />
       </CartProvider>
     </AuthProvider>
   );

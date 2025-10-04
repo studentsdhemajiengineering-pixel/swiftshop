@@ -63,11 +63,16 @@ export async function saveBrandingSettings(payload: BrandingSettingsPayload): Pr
     const heroImageUrls: (string | null)[] = [];
 
     try {
+        const settingsRef = db.collection('settings').doc('branding');
+        const currentSettings = (await settingsRef.get()).data() || {};
+        
         if (payload.logo) {
             const logoRef = storage.bucket().file(`settings/logo/${payload.logo.name}`);
             await logoRef.save(Buffer.from(await payload.logo.arrayBuffer()));
             logoUrl = (await logoRef.getSignedUrl({ action: 'read', expires: '03-09-2491' }))[0];
         }
+
+        const finalHeroUrls = currentSettings.heroImageUrls || [];
 
         for (let i = 0; i < payload.heroBanners.length; i++) {
             const file = payload.heroBanners[i];
@@ -75,26 +80,13 @@ export async function saveBrandingSettings(payload: BrandingSettingsPayload): Pr
                 const heroRef = storage.bucket().file(`settings/hero/${file.name}`);
                 await heroRef.save(Buffer.from(await file.arrayBuffer()));
                 const url = (await heroRef.getSignedUrl({ action: 'read', expires: '03-09-2491' }))[0];
-                heroImageUrls.push(url);
-            } else {
-                 heroImageUrls.push(null);
+                finalHeroUrls[i] = url;
             }
         }
         
-        const settingsRef = db.collection('settings').doc('branding');
-        const currentSettings = (await settingsRef.get()).data() || {};
-        
         const dataToUpdate: any = {};
         if (logoUrl) dataToUpdate.logoUrl = logoUrl;
-        
-        // This logic ensures we only update banners that were changed, preserving old ones.
-        const finalHeroUrls = currentSettings.heroImageUrls || [];
-        heroImageUrls.forEach((url, index) => {
-            if (url) {
-                finalHeroUrls[index] = url;
-            }
-        });
-        dataToUpdate.heroImageUrls = finalHeroUrls;
+        dataToUpdate.heroImageUrls = finalHeroUrls.filter(Boolean); // Keep existing, add new
 
         await settingsRef.set(dataToUpdate, { merge: true });
 
@@ -151,12 +143,12 @@ export async function seedDatabase(): Promise<SeedResult> {
         await productsBatch.commit();
         console.log(`${productsData.length} products seeded.`);
         
-        // Seed Orders
+        // Seed Orders for a dummy user, as admin can't place orders via UI
         console.log('Seeding orders...');
         const ordersBatch = db.batch();
         ordersData.forEach(order => {
-            const docRef = db.collection('orders').doc(order.id);
-            ordersBatch.set(docRef, order);
+             const docRef = db.collection('orders').doc(order.id);
+            ordersBatch.set(docRef, { ...order, userId: order.userId || 'dummy-user-id-for-seed' });
         });
         await ordersBatch.commit();
         console.log(`${ordersData.length} orders seeded.`);

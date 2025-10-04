@@ -37,6 +37,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useUsers } from "@/hooks/use-users";
+import { addUser, updateUser, deleteUser } from "@/lib/firebase/service";
 
 
 const UserForm = ({ 
@@ -83,7 +85,7 @@ const UserForm = ({
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="phone">Phone</Label>
-                    <Input id="phone" name="phone" type="tel" value={formData.phone || ''} onChange={handleChange} required />
+                    <Input id="phone" name="phone" type="tel" value={formData.phone || ''} onChange={handleChange} />
                 </div>
             </div>
              <DialogFooter className="mt-6">
@@ -94,17 +96,9 @@ const UserForm = ({
     );
 };
 
-const dummyUsers: User[] = [
-    { id: 'usr_1', firstName: 'Liam', lastName: 'Johnson', email: 'liam@example.com', phone: '+1-202-555-0141' },
-    { id: 'usr_2', firstName: 'Olivia', lastName: 'Smith', email: 'olivia@example.com', phone: '+1-202-555-0192' },
-    { id: 'usr_3', firstName: 'Noah', lastName: 'Williams', email: 'noah@example.com', phone: '+1-202-555-0128' },
-    { id: 'usr_4', firstName: 'Emma', lastName: 'Brown', email: 'emma@example.com', phone: '+1-202-555-0115' },
-    { id: 'usr_5', firstName: 'Oliver', lastName: 'Jones', email: 'oliver@example.com', phone: '+1-202-555-0177' },
-];
 
 export default function AdminCustomersPage() {
-    const [users, setUsers] = useState<User[]>(dummyUsers);
-    const [loading, setLoading] = useState(false);
+    const { users, loading, refetch } = useUsers();
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [editingUser, setEditingUser] = useState<Partial<User> | null>(null);
     const { toast } = useToast();
@@ -120,26 +114,35 @@ export default function AdminCustomersPage() {
     };
 
     const handleDelete = async (userId: string) => {
-        setUsers(users.filter(u => u.id !== userId));
-        toast({ title: "Customer deleted successfully!" });
+        try {
+            await deleteUser(userId);
+            toast({ title: "Customer deleted successfully!" });
+            refetch();
+        } catch (error: any) {
+            toast({ title: "Error deleting customer", description: error.message, variant: "destructive" });
+        }
     };
 
     const handleSave = async (userData: Partial<User>) => {
-        if (!userData.firstName || !userData.lastName || !userData.email || !userData.phone) {
+        if (!userData.firstName || !userData.lastName || !userData.email) {
             toast({ title: "Please fill all required fields", variant: "destructive" });
             return;
         }
 
-        if (editingUser && editingUser.id) {
-            setUsers(users.map(u => u.id === editingUser.id ? { ...u, ...userData } : u));
-            toast({ title: "Customer updated successfully!" });
-        } else {
-             const newUser = { ...userData, id: `usr_${Date.now()}` } as User;
-             setUsers([...users, newUser]);
-             toast({ title: "Customer added successfully!" });
+        try {
+            if (editingUser && editingUser.id) {
+                await updateUser(editingUser.id, userData);
+                toast({ title: "Customer updated successfully!" });
+            } else {
+                 await addUser(userData as Omit<User, 'id'>);
+                 toast({ title: "Customer added successfully!" });
+            }
+            setIsDialogOpen(false);
+            setEditingUser(null);
+            refetch();
+        } catch (error: any) {
+            toast({ title: "Error saving customer", description: error.message, variant: "destructive" });
         }
-        setIsDialogOpen(false);
-        setEditingUser(null);
     };
     
   return (
@@ -194,7 +197,7 @@ export default function AdminCustomersPage() {
                                         </div>
                                     </div>
                                 </TableCell>
-                                <TableCell>{user.phone}</TableCell>
+                                <TableCell>{user.phone || 'N/A'}</TableCell>
                                 <TableCell>
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>

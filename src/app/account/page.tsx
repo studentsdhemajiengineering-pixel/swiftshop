@@ -68,7 +68,7 @@ function AccountPageContent() {
                     <AvatarFallback><User /></AvatarFallback>
                 </Avatar>
                 <div>
-                    <h3 className="font-semibold text-lg">{user?.phoneNumber}</h3>
+                    <h3 className="font-semibold text-lg">{user?.displayName || user?.email || user?.phoneNumber}</h3>
                     <Link href="/account/profile" className="text-sm text-primary">
                         Edit profile
                     </Link>

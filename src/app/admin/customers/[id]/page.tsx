@@ -11,17 +11,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { getOrders } from '@/lib/firebase/service';
+import { getOrders, getUser } from '@/lib/firebase/service';
 import { Skeleton } from '@/components/ui/skeleton';
-
-const dummyUsers: User[] = [
-    { id: 'usr_1', firstName: 'Liam', lastName: 'Johnson', email: 'liam@example.com', phone: '+1-202-555-0141' },
-    { id: 'usr_2', firstName: 'Olivia', lastName: 'Smith', email: 'olivia@example.com', phone: '+1-202-555-0192' },
-    { id: 'usr_3', firstName: 'Noah', lastName: 'Williams', email: 'noah@example.com', phone: '+1-202-555-0128' },
-    { id: 'usr_4', firstName: 'Emma', lastName: 'Brown', email: 'emma@example.com', phone: '+1-202-555-0115' },
-    { id: 'usr_5', firstName: 'Oliver', lastName: 'Jones', email: 'oliver@example.com', phone: '+1-202-555-0177' },
-];
-
 
 const CustomerDetailHeader = () => {
     const router = useRouter();
@@ -38,35 +29,37 @@ const CustomerDetailHeader = () => {
 };
 
 export default function CustomerDetailPage({ params }: { params: { id: string } }) {
-  const user = dummyUsers.find(u => u.id === params.id);
+  const [user, setUser] = useState<User | null>(null);
   const [userOrders, setUserOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchOrders = async () => {
+    const fetchCustomerData = async () => {
       setLoading(true);
-      const allOrders = await getOrders();
-      // In a real app, the user ID would match the Firebase Auth UID.
-      // For this demo with dummy users, we'll just assign some orders.
-      const customerId = user?.id; 
-      if (customerId === 'usr_1') { // Liam Johnson
-          setUserOrders(allOrders.filter(o => o.customerName === 'Liam Johnson'));
-      } else if (customerId === 'usr_2') { // Olivia Smith
-          setUserOrders(allOrders.filter(o => o.customerName === 'Olivia Smith'));
-      } else if (customerId === 'usr_3') { // Noah Williams
-          setUserOrders(allOrders.filter(o => o.customerName === 'Noah Williams'));
-      } else if (customerId === 'usr_4') { // Emma Brown
-          setUserOrders(allOrders.filter(o => o.customerName === 'Emma Brown'));
-      } else {
-          setUserOrders([]);
+      const fetchedUser = await getUser(params.id);
+      if (fetchedUser) {
+        setUser(fetchedUser);
+        const allOrders = await getOrders();
+        setUserOrders(allOrders.filter(o => o.userId === fetchedUser.id));
       }
       setLoading(false);
     };
 
-    if(user) {
-        fetchOrders();
-    }
-  }, [user]);
+    fetchCustomerData();
+  }, [params.id]);
+
+  if (loading) {
+    return (
+        <div className="flex min-h-screen w-full flex-col bg-muted/20">
+            <CustomerDetailHeader />
+            <main className="flex-1">
+                <div className="container mx-auto max-w-4xl px-4 py-6 sm:px-6 lg:px-8">
+                    <p>Loading customer details...</p>
+                </div>
+            </main>
+        </div>
+    );
+  }
 
   if (!user) {
     notFound();
@@ -104,7 +97,7 @@ export default function CustomerDetailPage({ params }: { params: { id: string } 
                                 </div>
                                  <div className="flex items-center gap-3">
                                     <Phone className="h-5 w-5 text-muted-foreground" />
-                                    <span className="text-sm">{user.phone}</span>
+                                    <span className="text-sm">{user.phone || 'N/A'}</span>
                                 </div>
                             </CardContent>
                         </Card>
@@ -126,16 +119,7 @@ export default function CustomerDetailPage({ params }: { params: { id: string } 
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {loading ? (
-                                            [...Array(2)].map((_, i) => (
-                                                <TableRow key={i}>
-                                                    <TableCell><Skeleton className="h-5 w-20" /></TableCell>
-                                                    <TableCell><Skeleton className="h-6 w-24 rounded-full" /></TableCell>
-                                                    <TableCell><Skeleton className="h-5 w-16" /></TableCell>
-                                                    <TableCell><Skeleton className="h-8 w-14" /></TableCell>
-                                                </TableRow>
-                                            ))
-                                        ) : userOrders.length > 0 ? (
+                                        {userOrders.length > 0 ? (
                                             userOrders.map(order => (
                                                 <TableRow key={order.id}>
                                                     <TableCell className="font-medium">#{order.id}</TableCell>

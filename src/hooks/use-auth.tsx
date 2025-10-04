@@ -49,6 +49,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (fbUser) {
             const augmentedUser: AuthContextType['user'] = {
                 ...fbUser,
+                uid: fbUser.uid, // ensure uid is always present
                 isAdmin: fbUser.email === ADMIN_EMAIL
             };
             setUser(augmentedUser);
@@ -141,7 +142,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     <AuthContext.Provider
       value={{
         user,
-        isAuthenticated: !!user && !user.isAnonymous,
+        isAuthenticated: !!user,
         loading,
         confirmationResult,
         signInWithPhoneNumber,
