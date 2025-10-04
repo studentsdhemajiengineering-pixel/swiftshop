@@ -316,6 +316,27 @@
           "description": "An array of URLs for hero section banners."
         }
       }
+    },
+    "ApiKeys": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ApiKeys",
+      "type": "object",
+      "description": "Stores API keys for third-party services.",
+      "properties": {
+        "googleMapsApiKey": { "type": "string" },
+        "phonePeApiKey": { "type": "string" },
+        "phonePeApiSecret": { "type": "string" }
+      }
+    },
+    "StoreSettings": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "StoreSettings",
+      "type": "object",
+      "description": "Stores general store settings.",
+      "properties": {
+        "storeName": { "type": "string" },
+        "deliveryFee": { "type": "number" }
+      }
     }
   },
   "auth": {
@@ -336,6 +357,14 @@
     "/settings/branding": {
       "schema": { "$ref": "#/entities/BrandingSettings"},
       "description": "Stores branding settings. Publicly readable, admin writable."
+    },
+    "/settings/apiKeys": {
+        "schema": { "$ref": "#/entities/ApiKeys" },
+        "description": "Stores API keys. Admin writable."
+    },
+    "/settings/store": {
+        "schema": { "$ref": "#/entities/StoreSettings" },
+        "description": "Stores store settings. Admin writable."
     },
     "/users/{userId}": {
       "schema": { "$ref": "#/entities/User"},

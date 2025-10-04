@@ -4,6 +4,7 @@
 
 import { initializeApp, getApps, cert, ServiceAccount } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
+import { getStorage } from 'firebase-admin/storage';
 import productsData from '@/lib/data/products.json';
 import categoriesData from '@/lib/data/categories.json';
 import ordersData from '@/lib/data/orders.json';
@@ -18,15 +19,26 @@ interface SeedResult {
 }
 
 interface BrandingSettingsPayload {
-    logoUrl?: string;
-    heroImageUrls?: string[];
+    logo: File | null;
+    heroBanners: (File | null)[];
 }
 
 interface BrandingSettingsResult {
     success: boolean;
     logoUrl?: string;
-    heroImageUrls?: string[];
+    heroImageUrls?: (string | null)[];
     error?: string;
+}
+
+interface ApiKeysPayload {
+    googleMapsApiKey?: string;
+    phonePeApiKey?: string;
+    phonePeApiSecret?: string;
+}
+
+interface StoreSettingsPayload {
+    storeName?: string;
+    deliveryFee?: number;
 }
 
 // A simple check to see if the service account is populated
@@ -42,6 +54,7 @@ function initializeAdminApp() {
         try {
             initializeApp({
                 credential: cert(serviceAccount as ServiceAccount),
+                storageBucket: `${(serviceAccount as any).project_id}.appspot.com`,
             });
         } catch (e: any) {
             console.error("Firebase initialization failed:", e);
@@ -50,32 +63,48 @@ function initializeAdminApp() {
     }
     return {
         db: getFirestore(),
+        storage: getStorage(),
     };
 }
 
 export async function saveBrandingSettings(payload: BrandingSettingsPayload): Promise<BrandingSettingsResult> {
-    const { db } = initializeAdminApp();
+    const { db, storage } = initializeAdminApp();
     
+    let logoUrl: string | undefined = undefined;
+    const heroImageUrls: (string | null)[] = [];
+
     try {
         const settingsRef = db.collection('settings').doc('branding');
+        const currentSettings = (await settingsRef.get()).data() || {};
         
-        const dataToUpdate: BrandingSettingsPayload = {};
-        if (payload.logoUrl) {
-            dataToUpdate.logoUrl = payload.logoUrl;
+        if (payload.logo) {
+            const logoRef = storage.bucket().file(`settings/logo/${payload.logo.name}`);
+            await logoRef.save(Buffer.from(await payload.logo.arrayBuffer()));
+            logoUrl = (await logoRef.getSignedUrl({ action: 'read', expires: '03-09-2491' }))[0];
         }
-        if (payload.heroImageUrls) {
-            dataToUpdate.heroImageUrls = payload.heroImageUrls;
+
+        const finalHeroUrls = currentSettings.heroImageUrls || [];
+
+        for (let i = 0; i < payload.heroBanners.length; i++) {
+            const file = payload.heroBanners[i];
+            if (file) {
+                const heroRef = storage.bucket().file(`settings/hero/${file.name}`);
+                await heroRef.save(Buffer.from(await file.arrayBuffer()));
+                const url = (await heroRef.getSignedUrl({ action: 'read', expires: '03-09-2491' }))[0];
+                finalHeroUrls[i] = url;
+            }
         }
+        
+        const dataToUpdate: any = {};
+        if (logoUrl) dataToUpdate.logoUrl = logoUrl;
+        dataToUpdate.heroImageUrls = finalHeroUrls.filter(Boolean); // Keep existing, add new
 
         await settingsRef.set(dataToUpdate, { merge: true });
 
-        const updatedDoc = await settingsRef.get();
-        const updatedData = updatedDoc.data();
-
         return {
             success: true,
-            logoUrl: updatedData?.logoUrl,
-            heroImageUrls: updatedData?.heroImageUrls
+            logoUrl: dataToUpdate.logoUrl || currentSettings.logoUrl,
+            heroImageUrls: dataToUpdate.heroImageUrls
         };
     } catch (error: any) {
         console.error('Error saving branding settings:', error);
@@ -95,6 +124,42 @@ export async function getBrandingSettings(): Promise<{logoUrl?: string, heroImag
     } catch (error) {
         console.error("Error fetching branding settings:", error);
         return null;
+    }
+}
+
+export async function getAppSettings(): Promise<{ apiKeys: ApiKeysPayload, storeSettings: StoreSettingsPayload } | null> {
+    try {
+       const { db } = initializeAdminApp();
+       const apiKeysDoc = await db.collection('settings').doc('apiKeys').get();
+       const storeSettingsDoc = await db.collection('settings').doc('store').get();
+       
+       return {
+           apiKeys: apiKeysDoc.exists ? apiKeysDoc.data() as ApiKeysPayload : {},
+           storeSettings: storeSettingsDoc.exists ? storeSettingsDoc.data() as StoreSettingsPayload : {}
+       };
+   } catch (error) {
+       console.error("Error fetching app settings:", error);
+       return null;
+   }
+}
+
+export async function saveApiKeys(payload: ApiKeysPayload): Promise<{ success: boolean; error?: string }> {
+    const { db } = initializeAdminApp();
+    try {
+        await db.collection('settings').doc('apiKeys').set(payload, { merge: true });
+        return { success: true };
+    } catch (error: any) {
+        return { success: false, error: error.message };
+    }
+}
+
+export async function saveStoreSettings(payload: StoreSettingsPayload): Promise<{ success: boolean; error?: string }> {
+    const { db } = initializeAdminApp();
+    try {
+        await db.collection('settings').doc('store').set(payload, { merge: true });
+        return { success: true };
+    } catch (error: any) {
+        return { success: false, error: error.message };
     }
 }
 
@@ -125,12 +190,12 @@ export async function seedDatabase(): Promise<SeedResult> {
         await productsBatch.commit();
         console.log(`${productsData.length} products seeded.`);
         
-        // Seed Orders
+        // Seed Orders for a dummy user, as admin can't place orders via UI
         console.log('Seeding orders...');
         const ordersBatch = db.batch();
         ordersData.forEach(order => {
-            const docRef = db.collection('orders').doc(order.id);
-            ordersBatch.set(docRef, order);
+             const docRef = db.collection('orders').doc(order.id);
+            ordersBatch.set(docRef, { ...order, userId: order.userId || 'dummy-user-id-for-seed' });
         });
         await ordersBatch.commit();
         console.log(`${ordersData.length} orders seeded.`);
