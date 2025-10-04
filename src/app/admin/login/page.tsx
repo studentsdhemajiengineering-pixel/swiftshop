@@ -13,8 +13,8 @@ import { Loader2 } from 'lucide-react';
 import { Logo } from '@/components/shared/logo';
 
 export default function AdminLoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('admin@swiftshop.com');
+  const [password, setPassword] = useState('password');
   const [loading, setLoading] = useState(false);
 
   const router = useRouter();
@@ -52,7 +52,7 @@ export default function AdminLoginPage() {
             <CardTitle className="text-2xl font-bold">Admin Login</CardTitle>
             <CardDescription>
                 Enter your credentials to access the dashboard. <br />
-                 <span className="text-xs text-muted-foreground">(For demo, use email <b>admin@swiftshop.com</b> and password <b>password</b>)</span>
+                 <span className="text-xs text-muted-foreground">(Use email <b>admin@swiftshop.com</b> and password <b>password</b>)</span>
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">

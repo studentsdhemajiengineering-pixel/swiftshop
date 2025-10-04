@@ -9,8 +9,8 @@ import type { Product, Category, User, Order } from '@/lib/types';
 import { errorEmitter } from '@/components/firebase/error-emitter';
 import { FirestorePermissionError } from '@/components/firebase/errors';
 
-const { firestore, storage } = initializeFirebase();
-const auth = getAuth(initializeFirebase().firebaseApp);
+const { firestore, storage, firebaseApp } = initializeFirebase();
+const auth = getAuth(firebaseApp);
 
 
 export async function uploadImage(file: File): Promise<string> {
@@ -200,10 +200,10 @@ export async function getOrders(): Promise<Order[]> {
     if (!currentUser) {
         return [];
     }
-
-    const isAdmin = currentUser.email === 'admin@swiftshop.com';
+    
     const ordersCol = collection(firestore, 'orders');
     
+    const isAdmin = currentUser.email === 'admin@swiftshop.com';
     const ordersQuery = isAdmin 
         ? ordersCol
         : query(ordersCol, where("userId", "==", currentUser.uid));
@@ -243,7 +243,9 @@ export async function getOrder(id: string): Promise<Order | null> {
 export async function addOrder(order: Omit<Order, 'id'>) {
     const ordersCol = collection(firestore, 'orders');
     try {
-        await addDoc(ordersCol, order);
+        // Use a generated ID for the new document
+        const newOrderRef = doc(collection(firestore, 'orders'));
+        await addDoc(ordersCol, { ...order, id: newOrderRef.id });
     } catch(serverError) {
         const permissionError = new FirestorePermissionError({
             path: ordersCol.path,
