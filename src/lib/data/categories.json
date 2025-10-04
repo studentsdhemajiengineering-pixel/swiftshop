@@ -1,11 +1,11 @@
 
 [
-  { "id": "vegetables-fruits", "name": "Vegetables & Fruits", "imageId": "cat-vegetables-fruits" },
-  { "id": "atta-rice-dal", "name": "Atta, Rice & Dal", "imageId": "cat-atta-rice-dal" },
-  { "id": "oil-ghee-masala", "name": "Oil, Ghee & Masala", "imageId": "cat-oil-ghee-masala" },
-  { "id": "dairy-bread-eggs", "name": "Dairy, Bread & Eggs", "imageId": "cat-dairy-bread-eggs" },
-  { "id": "bakery-biscuits", "name": "Bakery & Biscuits", "imageId": "cat-bakery-biscuits" },
-  { "id": "dry-fruits-cereals", "name": "Dry Fruits & Cereals", "imageId": "cat-dry-fruits-cereals" },
-  { "id": "chicken-meat-fish", "name": "Chicken, Meat & Fish", "imageId": "cat-chicken-meat-fish" },
-  { "id": "kitchenware", "name": "Kitchenware", "imageId": "cat-kitchenware" }
+  { "id": "vegetables-fruits", "name": "Vegetables & Fruits", "imageId": "cat-vegetables-fruits", "imageUrl": "https://images.unsplash.com/photo-1668080319913-a9d378495096?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHx2ZWdldGFibGVzJTIwZnJ1aXRzfGVufDB8fHx8MTc1OTEzOTIyNHww&ixlib=rb-4.1.0&q=80&w=1080" },
+  { "id": "atta-rice-dal", "name": "Atta, Rice & Dal", "imageId": "cat-atta-rice-dal", "imageUrl": "https://images.unsplash.com/photo-1707339088654-117df66bd55c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8cmljZSUyMGRhbHxlbnwwfHx8fDE3NTkxMzkyMjR8MA&ixlib=rb-4.1.0&q=80&w=1080" },
+  { "id": "oil-ghee-masala", "name": "Oil, Ghee & Masala", "imageId": "cat-oil-ghee-masala", "imageUrl": "https://images.unsplash.com/photo-1640900725886-ef063ffcc29e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxvaWwlMjBnaGVlfGVufDB8fHx8MTc1OTEzOTIyNHww&ixlib-rb-4.1.0&q=80&w=1080" },
+  { "id": "dairy-bread-eggs", "name": "Dairy, Bread & Eggs", "imageId": "cat-dairy-bread-eggs", "imageUrl": "https://images.unsplash.com/photo-1710389205434-1ecc531d364d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxkYWlyeSUyMGVnZ3N8ZW58MHx8fHwxNzU5MTM5MjI0fDA&ixlibrb-4.1.0&q=80&w=1080" },
+  { "id": "bakery-biscuits", "name": "Bakery & Biscuits", "imageId": "cat-bakery-biscuits", "imageUrl": "https://images.unsplash.com/photo-1641642400096-8a17cceb41cb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxiYWtlcnklMjBiaXNjdWl0c3xlbnwwfHx8fDE3NTkxMzkyMjR8MA&ixlib-rb-4.1.0&q=80&w=1080" },
+  { "id": "dry-fruits-cereals", "name": "Dry Fruits & Cereals", "imageId": "cat-dry-fruits-cereals", "imageUrl": "https://images.unsplash.com/photo-1598371624473-4d95aca694e3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxkcnklMjBmcnVpdHN8ZW58MHx8fHwxNzU5MTM5MjI0fDA&ixlib-rb-4.1.0&q=80&w=1080" },
+  { "id": "chicken-meat-fish", "name": "Chicken, Meat & Fish", "imageId": "cat-chicken-meat-fish", "imageUrl": "https://images.unsplash.com/photo-1690983321750-ad6f6d59a84b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxyYXclMjBtZWF0fGVufDB8fHx8MTc1OTEyNDMzOXww&ixlib-rb-4.1.0&q=80&w=1080" },
+  { "id": "kitchenware", "name": "Kitchenware", "imageId": "cat-kitchenware", "imageUrl": "https://images.unsplash.com/photo-1556909211-36987daf7b4d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8a2l0Y2hlbndhcmV8ZW58MHx8fHwxNzU5MDg1Njc4fDA&ixlib-rb-4.1.0&q=80&w=1080" }
 ]
