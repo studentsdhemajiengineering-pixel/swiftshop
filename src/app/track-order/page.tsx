@@ -12,7 +12,7 @@ import { getOrders } from '@/lib/firebase/service';
 import type { Order } from '@/lib/types';
 import { format } from 'date-fns';
 import { useEffect, useState } from 'react';
-import { useAuth } from '@/hooks/use-auth';
+import { useFirebase } from '@/firebase';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const OrderCard = ({ order }: { order: Order }) => {
@@ -87,7 +87,7 @@ const OrderListSkeleton = () => (
 );
 
 export default function TrackOrderPage() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, isUserLoading: authLoading } = useFirebase();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 

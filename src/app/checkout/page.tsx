@@ -21,7 +21,7 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { PrivateRoute } from '@/components/auth/private-route';
 import { addOrder } from '@/lib/firebase/service';
-import { useAuth } from '@/hooks/use-auth';
+import { useFirebase } from '@/firebase';
 import type { Order } from '@/lib/types';
 import { Header } from '@/components/layout/header';
 
@@ -41,7 +41,7 @@ const CheckoutHeader = () => {
 
 function CheckoutPageContent() {
   const { state, dispatch } = useCart();
-  const { user } = useAuth();
+  const { user } = useFirebase();
   const { cart } = state;
   const router = useRouter();
   const { toast } = useToast();

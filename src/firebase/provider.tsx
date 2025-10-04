@@ -1,10 +1,32 @@
+
 'use client';
 
 import React, { DependencyList, createContext, useContext, ReactNode, useMemo, useState, useEffect } from 'react';
 import { FirebaseApp } from 'firebase/app';
 import { Firestore } from 'firebase/firestore';
-import { Auth, User, onAuthStateChanged } from 'firebase/auth';
-import { FirebaseErrorListener } from '@/components/FirebaseErrorListener'
+import {
+    Auth,
+    User,
+    onAuthStateChanged,
+    RecaptchaVerifier,
+    signInWithPhoneNumber as firebaseSignInWithPhoneNumber,
+    createUserWithEmailAndPassword as firebaseCreateUserWithEmailAndPassword,
+    signInWithEmailAndPassword as firebaseSignInWithEmailAndPassword,
+    signInAnonymously,
+    signOut,
+    type ConfirmationResult
+} from 'firebase/auth';
+import { FirebaseErrorListener } from '@/components/FirebaseErrorListener';
+
+// This needs to be in the global scope for the reCAPTCHA to work.
+declare global {
+  interface Window {
+    recaptchaVerifier?: RecaptchaVerifier;
+    confirmationResult?: ConfirmationResult;
+  }
+}
+
+const ADMIN_EMAIL = 'admin@swiftshop.com';
 
 interface FirebaseProviderProps {
   children: ReactNode;
@@ -13,40 +35,27 @@ interface FirebaseProviderProps {
   auth: Auth;
 }
 
+// User object augmented with isAdmin flag
+type AppUser = User & { isAdmin?: boolean };
+
 // Internal state for user authentication
 interface UserAuthState {
-  user: User | null;
+  user: AppUser | null;
   isUserLoading: boolean;
   userError: Error | null;
 }
 
 // Combined state for the Firebase context
-export interface FirebaseContextState {
-  areServicesAvailable: boolean; // True if core services (app, firestore, auth instance) are provided
+export interface FirebaseContextState extends UserAuthState {
+  areServicesAvailable: boolean;
   firebaseApp: FirebaseApp | null;
   firestore: Firestore | null;
-  auth: Auth | null; // The Auth service instance
-  // User authentication state
-  user: User | null;
-  isUserLoading: boolean; // True during initial auth check
-  userError: Error | null; // Error from auth listener
-}
-
-// Return type for useFirebase()
-export interface FirebaseServicesAndUser {
-  firebaseApp: FirebaseApp;
-  firestore: Firestore;
-  auth: Auth;
-  user: User | null;
-  isUserLoading: boolean;
-  userError: Error | null;
-}
-
-// Return type for useUser() - specific to user auth state
-export interface UserHookResult { // Renamed from UserAuthHookResult for consistency if desired, or keep as UserAuthHookResult
-  user: User | null;
-  isUserLoading: boolean;
-  userError: Error | null;
+  auth: Auth | null;
+  // Auth methods
+  signInWithPhoneNumber: (phoneNumber: string) => Promise<void>;
+  verifyOtp: (otp: string) => Promise<void>;
+  signInWithEmailAndPassword: (email: string, pass: string) => Promise<void>;
+  logout: () => Promise<void>;
 }
 
 // React Context
@@ -63,33 +72,102 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
 }) => {
   const [userAuthState, setUserAuthState] = useState<UserAuthState>({
     user: null,
-    isUserLoading: true, // Start loading until first auth event
+    isUserLoading: true,
     userError: null,
   });
+  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
 
-  // Effect to subscribe to Firebase auth state changes
   useEffect(() => {
-    if (!auth) { // If no Auth service instance, cannot determine user state
-      setUserAuthState({ user: null, isUserLoading: false, userError: new Error("Auth service not provided.") });
-      return;
-    }
-
-    setUserAuthState({ user: null, isUserLoading: true, userError: null }); // Reset on auth instance change
-
-    const unsubscribe = onAuthStateChanged(
-      auth,
-      (firebaseUser) => { // Auth state determined
-        setUserAuthState({ user: firebaseUser, isUserLoading: false, userError: null });
-      },
-      (error) => { // Auth listener error
+    const unsubscribe = onAuthStateChanged(auth, (fbUser) => {
+      if (fbUser) {
+        const augmentedUser: AppUser = {
+          ...fbUser,
+          uid: fbUser.uid,
+          isAdmin: fbUser.email === ADMIN_EMAIL,
+        };
+        setUserAuthState({ user: augmentedUser, isUserLoading: false, userError: null });
+      } else {
+        signInAnonymously(auth).catch(error => {
+          console.error("Anonymous sign in failed:", error);
+           setUserAuthState({ user: null, isUserLoading: false, userError: error });
+        });
+        setUserAuthState({ user: null, isUserLoading: false, userError: null });
+      }
+    }, (error) => {
         console.error("FirebaseProvider: onAuthStateChanged error:", error);
         setUserAuthState({ user: null, isUserLoading: false, userError: error });
-      }
-    );
-    return () => unsubscribe(); // Cleanup
-  }, [auth]); // Depends on the auth instance
+    });
 
-  // Memoize the context value
+    return () => unsubscribe();
+  }, [auth]);
+
+  const setupRecaptcha = () => {
+    if (typeof window !== 'undefined' && !window.recaptchaVerifier) {
+        window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+        'size': 'invisible',
+        'callback': () => console.log("reCAPTCHA solved"),
+        'expired-callback': () => {
+            console.log("reCAPTCHA expired");
+            if (window.recaptchaVerifier) {
+              window.recaptchaVerifier.clear();
+            }
+        }
+      });
+    }
+    return window.recaptchaVerifier;
+  };
+
+  const methods = useMemo(() => ({
+    signInWithPhoneNumber: async (phoneNumber: string): Promise<void> => {
+        const appVerifier = setupRecaptcha();
+        try {
+            const result = await firebaseSignInWithPhoneNumber(auth, phoneNumber, appVerifier);
+            setConfirmationResult(result);
+            window.confirmationResult = result; // Also store on window for resilience
+        } catch (error) {
+            console.error("Error during signInWithPhoneNumber", error);
+            if (window.recaptchaVerifier) {
+                window.recaptchaVerifier.clear();
+            }
+            throw error;
+        }
+    },
+    verifyOtp: async (otp: string): Promise<void> => {
+        const confirmation = confirmationResult || window.confirmationResult;
+        if (!confirmation) {
+            throw new Error("No confirmation result available. Please send OTP first.");
+        }
+        await confirmation.confirm(otp);
+        setConfirmationResult(null);
+        if (window.confirmationResult) {
+            window.confirmationResult = undefined;
+        }
+    },
+    signInWithEmailAndPassword: async (email: string, pass: string): Promise<void> => {
+        try {
+            await firebaseSignInWithEmailAndPassword(auth, email, pass);
+        } catch (error: any) {
+            if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+                if (email === ADMIN_EMAIL) {
+                    try {
+                        await firebaseCreateUserWithEmailAndPassword(auth, email, pass);
+                    } catch (creationError) {
+                        console.error("Failed to create admin user:", creationError);
+                        throw creationError;
+                    }
+                } else {
+                    throw error;
+                }
+            } else {
+                throw error;
+            }
+        }
+    },
+    logout: async () => {
+        await signOut(auth);
+    }
+  }), [auth, confirmationResult]);
+
   const contextValue = useMemo((): FirebaseContextState => {
     const servicesAvailable = !!(firebaseApp && firestore && auth);
     return {
@@ -97,11 +175,10 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
       firebaseApp: servicesAvailable ? firebaseApp : null,
       firestore: servicesAvailable ? firestore : null,
       auth: servicesAvailable ? auth : null,
-      user: userAuthState.user,
-      isUserLoading: userAuthState.isUserLoading,
-      userError: userAuthState.userError,
+      ...userAuthState,
+      ...methods,
     };
-  }, [firebaseApp, firestore, auth, userAuthState]);
+  }, [firebaseApp, firestore, auth, userAuthState, methods]);
 
   return (
     <FirebaseContext.Provider value={contextValue}>
@@ -111,47 +188,41 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
   );
 };
 
-/**
- * Hook to access core Firebase services and user authentication state.
- * Throws error if core services are not available or used outside provider.
- */
-export const useFirebase = (): FirebaseServicesAndUser => {
+export const useFirebase = (): FirebaseContextState => {
   const context = useContext(FirebaseContext);
-
   if (context === undefined) {
     throw new Error('useFirebase must be used within a FirebaseProvider.');
   }
-
-  if (!context.areServicesAvailable || !context.firebaseApp || !context.firestore || !context.auth) {
-    throw new Error('Firebase core services not available. Check FirebaseProvider props.');
-  }
-
-  return {
-    firebaseApp: context.firebaseApp,
-    firestore: context.firestore,
-    auth: context.auth,
-    user: context.user,
-    isUserLoading: context.isUserLoading,
-    userError: context.userError,
-  };
+  return context;
 };
 
-/** Hook to access Firebase Auth instance. */
+// Simplified hooks
 export const useAuth = (): Auth => {
   const { auth } = useFirebase();
+  if (!auth) throw new Error("Auth service not available");
   return auth;
 };
 
-/** Hook to access Firestore instance. */
 export const useFirestore = (): Firestore => {
   const { firestore } = useFirebase();
+  if (!firestore) throw new Error("Firestore service not available");
   return firestore;
 };
 
-/** Hook to access Firebase App instance. */
 export const useFirebaseApp = (): FirebaseApp => {
   const { firebaseApp } = useFirebase();
+  if (!firebaseApp) throw new Error("Firebase App not available");
   return firebaseApp;
+};
+
+export type UserHookResult = {
+  user: AppUser | null;
+  isUserLoading: boolean;
+  userError: Error | null;
+};
+export const useUser = (): UserHookResult => {
+  const { user, isUserLoading, userError } = useFirebase();
+  return { user, isUserLoading, userError };
 };
 
 type MemoFirebase <T> = T & {__memo?: boolean};
@@ -164,13 +235,3 @@ export function useMemoFirebase<T>(factory: () => T, deps: DependencyList): T | 
   
   return memoized;
 }
-
-/**
- * Hook specifically for accessing the authenticated user's state.
- * This provides the User object, loading status, and any auth errors.
- * @returns {UserHookResult} Object with user, isUserLoading, userError.
- */
-export const useUser = (): UserHookResult => { // Renamed from useAuthUser
-  const { user, isUserLoading, userError } = useFirebase(); // Leverages the main hook
-  return { user, isUserLoading, userError };
-};

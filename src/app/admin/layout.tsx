@@ -5,7 +5,7 @@ import { SidebarProvider, Sidebar, SidebarTrigger, SidebarMenu, SidebarMenuItem,
 import { Home, ShoppingCart, Package, Users, Settings, User as UserIcon, LogOut, Tags } from "lucide-react";
 import { Logo } from "@/components/shared/logo";
 import { usePathname, useRouter } from "next/navigation";
-import { useAuth } from "@/hooks/use-auth";
+import { useFirebase } from '@/firebase';
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -19,7 +19,7 @@ import { Button } from "@/components/ui/button";
 import { PrivateRoute } from "@/components/auth/private-route";
 
 function AdminHeader() {
-    const { user, logout } = useAuth();
+    const { user, logout } = useFirebase();
     const router = useRouter();
 
     const handleLogout = async () => {

@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/hooks/use-auth';
+import { useFirebase } from '@/firebase';
 import { PrivateRoute } from '@/components/auth/private-route';
 import { Header } from '@/components/layout/header';
 
@@ -45,7 +45,7 @@ const settingsItems = [
 ];
 
 function AccountPageContent() {
-    const { user, logout } = useAuth();
+    const { user, logout } = useFirebase();
     const router = useRouter();
 
     const handleLogout = async () => {

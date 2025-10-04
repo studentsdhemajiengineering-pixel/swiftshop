@@ -10,7 +10,6 @@ export function useUsers() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
-  const { toast } = useToast();
 
   const refetch = useCallback(async () => {
     setLoading(true);
@@ -24,7 +23,7 @@ export function useUsers() {
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  }, []);
 
   useEffect(() => {
     refetch();

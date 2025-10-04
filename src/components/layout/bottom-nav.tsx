@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home, List, Package, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useAuth } from '@/hooks/use-auth';
+import { useFirebase } from '@/firebase';
 
 const navItems = [
   { href: '/', label: 'Home', icon: Home },
@@ -16,7 +16,7 @@ const navItems = [
 
 export function BottomNav() {
   const pathname = usePathname();
-  const { user } = useAuth();
+  const { user } = useFirebase();
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-background border-t shadow-top md:hidden z-50">

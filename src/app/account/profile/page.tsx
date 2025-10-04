@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { ArrowLeft, User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/hooks/use-auth';
+import { useFirebase } from '@/firebase';
 import { Header } from '@/components/layout/header';
 
 const ProfileHeader = () => {
@@ -27,7 +27,7 @@ const ProfileHeader = () => {
 
 export default function ProfilePage() {
     const { toast } = useToast();
-    const { user } = useAuth();
+    const { user } = useFirebase();
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();

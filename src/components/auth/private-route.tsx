@@ -3,17 +3,17 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/hooks/use-auth';
+import { useFirebase } from '@/firebase';
 import { Loader2 } from 'lucide-react';
 
 export const PrivateRoute = ({ children, adminOnly = false }: { children: React.ReactNode, adminOnly?: boolean }) => {
-  const { isAuthenticated, loading, user } = useAuth();
+  const { user, isUserLoading } = useFirebase();
   const router = useRouter();
 
   useEffect(() => {
-    if (loading) return;
+    if (isUserLoading) return;
 
-    if (!isAuthenticated) {
+    if (!user) {
       if (adminOnly) {
         router.push('/admin/login');
       } else {
@@ -22,13 +22,13 @@ export const PrivateRoute = ({ children, adminOnly = false }: { children: React.
       return;
     }
     
-    if (adminOnly && user?.email !== 'admin@swiftshop.com') {
+    if (adminOnly && user.email !== 'admin@swiftshop.com') {
        router.push('/admin/login');
     }
 
-  }, [isAuthenticated, loading, router, adminOnly, user]);
+  }, [user, isUserLoading, router, adminOnly]);
 
-  if (loading || !isAuthenticated || (adminOnly && user?.email !== 'admin@swiftshop.com')) {
+  if (isUserLoading || !user || (adminOnly && user.email !== 'admin@swiftshop.com')) {
     return (
       <div className="flex min-h-screen w-full items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />

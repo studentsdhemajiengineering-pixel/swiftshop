@@ -9,9 +9,8 @@ import type { Product, Category, User, Order } from '@/lib/types';
 import { errorEmitter } from '@/components/firebase/error-emitter';
 import { FirestorePermissionError } from '@/components/firebase/errors';
 
-const { firestore, storage, firebaseApp } = initializeFirebase();
-const auth = getAuth(firebaseApp);
-
+// This ensures Firebase is initialized on the client before these functions are called.
+const getFirebaseServices = () => initializeFirebase();
 
 export async function uploadImage(file: File): Promise<string> {
     // Convert file to Base64 Data URL.
@@ -27,6 +26,7 @@ export async function uploadImage(file: File): Promise<string> {
 }
 
 export async function getBrandingSettings(): Promise<{logoUrl?: string, heroImageUrls?: string[]} | null> {
+    const { firestore } = getFirebaseServices();
     try {
         const settingsDoc = doc(firestore, 'settings', 'branding');
         const snapshot = await getDoc(settingsDoc);
@@ -45,6 +45,7 @@ export async function getBrandingSettings(): Promise<{logoUrl?: string, heroImag
 }
 
 export async function getProducts(): Promise<Product[]> {
+    const { firestore } = getFirebaseServices();
     try {
         const productsCol = collection(firestore, 'products');
         const snapshot = await getDocs(productsCol);
@@ -60,6 +61,7 @@ export async function getProducts(): Promise<Product[]> {
 }
 
 export async function getProduct(id: string): Promise<Product | null> {
+     const { firestore } = getFirebaseServices();
      try {
         const productDoc = doc(firestore, 'products', id);
         const snapshot = await getDoc(productDoc);
@@ -78,6 +80,7 @@ export async function getProduct(id: string): Promise<Product | null> {
 }
 
 export async function addProduct(product: Omit<Product, 'id'>) {
+    const { firestore } = getFirebaseServices();
     const productsCol = collection(firestore, 'products');
     const newProductData = {
         ...product,
@@ -100,6 +103,7 @@ export async function addProduct(product: Omit<Product, 'id'>) {
 }
 
 export async function updateProduct(id: string, product: Partial<Product>) {
+    const { firestore } = getFirebaseServices();
     const productDoc = doc(firestore, 'products', id);
     const updatedProductData = {
         ...product,
@@ -122,6 +126,7 @@ export async function updateProduct(id: string, product: Partial<Product>) {
 }
 
 export async function deleteProduct(id: string) {
+    const { firestore } = getFirebaseServices();
     const productDoc = doc(firestore, 'products', id);
     try {
         await deleteDoc(productDoc);
@@ -137,6 +142,7 @@ export async function deleteProduct(id: string) {
 
 
 export async function getCategories(): Promise<Category[]> {
+    const { firestore } = getFirebaseServices();
     try {
         const categoriesCol = collection(firestore, 'categories');
         const snapshot = await getDocs(categoriesCol);
@@ -152,6 +158,7 @@ export async function getCategories(): Promise<Category[]> {
 }
 
 export async function addCategory(category: Omit<Category, 'id'>) {
+    const { firestore } = getFirebaseServices();
     const categoriesCol = collection(firestore, 'categories');
     try {
         await addDoc(categoriesCol, category);
@@ -167,6 +174,7 @@ export async function addCategory(category: Omit<Category, 'id'>) {
 }
 
 export async function updateCategory(id: string, category: Partial<Category>) {
+    const { firestore } = getFirebaseServices();
     const categoryDoc = doc(firestore, 'categories', id);
     try {
         await updateDoc(categoryDoc, category);
@@ -182,6 +190,7 @@ export async function updateCategory(id: string, category: Partial<Category>) {
 }
 
 export async function deleteCategory(id: string) {
+    const { firestore } = getFirebaseServices();
     const categoryDoc = doc(firestore, 'categories', id);
     try {
         await deleteDoc(categoryDoc);
@@ -196,6 +205,7 @@ export async function deleteCategory(id: string) {
 }
 
 export async function getOrders(): Promise<Order[]> {
+    const { firestore, auth } = getFirebaseServices();
     const currentUser = auth.currentUser;
     if (!currentUser) {
         return [];
@@ -223,6 +233,7 @@ export async function getOrders(): Promise<Order[]> {
 }
 
 export async function getOrder(id: string): Promise<Order | null> {
+    const { firestore, auth } = getFirebaseServices();
     try {
         const orderDoc = doc(firestore, 'orders', id);
         const snapshot = await getDoc(orderDoc);
@@ -248,6 +259,7 @@ export async function getOrder(id: string): Promise<Order | null> {
 }
 
 export async function addOrder(order: Omit<Order, 'id'>) {
+    const { firestore } = getFirebaseServices();
     const ordersCol = collection(firestore, 'orders');
     try {
         await addDoc(ordersCol, order);
@@ -263,6 +275,7 @@ export async function addOrder(order: Omit<Order, 'id'>) {
 }
 
 export function updateOrder(id: string, orderUpdate: Partial<Order>) {
+    const { firestore } = getFirebaseServices();
     const orderDoc = doc(firestore, 'orders', id);
     updateDoc(orderDoc, orderUpdate).catch(async (serverError) => {
         const permissionError = new FirestorePermissionError({
@@ -277,12 +290,14 @@ export function updateOrder(id: string, orderUpdate: Partial<Order>) {
 
 // User Management Functions
 export async function getUsers(): Promise<User[]> {
+    const { firestore } = getFirebaseServices();
     const usersCol = collection(firestore, 'users');
     const snapshot = await getDocs(usersCol);
     return snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as User));
 }
 
 export function addUser(user: Omit<User, 'id'>) {
+    const { firestore } = getFirebaseServices();
     const usersCol = collection(firestore, 'users');
     addDoc(usersCol, user).catch(async (serverError) => {
         const permissionError = new FirestorePermissionError({
@@ -295,6 +310,7 @@ export function addUser(user: Omit<User, 'id'>) {
 }
 
 export function updateUser(id: string, user: Partial<User>) {
+    const { firestore } = getFirebaseServices();
     const userDoc = doc(firestore, 'users', id);
     updateDoc(userDoc, user).catch(async (serverError) => {
         const permissionError = new FirestorePermissionError({
@@ -307,6 +323,7 @@ export function updateUser(id: string, user: Partial<User>) {
 }
 
 export function deleteUser(id: string) {
+    const { firestore } = getFirebaseServices();
     const userDoc = doc(firestore, 'users', id);
     deleteDoc(userDoc).catch(async (serverError) => {
         const permissionError = new FirestorePermissionError({
@@ -318,6 +335,7 @@ export function deleteUser(id: string) {
 }
 
 export async function getUser(id: string): Promise<User | null> {
+    const { firestore } = getFirebaseServices();
     const userDoc = doc(firestore, 'users', id);
     const snapshot = await getDoc(userDoc);
     if (snapshot.exists()) {
