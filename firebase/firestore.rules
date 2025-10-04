@@ -2,180 +2,185 @@
  * @fileoverview Firestore Security Rules for SwiftShop.
  *
  * Core Philosophy:
- * This ruleset enforces a combination of public read access for certain collections (e.g., 'categories'),
- * user-ownership for user-specific data trees, and restricted access for sensitive data like orders.
- * Data shape validation is relaxed for rapid prototyping.
+ * This ruleset prioritizes user data protection, enforcing strict ownership for user-related data while allowing public read access to certain collections like 'categories' and 'settings'.
  *
  * Data Structure:
- * - Publicly readable data: /categories/{categoryId}, /settings/branding
- * - User-owned data: /users/{userId}/{addresses, orders, supportTickets}
- * - Top-level orders collection with restricted write access: /orders/{orderId}
+ * - Users: /users/{userId} - User profiles.
+ * - Addresses: /users/{userId}/addresses/{addressId} - User's addresses.
+ * - Orders: /users/{userId}/orders/{orderId} - User's orders.
+ * - Order Items: /users/{userId}/orders/{orderId}/orderItems/{orderItemId} - Items within an order.
+ * - Support Tickets: /users/{userId}/supportTickets/{supportTicketId} - User's support tickets.
+ * - Chat Messages: /users/{userId}/supportTickets/{supportTicketId}/chatMessages/{chatMessageId} - Messages within a support ticket.
+ * - Categories: /categories/{categoryId} - Grocery categories.
+ * - Products: /products/{productId} - Product details.
+ * - Branding Settings: /settings/branding - Application branding settings.
  *
  * Key Security Decisions:
- * - Users can only access their own data under their /users/{userId} path.
- * - Categories and branding settings are publicly readable.
- * - Listing all users is not permitted.
- * - Write access to the top-level /orders collection is not yet defined (TODO).
+ * - Strict User Ownership: All data nested under /users/{userId} is strictly controlled by the authenticated user matching the userId.
+ * - Publicly Readable Collections: 'categories' and 'settings/branding' are publicly readable.
+ * - No User Listing: Listing all users is not permitted to protect user privacy.
+ * - Admin Role (Future): The ruleset anticipates future expansion with admin roles for managing all orders.
  *
  * Denormalization for Authorization:
- *  - User IDs are used in paths (e.g., /users/{userId}) to enforce ownership without needing extra reads.
- *
- * Structural Segregation:
- *  - User-specific data is stored under the /users/{userId} collection to easily enforce ownership.
+ * The current ruleset relies on path-based authorization and assumes that the `userId` is correctly embedded within the document path.
  */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * @description Allows anyone to read the list of categories.
+     * @description Checks if the request is authenticated.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * @description Checks if the authenticated user ID matches the provided user ID.
+     */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /**
+     * @description Checks if the authenticated user is the owner and the resource exists.
+     */
+    function isExistingOwner(userId) {
+        return isOwner(userId) && resource != null;
+    }
+
+    /**
+     * @description Rules for the /categories collection.
      * @path /categories/{categoryId}
-     * @allow (get, list) Any user can read category data.
-     * @deny (create, update, delete) No one can create, update, or delete categories through the client.
-     * @principle Public read access for product browsing.
+     * @allow (get, list): Any user can read categories to browse.
+     * @deny (create, update, delete): Only admins can manage categories (currently disabled, requires admin role implementation).
+     * @principle Public Read, Admin Write (future)
      */
     match /categories/{categoryId} {
       allow get, list: if true;
-      allow create, update, delete: if false;
+      allow create, update, delete: if false; // TODO: Add admin role check
     }
 
     /**
-     * @description Allows any user to read products. Write permissions are not defined in the provided documents.
+     * @description Rules for the /products collection.
      * @path /products/{productId}
-     * @allow (get, list) Any user can read product data.
-     * @deny (create, update, delete) No one can create, update, or delete products through the client.
-     * @principle Public read access for product browsing, restricted writes.
+     * @allow (get, list): Any user can read products.
+     * @deny (create, update, delete): Only admins can manage products (currently disabled, requires admin role implementation).
+     * @principle Public Read, Admin Write (future)
      */
     match /products/{productId} {
       allow get, list: if true;
-      allow create, update, delete: if false;
+      allow create, update, delete: if false; // TODO: Add admin role check
     }
 
     /**
-     * @description Allows any user to read branding settings, but only allows admin users to create, update, or delete the settings.
+     * @description Rules for the /settings/branding document.
      * @path /settings/branding
-     * @allow (get, list) Any user can read branding settings.
-     * @deny (create, update, delete) No one can create, update, or delete branding settings through the client.
-     * @principle Public read access for branding information, restricted writes.
+     * @allow (get): Any user can read the branding settings.
+     * @deny (create, update, delete): Only admins can modify branding settings (currently disabled, requires admin role implementation).
+     * @principle Public Read, Admin Write (future)
      */
     match /settings/branding {
-      allow get, list: if true;
-      allow create, update, delete: if false;
+      allow get: if true;
+      allow create, update, delete: if false; // TODO: Add admin role check
     }
 
     /**
-     * @description Restricts access to user profiles to the owner only.
+     * @description Rules for the /users collection.
      * @path /users/{userId}
-     * @allow (get, update, delete) User with matching userId can read, update, and delete their own profile.
-     * @allow (create) User can create their profile if their auth UID matches the userId.
-     * @deny (get, update, delete) User cannot access other user's profiles.
-     * @deny (create) User cannot create a profile with a different userId than their auth UID.
-     * @principle Enforces user-ownership for profile data.
+     * @allow (create): Allows a user to create their own profile if the userId matches their auth UID.
+     * @allow (get, update, delete): Only the user can access and modify their own profile.
+     * @deny (list): Listing all users is not allowed.
+     * @principle User Ownership
      */
     match /users/{userId} {
       allow get: if isOwner(userId);
       allow list: if false;
-      allow create: if isOwner(userId);
-      allow update: if isOwner(userId) && resource != null;
+      allow create: if isOwner(userId) && request.resource.data.id == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
       allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Restricts access to user addresses to the owner only.
+     * @description Rules for the /users/{userId}/addresses collection.
      * @path /users/{userId}/addresses/{addressId}
-     * @allow (get, list, create, update, delete) User with matching userId can manage their own addresses.
-     * @deny (get, list, create, update, delete) User cannot access other user's addresses.
-     * @principle Enforces user-ownership for address data.
+     * @allow (get, list, create, update, delete): Only the user can manage their own addresses.
+     * @principle User Ownership
      */
     match /users/{userId}/addresses/{addressId} {
-      allow get, list: if isOwner(userId);
-      allow create: if isOwner(userId);
-      allow update: if isOwner(userId) && resource != null;
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.userId == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
       allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Restricts access to user orders to the owner only.
+     * @description Rules for the /users/{userId}/orders collection.
      * @path /users/{userId}/orders/{orderId}
-     * @allow (get, list, create, update, delete) User with matching userId can manage their own orders.
-     * @deny (get, list, create, update, delete) User cannot access other user's orders.
-     * @principle Enforces user-ownership for order data.
+     * @allow (get, list, create, update, delete): Only the user can manage their own orders.
+     * @principle User Ownership
      */
     match /users/{userId}/orders/{orderId} {
-      allow get, list: if isOwner(userId);
-      allow create: if isOwner(userId);
-      allow update: if isOwner(userId) && resource != null;
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.userId == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
       allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Restricts access to order items within a user's order to the owner only.
+     * @description Rules for the /users/{userId}/orders/{orderId}/orderItems collection.
      * @path /users/{userId}/orders/{orderId}/orderItems/{orderItemId}
-     * @allow (get, list, create, update, delete) User with matching userId can manage their own order items.
-     * @deny (get, list, create, update, delete) User cannot access other user's order items.
-     * @principle Enforces user-ownership for order item data.
+     * @allow (get, list, create, update, delete): Only the user can manage their own order items.
+     * @principle User Ownership
      */
     match /users/{userId}/orders/{orderId}/orderItems/{orderItemId} {
-      allow get, list: if isOwner(userId);
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
       allow create: if isOwner(userId);
-      allow update: if isOwner(userId) && resource != null;
+      allow update: if isExistingOwner(userId);
       allow delete: if isExistingOwner(userId);
     }
 
-    /**
-     * @description Restricts access to user support tickets to the owner only.
+   /**
+     * @description Rules for the /users/{userId}/supportTickets collection.
      * @path /users/{userId}/supportTickets/{supportTicketId}
-     * @allow (get, list, create, update, delete) User with matching userId can manage their own support tickets.
-     * @deny (get, list, create, update, delete) User cannot access other user's support tickets.
-     * @principle Enforces user-ownership for support ticket data.
+     * @allow (get, list, create, update, delete): Only the user can manage their own support tickets.
+     * @principle User Ownership
      */
     match /users/{userId}/supportTickets/{supportTicketId} {
-      allow get, list: if isOwner(userId);
-      allow create: if isOwner(userId);
-      allow update: if isOwner(userId) && resource != null;
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.userId == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
       allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Restricts access to chat messages within a user's support ticket to the owner only.
+     * @description Rules for the /users/{userId}/supportTickets/{supportTicketId}/chatMessages collection.
      * @path /users/{userId}/supportTickets/{supportTicketId}/chatMessages/{chatMessageId}
-     * @allow (get, list, create, update, delete) User with matching userId can manage their own chat messages.
-     * @deny (get, list, create, update, delete) User cannot access other user's chat messages.
-     * @principle Enforces user-ownership for chat message data.
+     * @allow (get, list, create, update, delete): Only the user can access their own chat messages.
+     * @principle User Ownership
      */
     match /users/{userId}/supportTickets/{supportTicketId}/chatMessages/{chatMessageId} {
-      allow get, list: if isOwner(userId);
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
       allow create: if isOwner(userId);
-      allow update: if isOwner(userId) && resource != null;
+      allow update: if isExistingOwner(userId);
       allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Access control for all orders. Writable by admins, readable by specific users.  Rules are currently incomplete.
+     * @description Rules for the /orders collection.
      * @path /orders/{orderId}
-     * @allow (get, list) Any user can read order data.
-     * @deny (create, update, delete) No one can create, update, or delete orders through the client.
-     * @principle restricted writes.
+     * @allow (get, list): specific users can read their own orders.
+     * @deny (create, update, delete): Only admins can manage orders (currently disabled, requires admin role implementation).
+     * @principle Admin Write, Specific User Read (future)
      */
     match /orders/{orderId} {
-         allow get, list: if true;
-         allow create, update, delete: if false;
+      allow get, list: if false; // TODO: Add logic for user to read specific order AND admin logic to manage all orders.
+      allow create, update, delete: if false; // TODO: Add admin role check
     }
-
-  }
-
-  // Helper function to determine if the user is signed in
-  function isSignedIn() {
-    return request.auth != null;
-  }
-
-  // Helper function to determine if the user is the owner of the resource
-  function isOwner(userId) {
-    return isSignedIn() && request.auth.uid == userId;
-  }
-
-    // Helper function to determine if the user is the existing owner of the resource.
-  function isExistingOwner(userId) {
-    return isOwner(userId) && resource != null;
   }
 }
