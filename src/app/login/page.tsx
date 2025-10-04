@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Logo } from '@/components/shared/logo';
 
 const countries = [
     { code: '+91', name: 'India', flag: '🇮🇳' },
@@ -82,7 +83,10 @@ export default function LoginPage() {
   const fullPhoneNumber = `${countryCode}${phoneNumber}`;
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-muted/20">
+    <div className="flex min-h-screen w-full flex-col items-center justify-center bg-muted/20 p-4">
+        <div className="mb-8">
+            <Logo />
+        </div>
       <Card className="w-full max-w-sm">
         {step === 'phone' ? (
           <form onSubmit={handleSendOtp}>
