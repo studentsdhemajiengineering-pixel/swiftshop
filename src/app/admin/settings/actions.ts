@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { initializeApp, getApps, cert, ServiceAccount } from 'firebase-admin/app';
@@ -6,12 +7,14 @@ import { getFirestore } from 'firebase-admin/firestore';
 import { getStorage } from 'firebase-admin/storage';
 import productsData from '@/lib/data/products.json';
 import categoriesData from '@/lib/data/categories.json';
+import ordersData from '@/lib/data/orders.json';
 import * as serviceAccount from '@/lib/firebase/service-account.json';
 
 interface SeedResult {
     success: boolean;
     productCount?: number;
     categoryCount?: number;
+    orderCount?: number;
     error?: string;
 }
 
@@ -147,12 +150,23 @@ export async function seedDatabase(): Promise<SeedResult> {
         });
         await productsBatch.commit();
         console.log(`${productsData.length} products seeded.`);
+        
+        // Seed Orders
+        console.log('Seeding orders...');
+        const ordersBatch = db.batch();
+        ordersData.forEach(order => {
+            const docRef = db.collection('orders').doc(order.id);
+            ordersBatch.set(docRef, order);
+        });
+        await ordersBatch.commit();
+        console.log(`${ordersData.length} orders seeded.`);
 
         console.log('Database seeding completed successfully!');
         return { 
             success: true, 
             productCount: productsData.length, 
-            categoryCount: categoriesData.length 
+            categoryCount: categoriesData.length,
+            orderCount: ordersData.length
         };
     } catch (error: any) {
         console.error('Error seeding database:', error);
