@@ -250,7 +250,7 @@ export async function getOrder(id: string): Promise<Order | null> {
 export async function addOrder(order: Omit<Order, 'id'>) {
     const ordersCol = collection(firestore, 'orders');
     try {
-        const docRef = await addDoc(ordersCol, order);
+        await addDoc(ordersCol, order);
     } catch(serverError) {
         const permissionError = new FirestorePermissionError({
             path: ordersCol.path,
