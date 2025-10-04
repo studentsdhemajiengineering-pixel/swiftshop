@@ -227,11 +227,18 @@ export async function getOrder(id: string): Promise<Order | null> {
         const orderDoc = doc(firestore, 'orders', id);
         const snapshot = await getDoc(orderDoc);
         if (snapshot.exists()) {
-            return { ...snapshot.data(), id: snapshot.id } as Order;
+            // Security check
+            const currentUser = auth.currentUser;
+            const orderData = snapshot.data() as Order;
+            if (currentUser?.email === 'admin@swiftshop.com' || orderData.userId === currentUser?.uid) {
+                 return { ...orderData, id: snapshot.id };
+            } else {
+                 throw new Error("You don't have permission to view this order.");
+            }
         }
         return null;
     } catch (error) {
-        const permissionError = new FirestorePermissionError({
+         const permissionError = new FirestorePermissionError({
             path: `orders/${id}`,
             operation: 'get',
         });
@@ -244,7 +251,6 @@ export async function addOrder(order: Omit<Order, 'id'>) {
     const ordersCol = collection(firestore, 'orders');
     try {
         const docRef = await addDoc(ordersCol, order);
-        await updateDoc(docRef, { id: docRef.id });
     } catch(serverError) {
         const permissionError = new FirestorePermissionError({
             path: ordersCol.path,

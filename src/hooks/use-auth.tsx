@@ -8,6 +8,7 @@ import {
   signInWithPhoneNumber as firebaseSignInWithPhoneNumber,
   signInWithEmailAndPassword as firebaseSignInWithEmailAndPassword,
   createUserWithEmailAndPassword as firebaseCreateUserWithEmailAndPassword,
+  signInAnonymously,
   onAuthStateChanged,
   type ConfirmationResult, 
   type User as FirebaseUser,
@@ -52,6 +53,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             };
             setUser(augmentedUser);
         } else {
+            // If no user, sign in anonymously for guest carts etc.
+            signInAnonymously(auth).catch(error => {
+                console.error("Anonymous sign in failed:", error);
+            });
             setUser(null);
         }
         setLoading(false);
@@ -77,11 +82,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signInWithPhoneNumber = async (phoneNumber: string): Promise<void> => {
-    // This is a bypass for a demo phone number. In a real app, you'd remove this.
-    if (phoneNumber === '+919876543210') {
-      console.log('Demo phone number used, skipping OTP.');
-      return;
-    }
     setupRecaptcha();
     const appVerifier = window.recaptchaVerifier;
     try {
@@ -102,31 +102,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       await firebaseSignInWithEmailAndPassword(auth, email, pass);
     } catch (error) {
       const authError = error as AuthError;
-      // If user not found, try to create it, specifically for the admin email.
       if (authError.code === 'auth/user-not-found' || authError.code === 'auth/invalid-credential') {
         if (email === ADMIN_EMAIL) {
           try {
             await firebaseCreateUserWithEmailAndPassword(auth, email, pass);
           } catch (creationError) {
              console.error("Failed to create admin user:", creationError);
-             throw creationError; // Throw creation error if it fails
+             throw creationError;
           }
         } else {
-          throw error; // Re-throw original error for non-admin users
+          throw error;
         }
       } else {
-        throw error; // Re-throw other errors
+        throw error;
       }
     }
   };
 
   const verifyOtp = async (otp: string): Promise<void> => {
-    // For demo user with specific phone number, bypass OTP verification.
-    if (auth.currentUser?.phoneNumber === '+919876543210' && otp === '123456') {
-        console.log("Demo OTP verified.");
-        return;
-    }
-  
     const confirmation = confirmationResult || window.confirmationResult;
     if (!confirmation) {
       throw new Error("No confirmation result available. Please send OTP first.");
@@ -148,7 +141,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     <AuthContext.Provider
       value={{
         user,
-        isAuthenticated: !!user,
+        isAuthenticated: !!user && !user.isAnonymous,
         loading,
         confirmationResult,
         signInWithPhoneNumber,

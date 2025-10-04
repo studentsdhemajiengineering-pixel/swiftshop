@@ -93,8 +93,7 @@ export default function LoginPage() {
             <CardHeader className="text-center">
               <CardTitle className="text-2xl font-bold">Login or Sign Up</CardTitle>
               <CardDescription>
-                Enter your phone number to receive an OTP. <br />
-                <span className="text-xs text-muted-foreground">(For demo, use phone <b>9876543210</b> and OTP <b>123456</b>)</span>
+                Enter your phone number to receive an OTP.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
