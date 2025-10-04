@@ -243,9 +243,10 @@ export async function getOrder(id: string): Promise<Order | null> {
 export async function addOrder(order: Omit<Order, 'id'>) {
     const ordersCol = collection(firestore, 'orders');
     try {
-        // Use a generated ID for the new document
-        const newOrderRef = doc(collection(firestore, 'orders'));
-        await addDoc(ordersCol, { ...order, id: newOrderRef.id });
+        const docRef = await addDoc(ordersCol, order);
+        // Firestore automatically assigns an ID. We can update the document
+        // with its own ID if we need it stored in the document fields.
+        await updateDoc(docRef, { id: docRef.id });
     } catch(serverError) {
         const permissionError = new FirestorePermissionError({
             path: ordersCol.path,
