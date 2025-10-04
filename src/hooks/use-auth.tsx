@@ -50,22 +50,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 ...fbUser,
                 isAdmin: fbUser.email === ADMIN_EMAIL
             };
-            // The user object from onAuthStateChanged doesn't have all properties immediately.
-            // We need to reload to get the full profile.
-            fbUser.reload().then(() => {
-                 setUser({
-                    ...fbUser,
-                    displayName: fbUser.displayName,
-                    email: fbUser.email,
-                    photoURL: fbUser.photoURL,
-                    isAdmin: fbUser.email === ADMIN_EMAIL,
-                 } as AuthContextType['user']);
-                 setLoading(false);
-            });
+            setUser(augmentedUser);
         } else {
             setUser(null);
-            setLoading(false);
         }
+        setLoading(false);
     });
 
     return () => unsubscribe();
@@ -88,8 +77,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signInWithPhoneNumber = async (phoneNumber: string): Promise<void> => {
-    if (phoneNumber === '+919876543210') { // Demo number
-        return;
+    // This is a bypass for a demo phone number. In a real app, you'd remove this.
+    if (phoneNumber === '+919876543210') {
+      console.log('Demo phone number used, skipping OTP.');
+      return;
     }
     setupRecaptcha();
     const appVerifier = window.recaptchaVerifier;
@@ -111,28 +102,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       await firebaseSignInWithEmailAndPassword(auth, email, pass);
     } catch (error) {
       const authError = error as AuthError;
-      // If user not found or invalid credential for the admin, try to create it.
-      if (
-        (authError.code === 'auth/user-not-found' || authError.code === 'auth/invalid-credential') &&
-        email === ADMIN_EMAIL
-      ) {
-        try {
-          await firebaseCreateUserWithEmailAndPassword(auth, email, pass);
-        } catch (creationError) {
-           console.error("Failed to create admin user:", creationError);
-           // Rethrow original error if creation fails for another reason
-           throw error;
+      // If user not found, try to create it, specifically for the admin email.
+      if (authError.code === 'auth/user-not-found' || authError.code === 'auth/invalid-credential') {
+        if (email === ADMIN_EMAIL) {
+          try {
+            await firebaseCreateUserWithEmailAndPassword(auth, email, pass);
+          } catch (creationError) {
+             console.error("Failed to create admin user:", creationError);
+             throw creationError; // Throw creation error if it fails
+          }
+        } else {
+          throw error; // Re-throw original error for non-admin users
         }
       } else {
-        // Rethrow other errors
-        throw error;
+        throw error; // Re-throw other errors
       }
     }
   };
 
   const verifyOtp = async (otp: string): Promise<void> => {
     // For demo user with specific phone number, bypass OTP verification.
-    if (user?.phoneNumber === '+919876543210' && otp === '123456') {
+    if (auth.currentUser?.phoneNumber === '+919876543210' && otp === '123456') {
+        console.log("Demo OTP verified.");
         return;
     }
   
@@ -143,7 +134,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   
     await confirmation.confirm(otp);
     
-    // Clear the confirmation result after successful verification
     setConfirmationResult(null);
     if(window.confirmationResult) {
       window.confirmationResult = undefined;

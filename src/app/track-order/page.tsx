@@ -87,35 +87,33 @@ const OrderListSkeleton = () => (
 );
 
 export default function TrackOrderPage() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (authLoading) {
+        return; 
+    }
+
     const fetchOrders = async () => {
         setLoading(true);
-        const fetchedOrders = await getOrders();
-        // In a real app, you would fetch orders for the current user
-        // For now, we show all orders if user is admin, or a subset for demo user
-        if (user?.isAdmin) {
+        if (user) {
+            const fetchedOrders = await getOrders();
             setOrders(fetchedOrders);
-        } else if (user) {
-            setOrders(fetchedOrders.filter(o => o.userId === user.uid));
+        } else {
+            setOrders([]);
         }
         setLoading(false);
     }
     
-    if (user) {
-        fetchOrders();
-    } else {
-        // If there's no user, we assume loading is done and there are no orders.
-        setLoading(false);
-        setOrders([]);
-    }
-  }, [user]);
+    fetchOrders();
+
+  }, [user, authLoading]);
 
   const currentOrders = orders.filter(o => o.status !== 'Delivered');
   const deliveredOrders = orders.filter(o => o.status === 'Delivered');
+  const isLoading = authLoading || loading;
 
   return (
     <div className="flex min-h-screen w-full flex-col">
@@ -128,20 +126,20 @@ export default function TrackOrderPage() {
                     <TabsTrigger value="delivered">Delivered</TabsTrigger>
                 </TabsList>
                 <TabsContent value="current">
-                   {loading ? <OrderListSkeleton /> : (
+                   {isLoading ? <OrderListSkeleton /> : (
                        <div className="space-y-4 py-4">
-                         {currentOrders.map(order => (
+                         {currentOrders.length > 0 ? currentOrders.map(order => (
                             <OrderCard key={order.id} order={order} />
-                         ))}
+                         )) : <p className="text-center text-muted-foreground py-10">No current orders found.</p>}
                        </div>
                    )}
                 </TabsContent>
                 <TabsContent value="delivered">
-                    {loading ? <OrderListSkeleton /> : (
+                    {isLoading ? <OrderListSkeleton /> : (
                         <div className="space-y-4 py-4">
-                        {deliveredOrders.map(order => (
+                        {deliveredOrders.length > 0 ? deliveredOrders.map(order => (
                             <OrderCard key={order.id} order={order} />
-                        ))}
+                        )) : <p className="text-center text-muted-foreground py-10">No delivered orders found.</p>}
                       </div>
                     )}
                 </TabsContent>
