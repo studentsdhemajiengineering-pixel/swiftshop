@@ -7,9 +7,11 @@ import {
   RecaptchaVerifier, 
   signInWithPhoneNumber as firebaseSignInWithPhoneNumber,
   signInWithEmailAndPassword as firebaseSignInWithEmailAndPassword,
+  createUserWithEmailAndPassword as firebaseCreateUserWithEmailAndPassword,
   onAuthStateChanged,
   type ConfirmationResult, 
-  type User as FirebaseUser 
+  type User as FirebaseUser,
+  type AuthError
 } from 'firebase/auth';
 
 const { auth } = initializeFirebase();
@@ -87,7 +89,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signInWithPhoneNumber = async (phoneNumber: string): Promise<void> => {
     if (phoneNumber === '+919876543210') { // Demo number
-        return verifyOtp('123456');
+        return;
     }
     setupRecaptcha();
     const appVerifier = window.recaptchaVerifier;
@@ -105,27 +107,47 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signInWithEmailAndPassword = async (email: string, pass: string): Promise<void> => {
-    await firebaseSignInWithEmailAndPassword(auth, email, pass);
+    try {
+      await firebaseSignInWithEmailAndPassword(auth, email, pass);
+    } catch (error) {
+      const authError = error as AuthError;
+      // If user not found or invalid credential for the admin, try to create it.
+      if (
+        (authError.code === 'auth/user-not-found' || authError.code === 'auth/invalid-credential') &&
+        email === ADMIN_EMAIL
+      ) {
+        try {
+          await firebaseCreateUserWithEmailAndPassword(auth, email, pass);
+        } catch (creationError) {
+           console.error("Failed to create admin user:", creationError);
+           // Rethrow original error if creation fails for another reason
+           throw error;
+        }
+      } else {
+        // Rethrow other errors
+        throw error;
+      }
+    }
   };
 
   const verifyOtp = async (otp: string): Promise<void> => {
-    if (auth.currentUser?.phoneNumber === '+919876543210' && otp === '123456') {
-        // This is a demo user, let them through without real confirmation
+    // For demo user with specific phone number, bypass OTP verification.
+    if (user?.phoneNumber === '+919876543210' && otp === '123456') {
         return;
     }
-
-    if (!confirmationResult) {
-        // Check window as a fallback
-        if (window.confirmationResult) {
-            await window.confirmationResult.confirm(otp);
-            setConfirmationResult(null);
-            window.confirmationResult = undefined;
-            return;
-        }
+  
+    const confirmation = confirmationResult || window.confirmationResult;
+    if (!confirmation) {
       throw new Error("No confirmation result available. Please send OTP first.");
     }
-    await confirmationResult.confirm(otp);
+  
+    await confirmation.confirm(otp);
+    
+    // Clear the confirmation result after successful verification
     setConfirmationResult(null);
+    if(window.confirmationResult) {
+      window.confirmationResult = undefined;
+    }
   };
 
   const logout = async () => {
