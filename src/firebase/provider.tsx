@@ -16,7 +16,7 @@ import {
     signOut,
     type ConfirmationResult
 } from 'firebase/auth';
-import { FirebaseErrorListener } from '@/components/FirebaseErrorListener';
+import { FirebaseErrorListener } from '@/components/firebase/firebase-error-listener';
 
 // This needs to be in the global scope for the reCAPTCHA to work.
 declare global {
@@ -105,11 +105,11 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
         };
         setUserAuthState({ user: augmentedUser, isUserLoading: false, userError: null });
       } else {
+        // If not logged in, try to sign in anonymously
         signInAnonymously(auth).catch(error => {
           console.error("Anonymous sign in failed:", error);
            setUserAuthState({ user: null, isUserLoading: false, userError: error });
         });
-        setUserAuthState({ user: null, isUserLoading: false, userError: null });
       }
     }, (error) => {
         console.error("FirebaseProvider: onAuthStateChanged error:", error);
@@ -165,6 +165,7 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
         try {
             await firebaseSignInWithEmailAndPassword(auth, email, pass);
         } catch (error: any) {
+            // If the admin user doesn't exist, create it.
             if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
                 if (email === ADMIN_EMAIL) {
                     try {
@@ -253,3 +254,5 @@ export function useMemoFirebase<T>(factory: () => T, deps: DependencyList): T | 
   
   return memoized;
 }
+
+    
