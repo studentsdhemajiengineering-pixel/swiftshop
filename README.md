@@ -123,7 +123,7 @@ service cloud.firestore {
     }
 
     function isAdmin() {
-      return isSignedIn() && request.auth.token.admin == true;
+      return isSignedIn() && (request.auth.token.admin == true || request.auth.token.email == "admin@swiftshop.com");
     }
 
     function isSignedIn() {
