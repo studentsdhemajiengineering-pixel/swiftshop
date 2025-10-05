@@ -37,8 +37,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useUsers } from "@/hooks/use-users";
-import { addUser, updateUser, deleteUser } from "@/lib/firebase/service";
+import { getUsers, addUser, updateUser, deleteUser } from "@/lib/firebase/service";
 
 
 const UserForm = ({ 
@@ -98,10 +97,28 @@ const UserForm = ({
 
 
 export default function AdminCustomersPage() {
-    const { users, loading, refetch } = useUsers();
+    const [users, setUsers] = useState<User[]>([]);
+    const [loading, setLoading] = useState(true);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [editingUser, setEditingUser] = useState<Partial<User> | null>(null);
     const { toast } = useToast();
+
+    const fetchUsers = async () => {
+        setLoading(true);
+        try {
+            const fetchedUsers = await getUsers();
+            setUsers(fetchedUsers);
+        } catch (error) {
+            console.error("Error fetching users:", error);
+            toast({ title: "Error fetching customers", description: (error as Error).message, variant: "destructive" });
+        } finally {
+            setLoading(false);
+        }
+    };
+    
+    useEffect(() => {
+        fetchUsers();
+    }, []);
     
     const handleAddClick = () => {
         setEditingUser({ firstName: '', lastName: '', email: '', phone: '' });
@@ -117,7 +134,7 @@ export default function AdminCustomersPage() {
         try {
             await deleteUser(userId);
             toast({ title: "Customer deleted successfully!" });
-            refetch();
+            fetchUsers();
         } catch (error: any) {
             toast({ title: "Error deleting customer", description: error.message, variant: "destructive" });
         }
@@ -139,7 +156,7 @@ export default function AdminCustomersPage() {
             }
             setIsDialogOpen(false);
             setEditingUser(null);
-            refetch();
+            fetchUsers();
         } catch (error: any) {
             toast({ title: "Error saving customer", description: error.message, variant: "destructive" });
         }
