@@ -2,7 +2,6 @@
 'use client';
 
 import { collection, getDocs, doc, getDoc, addDoc, updateDoc, deleteDoc, onSnapshot, query, where } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { getAuth } from 'firebase/auth';
 import { initializeFirebase } from '@/firebase';
 import type { Product, Category, User, Order } from '@/lib/types';
@@ -11,19 +10,6 @@ import { FirestorePermissionError } from '@/components/firebase/errors';
 
 // This ensures Firebase is initialized on the client before these functions are called.
 const getFirebaseServices = () => initializeFirebase();
-
-export async function uploadImage(file: File): Promise<string> {
-    // Convert file to Base64 Data URL.
-    return new Promise((resolve, reject) => {
-        if (file.size > 1024 * 1024) { // 1MB limit
-            return reject(new Error("Image size exceeds 1MB limit."));
-        }
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = error => reject(error);
-    });
-}
 
 export async function getBrandingSettings(): Promise<{logoUrl?: string, heroImageUrls?: string[]} | null> {
     const { firestore } = getFirebaseServices();

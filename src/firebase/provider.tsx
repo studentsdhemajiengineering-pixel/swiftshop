@@ -3,7 +3,7 @@
 
 import React, { DependencyList, createContext, useContext, ReactNode, useMemo, useState, useEffect } from 'react';
 import { FirebaseApp } from 'firebase/app';
-import { Firestore } from 'firebase/firestore';
+import { Firestore, doc, getDoc, setDoc } from 'firebase/firestore';
 import {
     Auth,
     User,
@@ -78,8 +78,26 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (fbUser) => {
+    const handleUserCreation = async (fbUser: User) => {
+        const userDocRef = doc(firestore, 'users', fbUser.uid);
+        const userDoc = await getDoc(userDocRef);
+        if (!userDoc.exists()) {
+            const newUser = {
+                id: fbUser.uid,
+                email: fbUser.email,
+                phone: fbUser.phoneNumber,
+                firstName: fbUser.displayName?.split(' ')[0] || '',
+                lastName: fbUser.displayName?.split(' ')[1] || '',
+            };
+            await setDoc(userDocRef, newUser);
+        }
+    };
+
+    const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
       if (fbUser) {
+        // Create user document if it doesn't exist
+        await handleUserCreation(fbUser);
+
         const augmentedUser: AppUser = {
           ...fbUser,
           uid: fbUser.uid,
@@ -99,7 +117,7 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
     });
 
     return () => unsubscribe();
-  }, [auth]);
+  }, [auth, firestore]);
 
   const setupRecaptcha = () => {
     if (typeof window !== 'undefined' && !window.recaptchaVerifier) {

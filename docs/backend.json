@@ -80,12 +80,16 @@
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for the user."
+          "description": "Unique identifier for the user (matches Firebase Auth UID)."
         },
         "email": {
           "type": "string",
           "description": "Email address of the user.",
           "format": "email"
+        },
+        "phone": {
+          "type": "string",
+          "description": "Phone number of the user."
         },
         "firstName": {
           "type": "string",
@@ -97,10 +101,7 @@
         }
       },
       "required": [
-        "id",
-        "email",
-        "firstName",
-        "lastName"
+        "id"
       ]
     },
     "Address": {
@@ -342,7 +343,8 @@
   "auth": {
     "providers": [
       "password",
-      "anonymous"
+      "anonymous",
+      "phone"
     ]
   },
   "firestore": {
