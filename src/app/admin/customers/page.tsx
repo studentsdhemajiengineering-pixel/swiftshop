@@ -109,8 +109,9 @@ export default function AdminCustomersPage() {
             const fetchedUsers = await getUsers();
             setUsers(fetchedUsers);
         } catch (error) {
+            // Error is handled by the global error emitter, so we just log it for local debugging if needed
+            // but we don't show a toast, as the dev overlay will show the rich error.
             console.error("Error fetching users:", error);
-            toast({ title: "Error fetching customers", description: (error as Error).message, variant: "destructive" });
         } finally {
             setLoading(false);
         }
