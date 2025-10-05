@@ -242,7 +242,14 @@ export function updateOrder(id: string, orderUpdate: Partial<Order>) {
 
 // User Management Functions
 export async function getUsers(): Promise<User[]> {
-    const { firestore } = getFirebaseServices();
+    const { firestore, auth } = getFirebaseServices();
+    const currentUser = auth.currentUser;
+    // Only allow admins to fetch all users.
+    if (!currentUser || currentUser.email !== 'admin@swiftshop.com') {
+      console.warn('Unauthorized attempt to fetch all users.');
+      return [];
+    }
+
     const usersCol = collection(firestore, 'users');
     try {
         const snapshot = await getDocs(usersCol);
