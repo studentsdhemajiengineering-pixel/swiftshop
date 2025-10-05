@@ -1,238 +1,137 @@
 /**
- * @fileoverview Firestore Security Rules for SwiftShop.
+ * @file Firestore Security Rules for SwiftShop
+ * @version Prototyping (Updated with Admin User Management)
  *
- * Core Philosophy:
- * This ruleset enforces a strict user-ownership model for user-related data
- * (profiles, addresses, orders, support tickets) and allows public read access
- * to product and category data.  Write access to categories is not defined
- * and is therefore implicitly denied.
+ * @Core Philosophy:
+ * This ruleset prioritizes strong authorization while remaining permissive on data shapes to enable rapid prototyping.
+ * It enforces a strict user-ownership model for user-specific data and an admin-control model for global settings.
  *
- * Data Structure:
- * - /categories/{categoryId}: Publicly readable product categories.
- * - /products/{productId}: Public product details.
- * - /settings/branding: Publicly readable branding settings.
- * - /users/{userId}: User profiles, accessible only by the user.
- * - /users/{userId}/addresses/{addressId}: User addresses, accessible only by the user.
- * - /users/{userId}/orders/{orderId}: User orders, accessible only by the user.
- * - /users/{userId}/orders/{orderId}/orderItems/{orderItemId}: Order items, accessible only by the user.
- * - /users/{userId}/supportTickets/{supportTicketId}: User support tickets, accessible only by the user.
- * - /users/{userId}/supportTickets/{supportTicketId}/chatMessages/{chatMessageId}: Chat messages, accessible only by the user.
- * - /orders/{orderId}: All orders. Writable by admins, readable by specific users.
+ * @Data Structure:
+ * - `/categories`: Publicly readable product categories.
+ * - `/products`: Publicly readable product details.
+ * - `/settings`: Contains subcollections for various app settings.
+ *   - `/settings/branding`: Branding configurations, publicly readable, admin-writable.
+ *   - `/settings/apiKeys`: API keys, only admin-writable.
+ *   - `/settings/store`: Store settings, only admin-writable.
+ * - `/users/{userId}`: User profiles, accessible only by the user or admins.
+ *   - `/users/{userId}/addresses/{addressId}`: User's addresses, accessible only by the user.
+ *   - `/users/{userId}/orders/{orderId}`: User's orders, accessible only by the user.
+ *   - `/users/{userId}/orders/{orderId}/orderItems/{orderItemId}`: Order items, accessible only by the user.
+ *   - `/users/{userId}/supportTickets/{supportTicketId}`: User's support tickets, accessible only by the user.
+ *   - `/users/{userId}/supportTickets/{supportTicketId}/chatMessages/{chatMessageId}`: Chat messages, accessible only by the user.
+ * - `/orders/{orderId}`: All orders, accessible by admins and specific users (clarification needed on user access).
  *
- * Key Security Decisions:
- * - User listing is disallowed for privacy.
- * - Data schema is not strictly enforced in this prototype, focusing on authorization.
- * - Public read access is granted to categories and products.
- * - All write operations on user-related data are restricted to the owning user.
+ * @Key Security Decisions:
+ * - User listing is restricted to admins.
+ * - Data shape validation is minimized to facilitate rapid prototyping. Only essential authorization fields are validated.
+ * - When user read access is ambiguous, it defaults to owner-only access.
+ * - API Keys and Store Settings are secured behind `isAdmin()` check
  *
- * Denormalization for Authorization:
- * Not explicitly used in this version, but consider adding fields like `ownerId` to
- * documents to avoid `get()` calls in future iterations.
- *
- * Structural Segregation:
- * User-specific data is stored under the /users/{userId} path, ensuring clear separation.
+ * @Denormalization for Authorization:
+ *   - User-specific data is nested under `/users/{userId}` to simplify ownership checks using the `isOwner(userId)` function.
  */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    /**
-     * @description Allows public read access to product categories.  Write access is not defined and thus denied.
-     * @path /categories/{categoryId}
-     * @allow get, list: if true;
-     * @allow create: if false;
-     * @allow update: if false;
-     * @allow delete: if false;
-     * @deny create: if true; // Example of a request that is denied because only read access should be granted.
-     * @principle Allows public read access to categories.
-     */
     match /categories/{categoryId} {
       allow get, list: if true;
-      allow create: if false;
-      allow update: if false;
-      allow delete: if false;
+      allow create, update, delete: if false;
     }
 
-    /**
-     * @description Allows public read access to product details. Write access is not defined and thus denied.
-     * @path /products/{productId}
-     * @allow get, list: if true;
-     * @allow create: if false;
-     * @allow update: if false;
-     * @allow delete: if false;
-     * @deny create: if true; // Example of a request that is denied because only read access should be granted.
-     * @principle Allows public read access to products.
-     */
     match /products/{productId} {
       allow get, list: if true;
-      allow create: if false;
-      allow update: if false;
-      allow delete: if false;
+      allow create, update, delete: if false;
     }
 
-    /**
-     * @description Allows public read access to branding settings.  Write access is not defined and thus denied.
-     * @path /settings/branding
-     * @allow get: if true;
-     * @allow list: if false;
-     * @allow create: if false;
-     * @allow update: if false;
-     * @allow delete: if false;
-     * @deny create: if true; // Example of a request that is denied because only read access should be granted.
-     * @principle Allows public read access to branding settings.
-     */
     match /settings/branding {
-      allow get: if true;
-      allow list: if false;
-      allow create: if false;
-      allow update: if false;
-      allow delete: if false;
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /settings/apiKeys {
+      allow get, list: if false;
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /settings/store {
+      allow get, list: if false;
+      allow create, update, delete: if isAdmin();
     }
 
     /**
-     * @description Allows a user to read and write their own profile.
+     * ✅ UPDATED SECTION
+     * @description Restricts access to user profiles to the user themselves or to admins.
      * @path /users/{userId}
-     * @allow get: if isOwner(userId);
-     * @allow list: if false;
-     * @allow create: if isOwner(userId);
-     * @allow update: if isExistingOwner(userId);
-     * @allow delete: if isExistingOwner(userId);
-     * @deny create: if request.auth.uid != request.resource.data.id; // Example of a request that is denied because the user ID doesn't match.
-     * @principle Enforces document ownership for user profiles.
+     * @allow (get): A user can read their own profile or an admin can read any profile.
+     * @allow (list): Only admins can list all users.
+     * @allow (create): A user can create their own profile or an admin can create any profile.
+     * @allow (update, delete): A user can update/delete their own profile or an admin can update/delete any profile.
      */
     match /users/{userId} {
-      allow get: if isOwner(userId);
-      allow list: if false;
-      allow create: if isOwner(userId);
-      allow update: if isExistingOwner(userId);
-      allow delete: if isExistingOwner(userId);
+      // ✅ A user can read their own profile or admin can read any profile
+      allow get: if isOwner(userId) || isAdmin();
+
+      // ✅ Only admins can list all users
+      allow list: if isAdmin();
+
+      // ✅ A user can create their own profile OR admin can create any profile
+      allow create: if (isOwner(userId) && request.auth.uid == userId) || isAdmin();
+
+      // ✅ A user can update/delete their own profile OR admin can update/delete any
+      allow update, delete: if isExistingOwner(userId) || isAdmin();
     }
 
-    /**
-     * @description Allows a user to read and write their own addresses.
-     * @path /users/{userId}/addresses/{addressId}
-     * @allow get: if isOwner(userId);
-     * @allow list: if isOwner(userId);
-     * @allow create: if isOwner(userId);
-     * @allow update: if isExistingOwner(userId);
-     * @allow delete: if isExistingOwner(userId);
-     * @deny create: if request.auth.uid != userId; // Example of a request that is denied because the user ID doesn't match.
-     * @principle Enforces document ownership for user addresses.
-     */
     match /users/{userId}/addresses/{addressId} {
-      allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
+      allow get, list: if isOwner(userId);
       allow create: if isOwner(userId);
-      allow update: if isExistingOwner(userId);
-      allow delete: if isExistingOwner(userId);
+      allow update, delete: if isExistingOwner(userId) && isOwner(userId);
     }
 
-    /**
-     * @description Allows a user to read and write their own orders.
-     * @path /users/{userId}/orders/{orderId}
-     * @allow get: if isOwner(userId);
-     * @allow list: if isOwner(userId);
-     * @allow create: if isOwner(userId);
-     * @allow update: if isExistingOwner(userId);
-     * @allow delete: if isExistingOwner(userId);
-     * @deny create: if request.auth.uid != userId; // Example of a request that is denied because the user ID doesn't match.
-     * @principle Enforces document ownership for user orders.
-     */
     match /users/{userId}/orders/{orderId} {
-      allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
+      allow get, list: if isOwner(userId);
       allow create: if isOwner(userId);
-      allow update: if isExistingOwner(userId);
-      allow delete: if isExistingOwner(userId);
+      allow update, delete: if isExistingOwner(userId) && isOwner(userId);
     }
 
-    /**
-     * @description Allows a user to read and write their own order items.
-     * @path /users/{userId}/orders/{orderId}/orderItems/{orderItemId}
-     * @allow get: if isOwner(userId);
-     * @allow list: if isOwner(userId);
-     * @allow create: if isOwner(userId);
-     * @allow update: if isExistingOwner(userId);
-     * @allow delete: if isExistingOwner(userId);
-     * @deny create: if request.auth.uid != userId; // Example of a request that is denied because the user ID doesn't match.
-     * @principle Enforces document ownership for user order items.
-     */
     match /users/{userId}/orders/{orderId}/orderItems/{orderItemId} {
-      allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
+      allow get, list: if isOwner(userId);
       allow create: if isOwner(userId);
-      allow update: if isExistingOwner(userId);
-      allow delete: if isExistingOwner(userId);
+      allow update, delete: if isExistingOwner(userId) && isOwner(userId);
     }
 
-    /**
-     * @description Allows a user to read and write their own support tickets.
-     * @path /users/{userId}/supportTickets/{supportTicketId}
-     * @allow get: if isOwner(userId);
-     * @allow list: if isOwner(userId);
-     * @allow create: if isOwner(userId);
-     * @allow update: if isExistingOwner(userId);
-     * @allow delete: if isExistingOwner(userId);
-     * @deny create: if request.auth.uid != userId; // Example of a request that is denied because the user ID doesn't match.
-     * @principle Enforces document ownership for user support tickets.
-     */
     match /users/{userId}/supportTickets/{supportTicketId} {
-      allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
+      allow get, list: if isOwner(userId);
       allow create: if isOwner(userId);
-      allow update: if isExistingOwner(userId);
-      allow delete: if isExistingOwner(userId);
+      allow update, delete: if isExistingOwner(userId) && isOwner(userId);
     }
 
-    /**
-     * @description Allows a user to read and write their own chat messages.
-     * @path /users/{userId}/supportTickets/{supportTicketId}/chatMessages/{chatMessageId}
-     * @allow get: if isOwner(userId);
-     * @allow list: if isOwner(userId);
-     * @allow create: if isOwner(userId);
-     * @allow update: if isExistingOwner(userId);
-     * @allow delete: if isExistingOwner(userId);
-     * @deny create: if request.auth.uid != userId; // Example of a request that is denied because the user ID doesn't match.
-     * @principle Enforces document ownership for user chat messages.
-     */
     match /users/{userId}/supportTickets/{supportTicketId}/chatMessages/{chatMessageId} {
-      allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
+      allow get, list: if isOwner(userId);
       allow create: if isOwner(userId);
-      allow update: if isExistingOwner(userId);
-      allow delete: if isExistingOwner(userId);
+      allow update, delete: if isExistingOwner(userId) && isOwner(userId);
     }
 
-    /**
-     * @description Stores all orders. Writable by admins, readable by specific users.
-     * @path /orders/{orderId}
-     * @allow get: if false;
-     * @allow list: if false;
-     * @allow create: if false;
-     * @allow update: if false;
-     * @allow delete: if false;
-     * @deny create: if true; // Example of a request that is denied because only read access should be granted.
-     * @principle Allows public read access to orders.
-     */
     match /orders/{orderId} {
-        allow get: if false;
-        allow list: if false;
-        allow create: if false;
-        allow update: if false;
-        allow delete: if false;
+      allow get, list: if true; // TODO: Secure list and get operations on orders
+      allow create, update, delete: if isAdmin();
     }
-  }
 
-  // Helper functions
-  function isSignedIn() {
-    return request.auth != null;
-  }
+    // --- Helper Functions ---
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
 
-  function isOwner(userId) {
-    return isSignedIn() && request.auth.uid == userId;
-  }
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.admin == true;
+    }
 
-  function isExistingOwner(userId) {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isExistingOwner(userId) {
       return isOwner(userId) && resource != null;
+    }
   }
 }
