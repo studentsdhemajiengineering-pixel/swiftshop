@@ -4,7 +4,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getUsers as fetchUsers } from '@/lib/firebase/service';
 import type { User } from '@/lib/types';
-import { useToast } from './use-toast';
 
 export function useUsers() {
   const [users, setUsers] = useState<User[]>([]);
@@ -19,7 +18,6 @@ export function useUsers() {
       setUsers(fetchedUsers);
     } catch (e: any) {
       setError(e);
-      // The service now handles emitting permission errors, so we don't toast here.
     } finally {
       setLoading(false);
     }
