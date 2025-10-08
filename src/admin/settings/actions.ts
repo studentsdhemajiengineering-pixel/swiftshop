@@ -8,7 +8,17 @@ import { getStorage } from 'firebase-admin/storage';
 import productsData from '@/lib/data/products.json';
 import categoriesData from '@/lib/data/categories.json';
 import ordersData from '@/lib/data/orders.json';
-import * as serviceAccount from '@/lib/firebase/service-account.json';
+
+// Import service account for local dev, but handle server environment
+let serviceAccount: ServiceAccount | null = null;
+if (process.env.VERCEL_ENV !== 'production' && process.env.NODE_ENV !== 'production') {
+    try {
+        serviceAccount = require('@/lib/firebase/service-account.json');
+    } catch (e) {
+        console.warn("Could not load local service-account.json. This is expected in production.");
+    }
+}
+
 
 interface SeedResult {
     success: boolean;
@@ -19,8 +29,8 @@ interface SeedResult {
 }
 
 interface BrandingSettingsPayload {
-    logo: File | null;
-    heroBanners: (File | null)[];
+    logoUrl: string | null;
+    heroImageUrls: (string | null)[];
 }
 
 interface BrandingSettingsResult {
@@ -30,24 +40,47 @@ interface BrandingSettingsResult {
     error?: string;
 }
 
-// A simple check to see if the service account is populated
-// The default service-account.json is an empty object
-const isServiceAccountPopulated = Object.keys(serviceAccount).length > 0;
+interface ApiKeysPayload {
+    googleMapsApiKey?: string;
+    phonePeApiKey?: string;
+    phonePeApiSecret?: string;
+}
+
+interface StoreSettingsPayload {
+    storeName?: string;
+    deliveryFee?: number;
+}
+
+
+function getServiceAccountInfo(): ServiceAccount {
+    if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+        try {
+            return JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+        } catch(e) {
+             throw new Error("Failed to parse FIREBASE_SERVICE_ACCOUNT environment variable. Make sure it's a valid JSON string.");
+        }
+    }
+    
+    if (serviceAccount && Object.keys(serviceAccount).length > 0) {
+        return serviceAccount;
+    }
+    
+    throw new Error("Firebase service account credentials are not configured. For local development, add them to src/lib/firebase/service-account.json. For production, set the FIREBASE_SERVICE_ACCOUNT environment variable.");
+}
+
 
 function initializeAdminApp() {
-    if (!isServiceAccountPopulated) {
-        throw new Error("Firebase service account credentials are not configured in src/lib/firebase/service-account.json.");
-    }
-
+    const adminCredentials = getServiceAccountInfo();
+    
     if (getApps().length === 0) {
         try {
             initializeApp({
-                credential: cert(serviceAccount as ServiceAccount),
-                storageBucket: `${(serviceAccount as any).project_id}.appspot.com`,
+                credential: cert(adminCredentials),
+                storageBucket: `${adminCredentials.project_id}.appspot.com`,
             });
         } catch (e: any) {
-            console.error("Firebase initialization failed:", e);
-            throw new Error("Firebase initialization failed. Check your service account credentials.");
+            console.error("Firebase Admin initialization failed:", e);
+            throw new Error("Firebase Admin initialization failed. Check your service account credentials.");
         }
     }
     return {
@@ -57,43 +90,27 @@ function initializeAdminApp() {
 }
 
 export async function saveBrandingSettings(payload: BrandingSettingsPayload): Promise<BrandingSettingsResult> {
-    const { db, storage } = initializeAdminApp();
+    const { db } = initializeAdminApp();
     
-    let logoUrl: string | undefined = undefined;
-    const heroImageUrls: (string | null)[] = [];
-
     try {
         const settingsRef = db.collection('settings').doc('branding');
-        const currentSettings = (await settingsRef.get()).data() || {};
         
-        if (payload.logo) {
-            const logoRef = storage.bucket().file(`settings/logo/${payload.logo.name}`);
-            await logoRef.save(Buffer.from(await payload.logo.arrayBuffer()));
-            logoUrl = (await logoRef.getSignedUrl({ action: 'read', expires: '03-09-2491' }))[0];
+        const dataToUpdate: { logoUrl?: string | null; heroImageUrls?: (string | null)[] } = {};
+
+        if (payload.logoUrl !== undefined) {
+            dataToUpdate.logoUrl = payload.logoUrl;
         }
 
-        const finalHeroUrls = currentSettings.heroImageUrls || [];
-
-        for (let i = 0; i < payload.heroBanners.length; i++) {
-            const file = payload.heroBanners[i];
-            if (file) {
-                const heroRef = storage.bucket().file(`settings/hero/${file.name}`);
-                await heroRef.save(Buffer.from(await file.arrayBuffer()));
-                const url = (await heroRef.getSignedUrl({ action: 'read', expires: '03-09-2491' }))[0];
-                finalHeroUrls[i] = url;
-            }
+        if (payload.heroImageUrls) {
+            dataToUpdate.heroImageUrls = payload.heroImageUrls.filter(url => url); // Remove empty strings
         }
-        
-        const dataToUpdate: any = {};
-        if (logoUrl) dataToUpdate.logoUrl = logoUrl;
-        dataToUpdate.heroImageUrls = finalHeroUrls.filter(Boolean); // Keep existing, add new
 
         await settingsRef.set(dataToUpdate, { merge: true });
 
         return {
             success: true,
-            logoUrl: dataToUpdate.logoUrl || currentSettings.logoUrl,
-            heroImageUrls: dataToUpdate.heroImageUrls
+            logoUrl: dataToUpdate.logoUrl || undefined,
+            heroImageUrls: dataToUpdate.heroImageUrls || []
         };
     } catch (error: any) {
         console.error('Error saving branding settings:', error);
@@ -113,6 +130,42 @@ export async function getBrandingSettings(): Promise<{logoUrl?: string, heroImag
     } catch (error) {
         console.error("Error fetching branding settings:", error);
         return null;
+    }
+}
+
+export async function getAppSettings(): Promise<{ apiKeys: ApiKeysPayload, storeSettings: StoreSettingsPayload } | null> {
+    try {
+       const { db } = initializeAdminApp();
+       const apiKeysDoc = await db.collection('settings').doc('apiKeys').get();
+       const storeSettingsDoc = await db.collection('settings').doc('store').get();
+       
+       return {
+           apiKeys: apiKeysDoc.exists ? apiKeysDoc.data() as ApiKeysPayload : {},
+           storeSettings: storeSettingsDoc.exists ? storeSettingsDoc.data() as StoreSettingsPayload : {}
+       };
+   } catch (error) {
+       console.error("Error fetching app settings:", error);
+       return null;
+   }
+}
+
+export async function saveApiKeys(payload: ApiKeysPayload): Promise<{ success: boolean; error?: string }> {
+    const { db } = initializeAdminApp();
+    try {
+        await db.collection('settings').doc('apiKeys').set(payload, { merge: true });
+        return { success: true };
+    } catch (error: any) {
+        return { success: false, error: error.message };
+    }
+}
+
+export async function saveStoreSettings(payload: StoreSettingsPayload): Promise<{ success: boolean; error?: string }> {
+    const { db } = initializeAdminApp();
+    try {
+        await db.collection('settings').doc('store').set(payload, { merge: true });
+        return { success: true };
+    } catch (error: any) {
+        return { success: false, error: error.message };
     }
 }
 
@@ -165,5 +218,3 @@ export async function seedDatabase(): Promise<SeedResult> {
         return { success: false, error: error.message || "An unknown error occurred during seeding." };
     }
 }
-
-    
