@@ -50,7 +50,7 @@ SwiftShop is a feature-rich, modern, and scalable e-commerce platform designed f
 - **State Management**: React Context API and `useReducer` for cart management.
 - **Backend & Database**: Firebase (Firestore, Firebase Authentication)
 - **Generative AI**: Google's Genkit for AI-powered features (e.g., personalized recommendations).
-- **Deployment**: Firebase App Hosting
+- **Deployment**: Firebase App Hosting, Vercel
 
 ## 3. Server Requirements
 
@@ -61,9 +61,38 @@ This application is built as a serverless Next.js application, designed to be de
 
 ## 4. Deployment Instructions
 
-### Free Deployment (for Development/Staging)
+You can deploy this application using either Vercel (recommended for free, full-featured hosting) or Firebase Hosting.
 
-The application is pre-configured for seamless deployment on **Firebase App Hosting**.
+### Option 1: Vercel Deployment (Recommended - Free)
+
+Vercel is the creator of Next.js and offers a seamless deployment experience with a generous free tier that supports all features of this app without a billing account.
+
+1.  **Push to GitHub**: Create a new repository on [GitHub](https://github.com/) and push your project code to it.
+
+2.  **Sign Up for Vercel**: Go to [Vercel](https://vercel.com/) and sign up for a new account using your GitHub profile.
+
+3.  **Import Project**:
+    *   On your Vercel dashboard, click **"Add New..."** and select **"Project"**.
+    *   Find and import the GitHub repository you just created.
+
+4.  **Configure Environment Variables**:
+    *   Vercel will automatically detect that this is a Next.js project.
+    *   In the configuration step, expand the **"Environment Variables"** section.
+    *   You need to add the Firebase configuration values here. You can find these in your `src/firebase/config.ts` file. Create an entry for each key:
+        *   `NEXT_PUBLIC_FIREBASE_API_KEY`: Your `apiKey`
+        *   `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`: Your `authDomain`
+        *   `NEXT_PUBLIC_FIREBASE_PROJECT_ID`: Your `projectId`
+        *   `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`: Your `storageBucket`
+        *   `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`: Your `messagingSenderId`
+        *   `NEXT_PUBLIC_FIREBASE_APP_ID`: Your `appId`
+    *   Also add your Google Maps API key if you have one:
+        *   `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`: Your Google Maps API Key
+
+5.  **Deploy**: Click the **"Deploy"** button. Vercel will build and deploy your application, providing you with a live URL.
+
+### Option 2: Firebase Hosting Deployment
+
+This method requires a Firebase project with a **billing account enabled** ("Blaze" plan) to support the app's server-side features.
 
 1.  **Install Firebase CLI**: If you don't have it, install the Firebase Command Line Interface:
     ```bash
@@ -73,28 +102,13 @@ The application is pre-configured for seamless deployment on **Firebase App Host
     ```bash
     firebase login
     ```
-3.  **Initialize Firebase in your Project**:
+3.  **Deploy**:
     *   Navigate to your project's root directory in the terminal.
-    *   This project is already configured, but for a new one, you would run `firebase init`.
-4.  **Deploy**:
-    *   To deploy your application, simply run:
+    *   Run the deploy command:
         ```bash
         firebase deploy --only hosting
         ```
     *   Firebase will automatically build your Next.js application and deploy it. You will be provided with a live URL upon completion.
-
-### Paid/Production Deployment
-
-For a production environment, the process is identical to the free deployment. The key difference is upgrading your Firebase project to the **"Blaze" (Pay-as-you-go) plan**.
-
-- **Why upgrade?** The Blaze plan provides higher quotas, allows the use of Cloud Functions for backend tasks (like setting custom claims for roles), and offers better performance for a production workload.
-- **How to upgrade**:
-    1.  Go to the [Firebase Console](https://console.firebase.google.com/).
-    2.  Select your project.
-    3.  In the bottom-left corner, click the "Spark plan" button and select "Upgrade".
-    4.  Follow the instructions to link a billing account.
-
-Once upgraded, the same `firebase deploy` command will deploy your application to a production-ready infrastructure.
 
 ## 5. Selling This System to a Client (White-Labeling)
 
@@ -132,7 +146,7 @@ To rebrand and sell this system to a client, you will need to perform the follow
     - Provide the client with the admin credentials so they can log in and add their own products and categories.
 
 6.  **Deploy for the Client**:
-    - Follow the deployment instructions above. The `firebase deploy` command will now deploy this newly configured app to the client's Firebase project.
+    - Follow the deployment instructions above (either Vercel or Firebase). If using Vercel, remember to update the Environment Variables with the new client's Firebase project keys.
     - Hand over the final URL to the client.
 
 By following these steps, you can efficiently re-configure and deploy a unique, branded instance of SwiftShop for each of your clients.
